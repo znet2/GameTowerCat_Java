@@ -1,23 +1,38 @@
 import java.awt.*;
 
+/**
+ * Abstract base class for all game objects that can be drawn on the map.
+ * Provides common functionality for position, size, and rendering.
+ */
 public abstract class GameObject {
-
-    protected int x, y;
-    protected int width, height;
-    protected Image image;
-
-    public GameObject(int col, int row, int tileSize,
-                      int widthTiles, int heightTiles,
+    
+    protected int positionX, positionY;
+    protected int objectWidth, objectHeight;
+    protected Image objectImage;
+    
+    // Constructor that initializes a game object with grid-based positioning
+    // Converts grid coordinates to pixel coordinates and sets up dimensions
+    // @param gridColumn - column position in the tile grid
+    // @param gridRow - row position in the tile grid  
+    // @param tileSize - size of each tile in pixels
+    // @param widthInTiles - width of object in tiles
+    // @param heightInTiles - height of object in tiles
+    // @param image - visual representation of the object
+    public GameObject(int gridColumn, int gridRow, int tileSize,
+                      int widthInTiles, int heightInTiles,
                       Image image) {
-
-        this.x = col * tileSize;
-        this.y = row * tileSize;
-        this.width = widthTiles * tileSize;
-        this.height = heightTiles * tileSize;
-        this.image = image;
+        
+        this.positionX = gridColumn * tileSize;
+        this.positionY = gridRow * tileSize;
+        this.objectWidth = widthInTiles * tileSize;
+        this.objectHeight = heightInTiles * tileSize;
+        this.objectImage = image;
     }
-
-    public void draw(Graphics g) {
-        g.drawImage(image, x, y, width, height, null);
+    
+    // Renders the game object to the screen
+    // Draws the object's image at its current position with its dimensions
+    // @param graphics - Graphics context for drawing
+    public void draw(Graphics graphics) {
+        graphics.drawImage(objectImage, positionX, positionY, objectWidth, objectHeight, null);
     }
 }

@@ -1,19 +1,45 @@
 import javax.swing.*;
 
+/**
+ * Main entry point for the Tower Defense game.
+ * Sets up the game window and initializes the game panel.
+ */
 public class Main {
+    
+    private static final String GAME_TITLE = "Tower Defense";
+    
+    // Entry point for the application
+    // Creates and displays the main game window
     public static void main(String[] args) {
-
-        JFrame window = new JFrame("Tower Defense");
+        createAndShowGameWindow();
+    }
+    
+    // Creates the main game window and sets it up for display
+    // Handles window configuration, game panel creation, and final display setup
+    private static void createAndShowGameWindow() {
+        JFrame gameWindow = new JFrame(GAME_TITLE);
+        configureWindow(gameWindow);
+        
+        GamePanel gamePanel = new GamePanel();
+        gameWindow.add(gamePanel);
+        
+        finalizeWindow(gameWindow);
+    }
+    
+    // Configures basic window properties
+    // Sets close operation and prevents window resizing
+    // @param window - the JFrame to configure
+    private static void configureWindow(JFrame window) {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
-
-        GamePanel panel = new GamePanel(); 
-        window.add(panel);
-
+    }
+    
+    // Finalizes window setup and makes it visible
+    // Packs components, centers window, and displays it
+    // @param window - the JFrame to finalize and show
+    private static void finalizeWindow(JFrame window) {
         window.pack();
         window.setLocationRelativeTo(null);
         window.setVisible(true);
-
-        System.out.println("hi");
     }
 }

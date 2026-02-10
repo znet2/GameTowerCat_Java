@@ -1,25 +1,50 @@
 import java.awt.*;
-import java.awt.Image;
 
+/**
+ * Represents the house that needs to be defended in the tower defense game.
+ * The house can take damage from enemies and has a health system.
+ */
 public class House extends GameObject {
-
-    private int hp = 100;
-
-    public House(int col, int row, int tileSize, Image image) {
-        super(col, row, tileSize, 3, 4, image);
+    
+    private static final int INITIAL_HEALTH = 100;
+    private static final int MINIMUM_HEALTH = 0;
+    private static final int HOUSE_WIDTH_TILES = 3;
+    private static final int HOUSE_HEIGHT_TILES = 4;
+    
+    private int currentHealth = INITIAL_HEALTH;
+    
+    // Constructor that creates a house at the specified grid position
+    // Houses are larger objects occupying 3x4 tiles
+    // @param gridColumn - column position in the tile grid
+    // @param gridRow - row position in the tile grid
+    // @param tileSize - size of each tile in pixels
+    // @param houseImage - visual representation of the house
+    public House(int gridColumn, int gridRow, int tileSize, Image houseImage) {
+        super(gridColumn, gridRow, tileSize, HOUSE_WIDTH_TILES, HOUSE_HEIGHT_TILES, houseImage);
     }
-
-    public void damage(int dmg) {
-        hp -= dmg;
-        if (hp < 0) hp = 0;
-        System.out.println("House HP: " + hp);
+    
+    // Applies damage to the house and reduces its health
+    // Ensures health never goes below minimum and logs current health
+    // @param damageAmount - amount of damage to apply
+    public void damage(int damageAmount) {
+        currentHealth -= damageAmount;
+        if (currentHealth < MINIMUM_HEALTH) {
+            currentHealth = MINIMUM_HEALTH;
+        }
+        System.out.println("House HP: " + currentHealth);
     }
-
+    
+    // Gets the collision bounds for this house
+    // Used for collision detection with enemies
+    // @return Rectangle representing the house's bounds
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
+        return new Rectangle(positionX, positionY, objectWidth, objectHeight);
     }
-
-    public int getHp() {
-        return hp;
+    
+    // Gets the current health of the house
+    // Used for UI display and game over conditions
+    // @return current health value
+    public int getHealth() {
+        return currentHealth;
     }
 }
