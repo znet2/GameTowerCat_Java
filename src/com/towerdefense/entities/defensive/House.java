@@ -1,3 +1,7 @@
+package com.towerdefense.entities.defensive;
+
+import com.towerdefense.entities.base.GameObject;
+import com.towerdefense.utils.Constants;
 import java.awt.*;
 
 /**
@@ -6,12 +10,9 @@ import java.awt.*;
  */
 public class House extends GameObject {
     
-    private static final int INITIAL_HEALTH = 100;
     private static final int MINIMUM_HEALTH = 0;
-    private static final int HOUSE_WIDTH_TILES = 3;
-    private static final int HOUSE_HEIGHT_TILES = 4;
     
-    private int currentHealth = INITIAL_HEALTH;
+    private int currentHealth = Constants.Entities.HOUSE_INITIAL_HEALTH;
     
     // Constructor that creates a house at the specified grid position
     // Houses are larger objects occupying 3x4 tiles
@@ -20,7 +21,8 @@ public class House extends GameObject {
     // @param tileSize - size of each tile in pixels
     // @param houseImage - visual representation of the house
     public House(int gridColumn, int gridRow, int tileSize, Image houseImage) {
-        super(gridColumn, gridRow, tileSize, HOUSE_WIDTH_TILES, HOUSE_HEIGHT_TILES, houseImage);
+        super(gridColumn, gridRow, tileSize, Constants.Entities.HOUSE_WIDTH_TILES, 
+              Constants.Entities.HOUSE_HEIGHT_TILES, houseImage);
     }
     
     // Applies damage to the house and reduces its health

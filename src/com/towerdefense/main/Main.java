@@ -1,3 +1,7 @@
+package com.towerdefense.main;
+
+import com.towerdefense.core.GamePanel;
+import com.towerdefense.utils.Constants;
 import javax.swing.*;
 
 /**
@@ -5,27 +9,25 @@ import javax.swing.*;
  * Sets up the game window and initializes the game panel.
  */
 public class Main {
-    
-    private static final String GAME_TITLE = "Tower Defense";
-    
+
     // Entry point for the application
     // Creates and displays the main game window
     public static void main(String[] args) {
         createAndShowGameWindow();
     }
-    
+
     // Creates the main game window and sets it up for display
     // Handles window configuration, game panel creation, and final display setup
     private static void createAndShowGameWindow() {
-        JFrame gameWindow = new JFrame(GAME_TITLE);
+        JFrame gameWindow = new JFrame(Constants.Game.TITLE);
         configureWindow(gameWindow);
-        
+
         GamePanel gamePanel = new GamePanel();
         gameWindow.add(gamePanel);
-        
+
         finalizeWindow(gameWindow);
     }
-    
+
     // Configures basic window properties
     // Sets close operation and prevents window resizing
     // @param window - the JFrame to configure
@@ -33,7 +35,7 @@ public class Main {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
     }
-    
+
     // Finalizes window setup and makes it visible
     // Packs components, centers window, and displays it
     // @param window - the JFrame to finalize and show

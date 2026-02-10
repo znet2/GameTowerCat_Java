@@ -1,3 +1,10 @@
+package com.towerdefense.entities.enemies;
+
+import com.towerdefense.world.Map;
+import com.towerdefense.entities.defensive.House;
+import com.towerdefense.entities.defensive.Tank;
+import com.towerdefense.managers.CoinManager;
+import com.towerdefense.utils.Constants;
 import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
@@ -10,11 +17,9 @@ public class Enemy {
 
     // Visual properties
     private final Image enemyImage;
-    private final int enemySize = 64;
 
     // Position and movement
     private double positionX, positionY;
-    private final double movementSpeed = 1.2;
 
     // Path following
     private final ArrayList<Point> movementPath = new ArrayList<>();
@@ -29,26 +34,26 @@ public class Enemy {
     private int attackTimer = 0;
     private Object currentAttackTarget = null;
 
+    // Enemy state
+    private boolean isDead = false;
+
     // Position management to prevent enemy overlap
     private static int totalEnemyCount = 0;
     private final int attackPositionOffset;
     private boolean isPositionLocked = false;
 
     // Constants
-    private static final int ATTACK_DAMAGE = 5;
-    private static final int ATTACK_COOLDOWN_FRAMES = 60;
     private static final int POSITION_OFFSET_MULTIPLIER = 12;
-
-    private static final int Y_OFFSET = -25; 
 
     // Constructor that creates an enemy and sets up its path
     // Initializes movement path, position, and assigns unique attack offset
     // @param gameMap - reference to the game map for pathfinding and collision
-    public Enemy(Map gameMap) {
+    // @param coinManager - reference to coin system (unused in defensive mode)
+    public Enemy(Map gameMap, CoinManager coinManager) {
         this.gameMap = gameMap;
         this.targetHouse = gameMap.getHouse();
 
-        this.enemyImage = new ImageIcon("image\\catEnemy.png").getImage();
+        this.enemyImage = new ImageIcon(Constants.Paths.ENEMY_IMAGE).getImage();
 
         // Calculate unique attack position offset for this enemy
         this.attackPositionOffset = totalEnemyCount * POSITION_OFFSET_MULTIPLIER;
@@ -101,7 +106,7 @@ public class Enemy {
         // Build path along the road from left to right
         for (int col = startColumn; col < mapGrid[roadRow].length; col++) {
             if (mapGrid[roadRow][col] == 0) {
-                movementPath.add(new Point(col * tileSize, roadRow * tileSize + Y_OFFSET));
+                movementPath.add(new Point(col * tileSize, roadRow * tileSize + Constants.Entities.ENEMY_Y_OFFSET));
             }
         }
     }
@@ -117,6 +122,11 @@ public class Enemy {
     // Main update method that handles enemy behavior each frame
     // Processes collision detection, combat, movement, and state transitions
     public void update() {
+        if (isDead) {
+            handleDeath();
+            return;
+        }
+
         if (checkForTankCollision()) {
             return;
         }
@@ -128,6 +138,23 @@ public class Enemy {
 
         moveAlongPath();
         checkForHouseCollision();
+        checkIfReachedEnd();
+    }
+
+    // Handles enemy death
+    // Enemies die when they reach the end of their path (no coin reward)
+    // or when they are killed by external means (with coin reward)
+    private void handleDeath() {
+        // Death handling is now passive - enemies are simply removed when dead
+        // No automatic coin rewards since tanks don't kill enemies
+    }
+
+    // Checks if enemy has reached the end of the path
+    // Marks enemy as dead if it completes the path without being killed
+    private void checkIfReachedEnd() {
+        if (currentPathIndex >= movementPath.size()) {
+            isDead = true;
+        }
     }
 
     // Checks for collisions with tanks and initiates combat
@@ -149,7 +176,7 @@ public class Enemy {
     // @param tank - the tank being attacked
     private void positionForAttack(Tank tank) {
         Rectangle tankBounds = tank.getBounds();
-        positionX = tankBounds.x - enemySize - attackPositionOffset;
+        positionX = tankBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
     }
 
     // Initiates attack mode on a target
@@ -166,7 +193,7 @@ public class Enemy {
     private void processAttack() {
         attackTimer++;
 
-        if (attackTimer >= ATTACK_COOLDOWN_FRAMES) {
+        if (attackTimer >= Constants.Entities.ENEMY_ATTACK_COOLDOWN_FRAMES) {
             executeAttack();
             attackTimer = 0;
         }
@@ -183,9 +210,9 @@ public class Enemy {
                 return;
             }
 
-            tank.damage(ATTACK_DAMAGE);
+            tank.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         } else if (currentAttackTarget instanceof House) {
-            targetHouse.damage(ATTACK_DAMAGE);
+            targetHouse.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         }
     }
 
@@ -210,10 +237,10 @@ public class Enemy {
         double deltaY = targetPoint.y - positionY;
         double distanceToTarget = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        if (distanceToTarget > movementSpeed) {
+        if (distanceToTarget > Constants.Entities.ENEMY_SPEED) {
             // Move towards target at constant speed
-            positionX += deltaX / distanceToTarget * movementSpeed;
-            positionY += deltaY / distanceToTarget * movementSpeed;
+            positionX += deltaX / distanceToTarget * Constants.Entities.ENEMY_SPEED;
+            positionY += deltaY / distanceToTarget * Constants.Entities.ENEMY_SPEED;
             return false;
         } else {
             // Reached target point
@@ -228,7 +255,7 @@ public class Enemy {
     private void checkForHouseCollision() {
         if (!isPositionLocked && getBounds().intersects(targetHouse.getBounds())) {
             Rectangle houseBounds = targetHouse.getBounds();
-            positionX = houseBounds.x - enemySize - attackPositionOffset;
+            positionX = houseBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
 
             isPositionLocked = true;
             startAttacking(targetHouse);
@@ -243,17 +270,34 @@ public class Enemy {
         currentAttackTarget = null;
     }
 
+    // Marks the enemy as dead
+    // Used when enemy is killed by external forces (not reaching end)
+    public void kill() {
+        isDead = true;
+    }
+
+    // Checks if the enemy is dead
+    // Used by game systems to determine if enemy should be removed
+    // @return true if enemy is dead, false otherwise
+    public boolean isDead() {
+        return isDead;
+    }
+
     // Renders the enemy to the screen
     // Draws the enemy image at its current position
     // @param graphics - Graphics context for drawing
     public void draw(Graphics graphics) {
-        graphics.drawImage(enemyImage, (int) positionX, (int) positionY, enemySize, enemySize, null);
+        if (!isDead) {
+            graphics.drawImage(enemyImage, (int) positionX, (int) positionY, 
+                             Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE, null);
+        }
     }
 
     // Gets the collision bounds for this enemy
     // Used for collision detection with tanks and house
     // @return Rectangle representing the enemy's bounds
     private Rectangle getBounds() {
-        return new Rectangle((int) positionX, (int) positionY, enemySize, enemySize);
+        return new Rectangle((int) positionX, (int) positionY, 
+                           Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE);
     }
 }

@@ -1,3 +1,11 @@
+package com.towerdefense.core;
+
+import com.towerdefense.world.Map;
+import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.managers.WaveManager;
+import com.towerdefense.managers.CoinManager;
+import com.towerdefense.utils.Constants;
+import com.towerdefense.utils.MathUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,24 +17,12 @@ import java.util.ArrayList;
  */
 public class GamePanel extends JPanel implements Runnable, MouseListener, MouseMotionListener {
     
-    // Game loop configuration
-    private static final int TARGET_FPS = 60;
-    private static final double NANOSECONDS_PER_FRAME = 1_000_000_000.0 / TARGET_FPS;
-    
-    // UI configuration
-    private static final int HERO_BAR_HEIGHT = 80;
-    private static final int TANK_ICON_SIZE = 48;
-    private static final int TANK_ICON_MARGIN = 20;
-    private static final int TANK_ICON_TOP_MARGIN = 16;
-    private static final Color HERO_BAR_COLOR = Color.DARK_GRAY;
-    private static final Color TANK_ICON_COLOR = Color.ORANGE;
-    private static final Color DRAG_PREVIEW_COLOR = new Color(255, 165, 0, 150);
-    
     // Game components
     private Thread gameLoopThread;
     private Map gameMap;
     private ArrayList<Enemy> activeEnemies = new ArrayList<>();
     private WaveManager waveManager;
+    private CoinManager coinManager;
     
     // User interface
     private Rectangle heroBarArea;
@@ -46,10 +42,11 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     }
     
     // Initializes core game components
-    // Creates the map, wave manager, and starts the first wave
+    // Creates the map, wave manager, coin manager, and starts the first wave
     private void initializeGameComponents() {
         gameMap = new Map();
-        waveManager = new WaveManager(gameMap, activeEnemies);
+        coinManager = new CoinManager();
+        waveManager = new WaveManager(gameMap, activeEnemies, coinManager);
         waveManager.startNextWave();
     }
     
@@ -60,13 +57,13 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
             0,
             gameMap.getMapHeight(),
             gameMap.getMapWidth(),
-            HERO_BAR_HEIGHT);
+            Constants.UI.HERO_BAR_HEIGHT);
         
         tankIconArea = new Rectangle(
-            TANK_ICON_MARGIN,
-            gameMap.getMapHeight() + TANK_ICON_TOP_MARGIN,
-            TANK_ICON_SIZE,
-            TANK_ICON_SIZE);
+            Constants.UI.TANK_ICON_MARGIN,
+            gameMap.getMapHeight() + Constants.UI.TANK_ICON_TOP_MARGIN,
+            Constants.UI.TANK_ICON_SIZE,
+            Constants.UI.TANK_ICON_SIZE);
     }
     
     // Configures the panel properties and input handling
@@ -74,7 +71,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     private void configurePanel() {
         setPreferredSize(new Dimension(
             gameMap.getMapWidth(),
-            gameMap.getMapHeight() + HERO_BAR_HEIGHT));
+            gameMap.getMapHeight() + Constants.UI.HERO_BAR_HEIGHT));
         
         setBackground(Color.BLACK);
         setFocusable(true);
@@ -105,7 +102,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         
         while (true) {
             long currentTime = System.nanoTime();
-            deltaTime += (currentTime - previousTime) / NANOSECONDS_PER_FRAME;
+            deltaTime += (currentTime - previousTime) / Constants.Game.NANOSECONDS_PER_FRAME;
             previousTime = currentTime;
             
             if (deltaTime >= 1) {
@@ -117,9 +114,10 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     }
     
     // Updates all game components each frame
-    // Coordinates updates between wave manager, enemies, tanks, and wave progression
+    // Coordinates updates between wave manager, enemies, and wave progression
     private void updateGame() {
         updateWaveManager();
+        updateCoinManager();
         updateEnemies();
         cleanupDeadTanks();
         checkForNextWave();
@@ -131,11 +129,23 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         waveManager.update();
     }
     
+    // Updates the coin manager for passive income
+    // Handles automatic coin generation over time
+    private void updateCoinManager() {
+        coinManager.update();
+    }
+    
     // Updates all active enemies
-    // Processes enemy movement, combat, and AI behavior
+    // Processes enemy movement, combat, and AI behavior, removes dead enemies
     private void updateEnemies() {
         for (int i = activeEnemies.size() - 1; i >= 0; i--) {
-            activeEnemies.get(i).update();
+            Enemy enemy = activeEnemies.get(i);
+            enemy.update();
+            
+            // Remove dead enemies from the list
+            if (enemy.isDead()) {
+                activeEnemies.remove(i);
+            }
         }
     }
     
@@ -163,12 +173,13 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         renderMap(graphics);
         renderEnemies(graphics);
         renderUserInterface(graphics);
+        renderCoinDisplay(graphics);
     }
     
     // Renders the game map including tiles, objects, and tanks
     // @param graphics - Graphics context for drawing
     private void renderMap(Graphics graphics) {
-        gameMap.paintComponent(graphics);
+        gameMap.draw(graphics);
     }
     
     // Renders all active enemies on the screen
@@ -188,24 +199,42 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         drawDragPreview(graphics);
     }
     
+    // Renders the coin display in the bottom-right corner
+    // Shows current coin count with proper formatting
+    // @param graphics - Graphics context for drawing
+    private void renderCoinDisplay(Graphics graphics) {
+        coinManager.renderCoinDisplay(graphics, getWidth(), getHeight());
+    }
+    
     // Draws the hero bar at the bottom of the screen
     // Provides background for UI elements
     // @param graphics - Graphics context for drawing
     private void drawHeroBar(Graphics graphics) {
-        graphics.setColor(HERO_BAR_COLOR);
+        graphics.setColor(Constants.UI.HERO_BAR_COLOR);
         graphics.fillRect(heroBarArea.x, heroBarArea.y, heroBarArea.width, heroBarArea.height);
     }
     
     // Draws the tank icon that players can drag to place tanks
-    // Shows the draggable tank placement tool
+    // Shows the draggable tank placement tool with cost indication
     // @param graphics - Graphics context for drawing
     private void drawTankIcon(Graphics graphics) {
-        graphics.setColor(TANK_ICON_COLOR);
+        boolean canAffordTank = coinManager.canAfford(coinManager.getTankCost());
+        
+        // Set color based on affordability
+        if (canAffordTank) {
+            graphics.setColor(Constants.UI.TANK_ICON_COLOR);
+        } else {
+            graphics.setColor(Constants.UI.TANK_ICON_DISABLED_COLOR);
+        }
+        
         graphics.fillRect(tankIconArea.x, tankIconArea.y, tankIconArea.width, tankIconArea.height);
         
         graphics.setColor(Color.BLACK);
         graphics.drawRect(tankIconArea.x, tankIconArea.y, tankIconArea.width, tankIconArea.height);
-        graphics.drawString("Tank", tankIconArea.x + 8, tankIconArea.y + 30);
+        
+        // Draw tank label and cost
+        graphics.drawString("Tank", tankIconArea.x + 8, tankIconArea.y + 20);
+        graphics.drawString("$" + coinManager.getTankCost(), tankIconArea.x + 8, tankIconArea.y + 40);
     }
     
     // Draws the preview of tank placement while dragging
@@ -213,21 +242,21 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // @param graphics - Graphics context for drawing
     private void drawDragPreview(Graphics graphics) {
         if (isDraggingTank) {
-            graphics.setColor(DRAG_PREVIEW_COLOR);
+            graphics.setColor(Constants.UI.DRAG_PREVIEW_COLOR);
             graphics.fillRect(
-                dragPositionX - TANK_ICON_SIZE / 2,
-                dragPositionY - TANK_ICON_SIZE / 2,
-                TANK_ICON_SIZE,
-                TANK_ICON_SIZE);
+                dragPositionX - Constants.UI.TANK_ICON_SIZE / 2,
+                dragPositionY - Constants.UI.TANK_ICON_SIZE / 2,
+                Constants.UI.TANK_ICON_SIZE,
+                Constants.UI.TANK_ICON_SIZE);
         }
     }
     
     // Handles mouse press events for starting tank drag
-    // Detects clicks on the tank icon to begin placement
+    // Detects clicks on the tank icon to begin placement (if affordable)
     // @param event - MouseEvent containing click information
     @Override
     public void mousePressed(MouseEvent event) {
-        if (tankIconArea.contains(event.getPoint())) {
+        if (tankIconArea.contains(event.getPoint()) && coinManager.canAfford(coinManager.getTankCost())) {
             startTankDrag(event);
         }
     }
@@ -271,13 +300,13 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     }
     
     // Attempts to place a tank at the mouse release position
-    // Validates placement location and creates tank if valid
+    // Validates placement location and processes purchase if valid
     // @param event - MouseEvent containing placement position
     private void attemptTankPlacement(MouseEvent event) {
-        int gridColumn = event.getX() / gameMap.getTileSize();
-        int gridRow = event.getY() / gameMap.getTileSize();
+        int gridColumn = MathUtils.pixelToGrid(event.getX(), gameMap.getTileSize());
+        int gridRow = MathUtils.pixelToGrid(event.getY(), gameMap.getTileSize());
         
-        if (isValidPlacementPosition(gridColumn, gridRow)) {
+        if (isValidPlacementPosition(gridColumn, gridRow) && coinManager.purchaseTank()) {
             gameMap.placeTank(gridColumn, gridRow);
         }
     }
@@ -300,9 +329,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // @return true if within bounds, false otherwise
     private boolean isWithinMapBounds(int gridColumn, int gridRow) {
         int[][] mapGrid = gameMap.getRawMap();
-        return gridRow >= 0 && gridColumn >= 0 &&
-               gridRow < mapGrid.length &&
-               gridColumn < mapGrid[0].length;
+        return MathUtils.isWithinBounds(gridColumn, gridRow, mapGrid[0].length, mapGrid.length);
     }
     
     // Checks if the tile at the position is a road tile
@@ -312,13 +339,20 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // @return true if tile is road, false otherwise
     private boolean isRoadTile(int gridColumn, int gridRow) {
         int tileType = gameMap.getRawMap()[gridRow][gridColumn];
-        return tileType == 0; // 0 represents road tiles
+        return tileType == Constants.Map.TILE_ROAD;
     }
     
     // Stops tank dragging mode
     // Resets drag state after placement attempt
     private void stopTankDrag() {
         isDraggingTank = false;
+    }
+    
+    // Gets the coin manager for external access
+    // Used by other components that need to interact with the coin system
+    // @return the coin manager instance
+    public CoinManager getCoinManager() {
+        return coinManager;
     }
     
     // Unused mouse event methods required by MouseListener interface

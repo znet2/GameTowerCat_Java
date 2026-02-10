@@ -1,3 +1,9 @@
+package com.towerdefense.world;
+
+import com.towerdefense.entities.base.GameObject;
+import com.towerdefense.entities.defensive.House;
+import com.towerdefense.entities.defensive.Tank;
+import com.towerdefense.utils.Constants;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -9,21 +15,6 @@ import javax.imageio.ImageIO;
  * Handles map rendering, tank placement, and collision detection.
  */
 public class Map extends JPanel {
-
-    // Map configuration
-    private static final int TILE_SIZE = 32;
-    private static final int HOUSE_COLUMN = 37;
-    private static final int HOUSE_ROW = 6;
-
-    // Tile type constants
-    private static final int TILE_ROAD = 0;
-    private static final int TILE_GRASS = 1;
-    private static final int TILE_WATER = 2;
-    private static final int TILE_WATER_UP = 3;
-    private static final int TILE_WATER_DOWN = 4;
-    private static final int TILE_WATER_LEFT = 5;
-    private static final int TILE_WATER_RIGHT = 6;
-    private static final int TILE_TREE = 7;
 
     // Game objects
     private final ArrayList<GameObject> mapObjects = new ArrayList<>();
@@ -92,16 +83,16 @@ public class Map extends JPanel {
     // Handles image loading errors and sets up visual assets
     private void loadImages() {
         try {
-            grassTile = ImageIO.read(getClass().getResourceAsStream("image\\grass.png"));
-            roadTile = ImageIO.read(getClass().getResourceAsStream("image\\dirt.png"));
-            waterTile = ImageIO.read(getClass().getResourceAsStream("image\\water.png"));
-            waterUpTile = ImageIO.read(getClass().getResourceAsStream("image\\water_up.png"));
-            waterDownTile = ImageIO.read(getClass().getResourceAsStream("image\\water_down.png"));
-            waterLeftTile = ImageIO.read(getClass().getResourceAsStream("image\\water_left.png"));
-            waterRightTile = ImageIO.read(getClass().getResourceAsStream("image\\water_right.png"));
-            treeTile = ImageIO.read(getClass().getResourceAsStream("image\\water.png"));
-            houseImage = ImageIO.read(getClass().getResource("image\\house.png"));
-            tankImage = ImageIO.read(getClass().getResource("image\\tank.png"));
+            grassTile = ImageIO.read(new java.io.File(Constants.Paths.GRASS_TILE));
+            roadTile = ImageIO.read(new java.io.File(Constants.Paths.ROAD_TILE));
+            waterTile = ImageIO.read(new java.io.File(Constants.Paths.WATER_TILE));
+            waterUpTile = ImageIO.read(new java.io.File(Constants.Paths.WATER_UP_TILE));
+            waterDownTile = ImageIO.read(new java.io.File(Constants.Paths.WATER_DOWN_TILE));
+            waterLeftTile = ImageIO.read(new java.io.File(Constants.Paths.WATER_LEFT_TILE));
+            waterRightTile = ImageIO.read(new java.io.File(Constants.Paths.WATER_RIGHT_TILE));
+            treeTile = ImageIO.read(new java.io.File(Constants.Paths.TREE_TILE));
+            houseImage = ImageIO.read(new java.io.File(Constants.Paths.HOUSE_IMAGE));
+            tankImage = ImageIO.read(new java.io.File(Constants.Paths.TANK_IMAGE));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,15 +101,16 @@ public class Map extends JPanel {
     // Creates and places the house object on the map
     // Initializes the house at the predefined location
     private void initializeMapObjects() {
-        mapObjects.add(new House(HOUSE_COLUMN, HOUSE_ROW, TILE_SIZE, houseImage));
+        mapObjects.add(new House(Constants.Map.HOUSE_COLUMN, Constants.Map.HOUSE_ROW, 
+                                Constants.Map.TILE_SIZE, houseImage));
     }
 
     // Configures the panel size based on the map dimensions
     // Sets the preferred size for proper window sizing
     private void configurePanel() {
         setPreferredSize(new Dimension(
-                mapGrid[0].length * TILE_SIZE,
-                mapGrid.length * TILE_SIZE));
+                mapGrid[0].length * Constants.Map.TILE_SIZE,
+                mapGrid.length * Constants.Map.TILE_SIZE));
     }
 
     // Main rendering method that draws all map elements
@@ -141,10 +133,10 @@ public class Map extends JPanel {
             for (int col = 0; col < mapGrid[row].length; col++) {
                 Image tileImage = getTileImage(mapGrid[row][col]);
                 graphics.drawImage(tileImage,
-                        col * TILE_SIZE,
-                        row * TILE_SIZE,
-                        TILE_SIZE,
-                        TILE_SIZE,
+                        col * Constants.Map.TILE_SIZE,
+                        row * Constants.Map.TILE_SIZE,
+                        Constants.Map.TILE_SIZE,
+                        Constants.Map.TILE_SIZE,
                         this);
             }
         }
@@ -155,25 +147,24 @@ public class Map extends JPanel {
     // @param tileType - numeric tile type from the map grid
     // @return Image corresponding to the tile type
     private Image getTileImage(int tileType) {
-        switch (tileType) {
-            case TILE_ROAD:
-                return roadTile;
-            case TILE_GRASS:
-                return grassTile;
-            case TILE_WATER:
-                return waterTile;
-            case TILE_WATER_UP:
-                return waterUpTile;
-            case TILE_WATER_DOWN:
-                return waterDownTile;
-            case TILE_WATER_LEFT:
-                return waterLeftTile;
-            case TILE_WATER_RIGHT:
-                return waterRightTile;
-            case TILE_TREE:
-                return treeTile;
-            default:
-                return grassTile;
+        if (tileType == Constants.Map.TILE_ROAD) {
+            return roadTile;
+        } else if (tileType == Constants.Map.TILE_GRASS) {
+            return grassTile;
+        } else if (tileType == Constants.Map.TILE_WATER) {
+            return waterTile;
+        } else if (tileType == Constants.Map.TILE_WATER_UP) {
+            return waterUpTile;
+        } else if (tileType == Constants.Map.TILE_WATER_DOWN) {
+            return waterDownTile;
+        } else if (tileType == Constants.Map.TILE_WATER_LEFT) {
+            return waterLeftTile;
+        } else if (tileType == Constants.Map.TILE_WATER_RIGHT) {
+            return waterRightTile;
+        } else if (tileType == Constants.Map.TILE_TREE) {
+            return treeTile;
+        } else {
+            return grassTile;
         }
     }
 
@@ -206,19 +197,19 @@ public class Map extends JPanel {
     // Used for coordinate conversions between grid and pixel space
     // @return tile size in pixels
     public int getTileSize() {
-        return TILE_SIZE;
+        return Constants.Map.TILE_SIZE;
     }
 
     // Calculates the total width of the map in pixels
     // @return map width in pixels
     public int getMapWidth() {
-        return mapGrid[0].length * TILE_SIZE;
+        return mapGrid[0].length * Constants.Map.TILE_SIZE;
     }
 
     // Calculates the total height of the map in pixels
     // @return map height in pixels
     public int getMapHeight() {
-        return mapGrid.length * TILE_SIZE;
+        return mapGrid.length * Constants.Map.TILE_SIZE;
     }
 
     // Gets the house object that needs to be defended
@@ -240,8 +231,8 @@ public class Map extends JPanel {
     // @param pixelY - Y coordinate in pixels
     // @return tile type number, or -1 if out of bounds
     public int getTileAtPixel(double pixelX, double pixelY) {
-        int col = (int) (pixelX / TILE_SIZE);
-        int row = (int) (pixelY / TILE_SIZE);
+        int col = (int) (pixelX / Constants.Map.TILE_SIZE);
+        int row = (int) (pixelY / Constants.Map.TILE_SIZE);
 
         if (row < 0 || col < 0 ||
                 row >= mapGrid.length ||
@@ -256,7 +247,7 @@ public class Map extends JPanel {
     // @param gridColumn - column position in the grid
     // @param gridRow - row position in the grid
     public void placeTank(int gridColumn, int gridRow) {
-        defensiveTanks.add(new Tank(gridColumn, gridRow, TILE_SIZE, tankImage));
+        defensiveTanks.add(new Tank(gridColumn, gridRow, Constants.Map.TILE_SIZE, tankImage));
         repaint();
     }
 
@@ -280,8 +271,8 @@ public class Map extends JPanel {
     // @return true if a tank exists at the position, false otherwise
     public boolean hasTankAt(int gridColumn, int gridRow) {
         for (Tank tank : defensiveTanks) {
-            if (tank.getGridColumn(TILE_SIZE) == gridColumn &&
-                    tank.getGridRow(TILE_SIZE) == gridRow) {
+            if (tank.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+                    tank.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
                 return true;
             }
         }

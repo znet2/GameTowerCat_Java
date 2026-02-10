@@ -1,3 +1,5 @@
+package com.towerdefense.entities.base;
+
 import java.awt.*;
 
 /**

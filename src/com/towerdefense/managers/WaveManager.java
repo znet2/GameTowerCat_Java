@@ -1,3 +1,8 @@
+package com.towerdefense.managers;
+
+import com.towerdefense.world.Map;
+import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.utils.Constants;
 import java.util.ArrayList;
 
 /**
@@ -5,11 +10,6 @@ import java.util.ArrayList;
  * Controls when enemies spawn, how many spawn per wave, and wave advancement.
  */
 public class WaveManager {
-
-    // Wave configuration
-    private static final int BASE_ENEMIES_PER_WAVE = 3;
-    private static final int ENEMIES_INCREASE_PER_WAVE = 2;
-    private static final int SPAWN_DELAY_FRAMES = 30;
 
     // Wave state
     private int currentWaveNumber = 1;
@@ -21,14 +21,17 @@ public class WaveManager {
     // Game references
     private final Map gameMap;
     private final ArrayList<Enemy> activeEnemies;
+    private final CoinManager coinManager;
 
     // Constructor that initializes the wave manager with game references
-    // Sets up the connection to the map and enemy list for spawning
+    // Sets up the connection to the map, enemy list, and coin system for spawning
     // @param gameMap - reference to the game map for enemy creation
     // @param enemyList - list of active enemies to add new spawns to
-    public WaveManager(Map gameMap, ArrayList<Enemy> enemyList) {
+    // @param coinManager - reference to coin system for enemy kill rewards
+    public WaveManager(Map gameMap, ArrayList<Enemy> enemyList, CoinManager coinManager) {
         this.gameMap = gameMap;
         this.activeEnemies = enemyList;
+        this.coinManager = coinManager;
     }
 
     // Starts the next wave of enemies
@@ -42,7 +45,8 @@ public class WaveManager {
     // Calculates how many enemies should spawn in the current wave
     // Uses base count plus scaling based on wave number for difficulty progression
     private void calculateEnemiesForWave() {
-        enemiesToSpawnInWave = BASE_ENEMIES_PER_WAVE + currentWaveNumber * ENEMIES_INCREASE_PER_WAVE;
+        enemiesToSpawnInWave = Constants.Waves.BASE_ENEMIES_PER_WAVE + 
+                               currentWaveNumber * Constants.Waves.ENEMIES_INCREASE_PER_WAVE;
     }
 
     // Resets all wave state variables for a new wave
@@ -87,13 +91,14 @@ public class WaveManager {
     // Checks timer and remaining enemy count
     // @return true if an enemy should be spawned, false otherwise
     private boolean shouldSpawnEnemy() {
-        return spawnTimer >= SPAWN_DELAY_FRAMES && enemiesSpawnedInWave < enemiesToSpawnInWave;
+        return spawnTimer >= Constants.Waves.SPAWN_DELAY_FRAMES && 
+               enemiesSpawnedInWave < enemiesToSpawnInWave;
     }
 
     // Creates and spawns a new enemy
     // Adds enemy to the active list and resets spawn timer
     private void spawnEnemy() {
-        activeEnemies.add(new Enemy(gameMap));
+        activeEnemies.add(new Enemy(gameMap, coinManager));
         enemiesSpawnedInWave++;
         spawnTimer = 0;
     }
