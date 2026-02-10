@@ -13,5 +13,7 @@ public class Main {
         window.pack();
         window.setLocationRelativeTo(null);
         window.setVisible(true);
+
+        System.out.println("hi");
     }
 }
