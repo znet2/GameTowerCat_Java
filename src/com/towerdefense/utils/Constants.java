@@ -23,8 +23,8 @@ public final class Constants {
     // Map and Tile Configuration
     public static final class Map {
         public static final int TILE_SIZE = 32;
-        public static final int HOUSE_COLUMN = 37;
-        public static final int HOUSE_ROW = 6;
+        public static final int HOUSE_COLUMN = 35;
+        public static final int HOUSE_ROW = 4;
 
         // Tile Types
         public static final int TILE_ROAD = 0;
@@ -44,14 +44,25 @@ public final class Constants {
         public static final int TANK_DEFENSE_RATING = 0;
         public static final int TANK_COST = 25;
 
+        // Magic Configuration
+        public static final int MAGIC_INITIAL_HEALTH = 50;
+        public static final int MAGIC_DEFENSE_RATING = 0;
+        public static final int MAGIC_COST = 10;
+        public static final int MAGIC_ATTACK_DAMAGE = 5;
+        public static final int MAGIC_SPELL_DAMAGE = 20;
+        public static final int MAGIC_ATTACK_COOLDOWN_FRAMES = 45;
+        public static final int MAGIC_ATTACK_RANGE = 300;
+        public static final int MAGIC_ATTACKS_BEFORE_SPELL = 4;
+
         // House Configuration
         public static final int HOUSE_INITIAL_HEALTH = 100;
-        public static final int HOUSE_WIDTH_TILES = 3;
-        public static final int HOUSE_HEIGHT_TILES = 4;
+        public static final int HOUSE_WIDTH_TILES = 7;
+        public static final int HOUSE_HEIGHT_TILES = 7;
 
         // Enemy Configuration
         public static final int ENEMY_SIZE = 64;
         public static final double ENEMY_SPEED = 1.2;
+        public static final int ENEMY_INITIAL_HEALTH = 50;
         public static final int ENEMY_ATTACK_DAMAGE = 5;
         public static final int ENEMY_ATTACK_COOLDOWN_FRAMES = 60;
         public static final int ENEMY_Y_OFFSET = -25;
@@ -68,6 +79,8 @@ public final class Constants {
         public static final Color HERO_BAR_COLOR = Color.DARK_GRAY;
         public static final Color TANK_ICON_COLOR = Color.ORANGE;
         public static final Color TANK_ICON_DISABLED_COLOR = Color.GRAY;
+        public static final Color MAGIC_ICON_COLOR = Color.CYAN;
+        public static final Color MAGIC_ICON_DISABLED_COLOR = Color.GRAY;
         public static final Color DRAG_PREVIEW_COLOR = new Color(255, 165, 0, 150);
 
         // Coin Display
@@ -97,7 +110,7 @@ public final class Constants {
         public static final String IMAGES = "image/";
         public static final String ENEMY_IMAGE = IMAGES + "catEnemy.png";
         public static final String TANK_IMAGE = IMAGES + "tank.png";
-        public static final String HOUSE_IMAGE = IMAGES + "house.png";
+        public static final String HOUSE_IMAGE = IMAGES + "castle.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";

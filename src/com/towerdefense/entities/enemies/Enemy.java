@@ -3,6 +3,7 @@ package com.towerdefense.entities.enemies;
 import com.towerdefense.world.Map;
 import com.towerdefense.entities.defensive.House;
 import com.towerdefense.entities.defensive.Tank;
+import com.towerdefense.entities.defensive.Magic;
 import com.towerdefense.managers.CoinManager;
 import com.towerdefense.utils.Constants;
 import java.awt.*;
@@ -10,7 +11,8 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 /**
- * Represents an enemy unit that moves along a path and attacks tanks and the house.
+ * Represents an enemy unit that moves along a path and attacks tanks and the
+ * house.
  * Enemies follow predefined routes, engage in combat, and have AI behavior.
  */
 public class Enemy {
@@ -36,6 +38,7 @@ public class Enemy {
 
     // Enemy state
     private boolean isDead = false;
+    private int currentHealth = Constants.Entities.ENEMY_INITIAL_HEALTH;
 
     // Position management to prevent enemy overlap
     private static int totalEnemyCount = 0;
@@ -56,6 +59,7 @@ public class Enemy {
         this.enemyImage = new ImageIcon(Constants.Paths.ENEMY_IMAGE).getImage();
 
         // Calculate unique attack position offset for this enemy
+        // Counter is reset at the start of each wave for consistent positioning
         this.attackPositionOffset = totalEnemyCount * POSITION_OFFSET_MULTIPLIER;
         totalEnemyCount++;
 
@@ -131,6 +135,10 @@ public class Enemy {
             return;
         }
 
+        if (checkForMagicCollision()) {
+            return;
+        }
+
         if (isAttacking) {
             processAttack();
             return;
@@ -171,12 +179,36 @@ public class Enemy {
         return false;
     }
 
+    // Checks for collisions with magic towers and initiates combat
+    // Scans all magic towers for intersection and starts attacking if collision
+    // detected
+    // @return true if collision occurred and combat started, false otherwise
+    private boolean checkForMagicCollision() {
+        for (Magic magic : gameMap.getMagicTowers()) {
+            if (!magic.isDead() && getBounds().intersects(magic.getBounds())) {
+                positionForAttackMagic(magic);
+                startAttacking(magic);
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Positions the enemy for attacking a tank
     // Places enemy to the left of the tank with unique offset to prevent overlap
     // @param tank - the tank being attacked
     private void positionForAttack(Tank tank) {
         Rectangle tankBounds = tank.getBounds();
         positionX = tankBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
+    }
+
+    // Positions the enemy for attacking a magic tower
+    // Places enemy to the left of the magic tower with unique offset to prevent
+    // overlap
+    // @param magic - the magic tower being attacked
+    private void positionForAttackMagic(Magic magic) {
+        Rectangle magicBounds = magic.getBounds();
+        positionX = magicBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
     }
 
     // Initiates attack mode on a target
@@ -200,7 +232,7 @@ public class Enemy {
     }
 
     // Executes an attack on the current target
-    // Applies damage to tanks or house, handles target death
+    // Applies damage to tanks, magic towers, or house, handles target death
     private void executeAttack() {
         if (currentAttackTarget instanceof Tank) {
             Tank tank = (Tank) currentAttackTarget;
@@ -211,6 +243,15 @@ public class Enemy {
             }
 
             tank.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
+        } else if (currentAttackTarget instanceof Magic) {
+            Magic magic = (Magic) currentAttackTarget;
+
+            if (magic.isDead()) {
+                stopAttacking();
+                return;
+            }
+
+            magic.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         } else if (currentAttackTarget instanceof House) {
             targetHouse.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         }
@@ -270,6 +311,29 @@ public class Enemy {
         currentAttackTarget = null;
     }
 
+    // Applies damage to the enemy and reduces its health
+    // Marks enemy as dead if health reaches zero
+    // @param damage - amount of damage to apply
+    public void takeDamage(int damage) {
+        currentHealth -= damage;
+        if (currentHealth <= 0) {
+            currentHealth = 0;
+            isDead = true;
+        }
+    }
+
+    // Gets the current health of the enemy
+    // @return current health value
+    public int getCurrentHealth() {
+        return currentHealth;
+    }
+
+    // Gets the maximum health of the enemy
+    // @return maximum health value
+    public int getMaxHealth() {
+        return Constants.Entities.ENEMY_INITIAL_HEALTH;
+    }
+
     // Marks the enemy as dead
     // Used when enemy is killed by external forces (not reaching end)
     public void kill() {
@@ -288,16 +352,48 @@ public class Enemy {
     // @param graphics - Graphics context for drawing
     public void draw(Graphics graphics) {
         if (!isDead) {
-            graphics.drawImage(enemyImage, (int) positionX, (int) positionY, 
-                             Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE, null);
+            graphics.drawImage(enemyImage, (int) positionX, (int) positionY,
+                    Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE, null);
+            drawHealthBar(graphics);
+        }
+    }
+
+    // Draws a health bar above the enemy to show current health status
+    // @param graphics - Graphics context for drawing
+    private void drawHealthBar(Graphics graphics) {
+        if (currentHealth < Constants.Entities.ENEMY_INITIAL_HEALTH) {
+            int barWidth = Constants.Entities.ENEMY_SIZE;
+            int barHeight = 4;
+            int barX = (int) positionX;
+            int barY = (int) positionY - 8;
+
+            // Background (red)
+            graphics.setColor(Color.RED);
+            graphics.fillRect(barX, barY, barWidth, barHeight);
+
+            // Health (green)
+            graphics.setColor(Color.GREEN);
+            double healthPercentage = (double) currentHealth / Constants.Entities.ENEMY_INITIAL_HEALTH;
+            int healthWidth = (int) (barWidth * healthPercentage);
+            graphics.fillRect(barX, barY, healthWidth, barHeight);
+
+            // Border
+            graphics.setColor(Color.BLACK);
+            graphics.drawRect(barX, barY, barWidth, barHeight);
         }
     }
 
     // Gets the collision bounds for this enemy
     // Used for collision detection with tanks and house
     // @return Rectangle representing the enemy's bounds
-    private Rectangle getBounds() {
-        return new Rectangle((int) positionX, (int) positionY, 
-                           Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE);
+    public Rectangle getBounds() {
+        return new Rectangle((int) positionX, (int) positionY,
+                Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE);
+    }
+
+    // Resets the enemy count for new wave
+    // Call this at the start of each wave to reset attack positions
+    public static void resetEnemyCount() {
+        totalEnemyCount = 0;
     }
 }

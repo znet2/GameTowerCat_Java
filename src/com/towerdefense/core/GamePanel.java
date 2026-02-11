@@ -27,9 +27,11 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // User interface
     private Rectangle heroBarArea;
     private Rectangle tankIconArea;
+    private Rectangle magicIconArea;
     
     // Input state
     private boolean isDraggingTank = false;
+    private boolean isDraggingMagic = false;
     private int dragPositionX, dragPositionY;
     
     // Constructor that initializes the game panel and starts the game
@@ -61,6 +63,12 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         
         tankIconArea = new Rectangle(
             Constants.UI.TANK_ICON_MARGIN,
+            gameMap.getMapHeight() + Constants.UI.TANK_ICON_TOP_MARGIN,
+            Constants.UI.TANK_ICON_SIZE,
+            Constants.UI.TANK_ICON_SIZE);
+        
+        magicIconArea = new Rectangle(
+            Constants.UI.TANK_ICON_MARGIN + Constants.UI.TANK_ICON_SIZE + Constants.UI.TANK_ICON_MARGIN,
             gameMap.getMapHeight() + Constants.UI.TANK_ICON_TOP_MARGIN,
             Constants.UI.TANK_ICON_SIZE,
             Constants.UI.TANK_ICON_SIZE);
@@ -119,7 +127,9 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         updateWaveManager();
         updateCoinManager();
         updateEnemies();
+        updateMagicTowers();
         cleanupDeadTanks();
+        cleanupDeadMagicTowers();
         checkForNextWave();
     }
     
@@ -149,10 +159,22 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         }
     }
     
+    // Updates all magic towers
+    // Handles targeting and attack logic for magic towers
+    private void updateMagicTowers() {
+        gameMap.updateMagicTowers();
+    }
+    
     // Removes destroyed tanks from the game
     // Cleans up dead tanks to prevent memory leaks and visual clutter
     private void cleanupDeadTanks() {
         gameMap.removeDeadTanks();
+    }
+    
+    // Removes destroyed magic towers from the game
+    // Cleans up dead magic towers to prevent memory leaks and visual clutter
+    private void cleanupDeadMagicTowers() {
+        gameMap.removeDeadMagicTowers();
     }
     
     // Checks if the current wave is finished and starts the next one
@@ -191,11 +213,12 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     }
     
     // Renders all user interface elements
-    // Draws hero bar, tank icon, and drag preview
+    // Draws hero bar, tank icon, magic icon, and drag preview
     // @param graphics - Graphics context for drawing
     private void renderUserInterface(Graphics graphics) {
         drawHeroBar(graphics);
         drawTankIcon(graphics);
+        drawMagicIcon(graphics);
         drawDragPreview(graphics);
     }
     
@@ -237,12 +260,43 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         graphics.drawString("$" + coinManager.getTankCost(), tankIconArea.x + 8, tankIconArea.y + 40);
     }
     
+    // Draws the magic icon that players can drag to place magic towers
+    // Shows the draggable magic placement tool with cost indication
+    // @param graphics - Graphics context for drawing
+    private void drawMagicIcon(Graphics graphics) {
+        boolean canAffordMagic = coinManager.canAfford(Constants.Entities.MAGIC_COST);
+        
+        // Set color based on affordability
+        if (canAffordMagic) {
+            graphics.setColor(Constants.UI.MAGIC_ICON_COLOR);
+        } else {
+            graphics.setColor(Constants.UI.MAGIC_ICON_DISABLED_COLOR);
+        }
+        
+        graphics.fillRect(magicIconArea.x, magicIconArea.y, magicIconArea.width, magicIconArea.height);
+        
+        graphics.setColor(Color.BLACK);
+        graphics.drawRect(magicIconArea.x, magicIconArea.y, magicIconArea.width, magicIconArea.height);
+        
+        // Draw magic label and cost
+        graphics.drawString("Magic", magicIconArea.x + 6, magicIconArea.y + 20);
+        graphics.drawString("$" + Constants.Entities.MAGIC_COST, magicIconArea.x + 8, magicIconArea.y + 40);
+    }
+    
     // Draws the preview of tank placement while dragging
     // Shows semi-transparent tank at cursor position during drag
     // @param graphics - Graphics context for drawing
     private void drawDragPreview(Graphics graphics) {
         if (isDraggingTank) {
             graphics.setColor(Constants.UI.DRAG_PREVIEW_COLOR);
+            graphics.fillRect(
+                dragPositionX - Constants.UI.TANK_ICON_SIZE / 2,
+                dragPositionY - Constants.UI.TANK_ICON_SIZE / 2,
+                Constants.UI.TANK_ICON_SIZE,
+                Constants.UI.TANK_ICON_SIZE);
+        }
+        if (isDraggingMagic) {
+            graphics.setColor(new Color(0, 255, 255, 150)); // Cyan semi-transparent
             graphics.fillRect(
                 dragPositionX - Constants.UI.TANK_ICON_SIZE / 2,
                 dragPositionY - Constants.UI.TANK_ICON_SIZE / 2,
@@ -258,6 +312,8 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     public void mousePressed(MouseEvent event) {
         if (tankIconArea.contains(event.getPoint()) && coinManager.canAfford(coinManager.getTankCost())) {
             startTankDrag(event);
+        } else if (magicIconArea.contains(event.getPoint()) && coinManager.canAfford(Constants.Entities.MAGIC_COST)) {
+            startMagicDrag(event);
         }
     }
     
@@ -270,12 +326,21 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         dragPositionY = event.getY();
     }
     
+    // Initiates magic dragging mode
+    // Sets drag state and initial position
+    // @param event - MouseEvent containing initial position
+    private void startMagicDrag(MouseEvent event) {
+        isDraggingMagic = true;
+        dragPositionX = event.getX();
+        dragPositionY = event.getY();
+    }
+    
     // Handles mouse drag events for tank placement preview
     // Updates drag position while tank is being dragged
     // @param event - MouseEvent containing current position
     @Override
     public void mouseDragged(MouseEvent event) {
-        if (isDraggingTank) {
+        if (isDraggingTank || isDraggingMagic) {
             updateDragPosition(event);
         }
     }
@@ -296,6 +361,9 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         if (isDraggingTank) {
             attemptTankPlacement(event);
             stopTankDrag();
+        } else if (isDraggingMagic) {
+            attemptMagicPlacement(event);
+            stopMagicDrag();
         }
     }
     
@@ -346,6 +414,24 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Resets drag state after placement attempt
     private void stopTankDrag() {
         isDraggingTank = false;
+    }
+    
+    // Attempts to place a magic tower at the mouse release position
+    // Validates placement location and processes purchase if valid
+    // @param event - MouseEvent containing placement position
+    private void attemptMagicPlacement(MouseEvent event) {
+        int gridColumn = MathUtils.pixelToGrid(event.getX(), gameMap.getTileSize());
+        int gridRow = MathUtils.pixelToGrid(event.getY(), gameMap.getTileSize());
+        
+        if (isValidPlacementPosition(gridColumn, gridRow) && coinManager.spendCoins(Constants.Entities.MAGIC_COST)) {
+            gameMap.placeMagic(gridColumn, gridRow, activeEnemies);
+        }
+    }
+    
+    // Stops magic dragging mode
+    // Resets drag state after placement attempt
+    private void stopMagicDrag() {
+        isDraggingMagic = false;
     }
     
     // Gets the coin manager for external access

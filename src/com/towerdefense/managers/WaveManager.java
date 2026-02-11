@@ -37,6 +37,7 @@ public class WaveManager {
     // Starts the next wave of enemies
     // Calculates enemy count, resets state, and announces the wave
     public void startNextWave() {
+        Enemy.resetEnemyCount(); // Reset enemy positioning for new wave
         calculateEnemiesForWave();
         resetWaveState();
         announceWaveStart();
