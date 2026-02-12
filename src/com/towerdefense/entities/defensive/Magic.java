@@ -4,10 +4,12 @@ import com.towerdefense.entities.base.GameObject;
 import com.towerdefense.entities.base.Defensive;
 import com.towerdefense.entities.base.Collidable;
 import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.projectiles.MagicBall;
 import com.towerdefense.utils.Constants;
 import com.towerdefense.utils.MathUtils;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Represents a magic tower that can attack enemies from range.
@@ -34,10 +36,13 @@ public class Magic extends GameObject implements Defensive, Collidable {
 
     // Reference to enemy list for target acquisition
     private ArrayList<Enemy> enemyList;
+    private ArrayList<MagicBall> magicBalls = new ArrayList<>();
 
     // Images
     private Image normalImage;
     private Image bombImage;
+    private Image normalBallImage;
+    private Image superBallImage;
 
     // Constructor that creates a magic tower at the specified grid position
     // Magic towers occupy a 2x2 tile area and attack enemies from range
@@ -55,14 +60,37 @@ public class Magic extends GameObject implements Defensive, Collidable {
         try {
             this.bombImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.MAGIC_BOMB_IMAGE));
         } catch (java.io.IOException e) {
-            // If bomb image not found, use normal image
             this.bombImage = magicImage;
+        }
+
+        // Load magic ball images
+        try {
+            this.normalBallImage = javax.imageio.ImageIO
+                    .read(new java.io.File(Constants.Paths.NORMAL_MAGIC_BALL_IMAGE));
+        } catch (java.io.IOException e) {
+            this.normalBallImage = null;
+        }
+
+        try {
+            this.superBallImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.SUPER_MAGIC_BALL_IMAGE));
+        } catch (java.io.IOException e) {
+            this.superBallImage = null;
         }
     }
 
     // Updates the magic tower each frame
     // Handles target acquisition, attack timing, and combat logic
     public void update() {
+        // Update all magic balls
+        Iterator<MagicBall> ballIterator = magicBalls.iterator();
+        while (ballIterator.hasNext()) {
+            MagicBall ball = ballIterator.next();
+            ball.update();
+            if (!ball.isActive()) {
+                ballIterator.remove();
+            }
+        }
+
         // Update spell animation
         if (isUsingSpecialSpell) {
             spellAnimationTimer++;
@@ -172,7 +200,7 @@ public class Magic extends GameObject implements Defensive, Collidable {
     // Performs a normal magic attack on the locked target
     // Deals standard magic damage
     private void performNormalAttack() {
-        damageEnemy(lockedTarget, Constants.Entities.MAGIC_ATTACK_DAMAGE);
+        shootMagicBall(false);
         System.out.println("Magic normal attack! Damage: " + Constants.Entities.MAGIC_ATTACK_DAMAGE +
                 " (Attack " + (attackCounter + 1) + "/5)");
     }
@@ -185,17 +213,24 @@ public class Magic extends GameObject implements Defensive, Collidable {
         spellAnimationTimer = 0;
         objectImage = bombImage;
 
-        damageEnemy(lockedTarget, Constants.Entities.MAGIC_SPELL_DAMAGE);
+        shootMagicBall(true);
         System.out.println("Magic SPELL CAST! Damage: " + Constants.Entities.MAGIC_SPELL_DAMAGE + " 💥");
     }
 
-    // Applies damage to an enemy
-    // Enemy will die and disappear when health reaches zero
-    // @param enemy - the enemy to damage
-    // @param damage - amount of damage to apply
-    private void damageEnemy(Enemy enemy, int damage) {
-        enemy.takeDamage(damage);
-        System.out.println("  -> Enemy hit! HP: " + enemy.getCurrentHealth() + "/" + enemy.getMaxHealth());
+    // Shoots a magic ball projectile
+    // @param isSuper - true for super ball, false for normal ball
+    private void shootMagicBall(boolean isSuper) {
+        if (lockedTarget == null || lockedTarget.isDead()) {
+            return;
+        }
+
+        int startX = positionX + objectWidth / 2;
+        int startY = positionY + Y_OFFSET + objectHeight / 2;
+        int damage = isSuper ? Constants.Entities.MAGIC_SPELL_DAMAGE : Constants.Entities.MAGIC_ATTACK_DAMAGE;
+        Image ballImage = isSuper ? superBallImage : normalBallImage;
+
+        MagicBall ball = new MagicBall(startX, startY, lockedTarget, damage, ballImage);
+        magicBalls.add(ball);
     }
 
     // Implementation of Defensive interface
@@ -295,16 +330,13 @@ public class Magic extends GameObject implements Defensive, Collidable {
                 objectHeight,
                 null);
 
+        // Draw all magic balls
+        for (MagicBall ball : magicBalls) {
+            ball.draw(graphics);
+        }
+
         // Draw health bar above magic tower
         drawHealthBar(graphics);
-
-        // Draw attack range indicator (optional, for debugging)
-        // drawAttackRange(graphics);
-
-        // Draw targeting line to locked enemy (optional, for debugging)
-        if (lockedTarget != null && !lockedTarget.isDead()) {
-            drawTargetingLine(graphics);
-        }
     }
 
     // Draws a health bar above the magic tower to show current health status
@@ -330,40 +362,5 @@ public class Magic extends GameObject implements Defensive, Collidable {
             graphics.setColor(Color.BLACK);
             graphics.drawRect(barX, barY, barWidth, barHeight);
         }
-    }
-
-    // Draws a line from magic tower to its locked target
-    // Visual indicator showing which enemy is being targeted
-    // @param graphics - Graphics context for drawing
-    private void drawTargetingLine(Graphics graphics) {
-        Rectangle enemyBounds = getEnemyBounds(lockedTarget);
-
-        // Position laser start point at the left side of magic tower
-        int magicLeftX = positionX;
-        int magicCenterY = positionY + Y_OFFSET + objectHeight / 2;
-        int enemyCenterX = enemyBounds.x + enemyBounds.width / 2;
-        int enemyCenterY = enemyBounds.y + enemyBounds.height / 2;
-
-        // Draw a thick red laser beam
-        Graphics2D g2d = (Graphics2D) graphics;
-        g2d.setStroke(new BasicStroke(4)); // Thickness of 4 pixels
-        g2d.setColor(new Color(255, 0, 0, 200)); // Bright red with high opacity
-        g2d.drawLine(magicLeftX, magicCenterY, enemyCenterX, enemyCenterY);
-
-        // Reset stroke to default
-        g2d.setStroke(new BasicStroke(1));
-    }
-
-    // Draws the attack range circle (for debugging/visualization)
-    // Shows the area where magic tower can acquire targets
-    // @param graphics - Graphics context for drawing
-    @SuppressWarnings("unused")
-    private void drawAttackRange(Graphics graphics) {
-        int centerX = positionX + objectWidth / 2;
-        int centerY = positionY + Y_OFFSET + objectHeight / 2;
-        int range = Constants.Entities.MAGIC_ATTACK_RANGE;
-
-        graphics.setColor(new Color(0, 255, 255, 30)); // Very transparent cyan
-        graphics.drawOval(centerX - range, centerY - range, range * 2, range * 2);
     }
 }

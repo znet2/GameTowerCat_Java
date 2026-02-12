@@ -50,45 +50,11 @@ public class House extends GameObject {
         return currentHealth;
     }
 
-    // Renders the house with health bar
-    // Overrides parent draw to add health bar display
+    // Renders the house
     // @param graphics - Graphics context for drawing
     @Override
     public void draw(Graphics graphics) {
-        // Draw the house image
+        // Draw the house image only
         super.draw(graphics);
-        
-        // Draw health bar
-        drawHealthBar(graphics);
-    }
-
-    // Draws a health bar above the house to show current health status
-    // @param graphics - Graphics context for drawing
-    private void drawHealthBar(Graphics graphics) {
-        if (currentHealth < Constants.Entities.HOUSE_INITIAL_HEALTH) {
-            int barWidth = objectWidth;
-            int barHeight = 8;
-            int barX = positionX;
-            int barY = positionY - 15;
-
-            // Background (red)
-            graphics.setColor(Color.RED);
-            graphics.fillRect(barX, barY, barWidth, barHeight);
-
-            // Health (green)
-            graphics.setColor(Color.GREEN);
-            double healthPercentage = (double) currentHealth / Constants.Entities.HOUSE_INITIAL_HEALTH;
-            int healthWidth = (int) (barWidth * healthPercentage);
-            graphics.fillRect(barX, barY, healthWidth, barHeight);
-
-            // Border
-            graphics.setColor(Color.BLACK);
-            graphics.drawRect(barX, barY, barWidth, barHeight);
-
-            // Health text
-            graphics.setColor(Color.WHITE);
-            String healthText = currentHealth + "/" + Constants.Entities.HOUSE_INITIAL_HEALTH;
-            graphics.drawString(healthText, barX + 5, barY + barHeight - 1);
-        }
     }
 }

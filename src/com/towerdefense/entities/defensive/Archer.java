@@ -236,22 +236,24 @@ public class Archer extends GameObject implements Defensive, Collidable {
     }
 
     private void drawHealthBar(Graphics graphics) {
-        int barWidth = objectWidth;
-        int barHeight = 4;
-        int barX = positionX;
-        int barY = positionY + Y_OFFSET - 8;
+        if (currentHealth < Constants.Entities.ARCHER_INITIAL_HEALTH) {
+            int barWidth = objectWidth;
+            int barHeight = 4;
+            int barX = positionX;
+            int barY = positionY + Y_OFFSET - 8;
 
-        // Background (red)
-        graphics.setColor(Color.RED);
-        graphics.fillRect(barX, barY, barWidth, barHeight);
+            // Background (red)
+            graphics.setColor(Color.RED);
+            graphics.fillRect(barX, barY, barWidth, barHeight);
 
-        // Health (green)
-        graphics.setColor(new Color(0, 255, 0));
-        int healthWidth = (int) (barWidth * getHealthPercentage());
-        graphics.fillRect(barX, barY, healthWidth, barHeight);
+            // Health (green)
+            graphics.setColor(new Color(0, 255, 0));
+            int healthWidth = (int) (barWidth * getHealthPercentage());
+            graphics.fillRect(barX, barY, healthWidth, barHeight);
 
-        // Border
-        graphics.setColor(Color.BLACK);
-        graphics.drawRect(barX, barY, barWidth, barHeight);
+            // Border
+            graphics.setColor(Color.BLACK);
+            graphics.drawRect(barX, barY, barWidth, barHeight);
+        }
     }
 }

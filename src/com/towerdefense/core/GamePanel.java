@@ -244,6 +244,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         drawMagicIcon(graphics);
         drawArcherIcon(graphics);
         drawDragPreview(graphics);
+        drawHouseHealthBar(graphics);
     }
 
     // Renders the coin display in the bottom-right corner
@@ -358,6 +359,40 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
                     Constants.UI.TANK_ICON_SIZE,
                     Constants.UI.TANK_ICON_SIZE);
         }
+    }
+
+    // Draws the house health bar at the top-right corner
+    // Shows current house health status
+    // @param graphics - Graphics context for drawing
+    private void drawHouseHealthBar(Graphics graphics) {
+        int barWidth = 200;
+        int barHeight = 20;
+        int barX = getWidth() - barWidth - 20;
+        int barY = 20;
+
+        // Get house health
+        int currentHealth = gameMap.getHouse().getHealth();
+        int maxHealth = Constants.Entities.HOUSE_INITIAL_HEALTH;
+        double healthPercentage = (double) currentHealth / maxHealth;
+
+        // Background (red)
+        graphics.setColor(Color.RED);
+        graphics.fillRect(barX, barY, barWidth, barHeight);
+
+        // Health (green)
+        graphics.setColor(Color.GREEN);
+        int healthWidth = (int) (barWidth * healthPercentage);
+        graphics.fillRect(barX, barY, healthWidth, barHeight);
+
+        // Border
+        graphics.setColor(Color.BLACK);
+        graphics.drawRect(barX, barY, barWidth, barHeight);
+
+        // Text
+        graphics.setColor(Color.WHITE);
+        graphics.setFont(new Font("Arial", Font.BOLD, 14));
+        String healthText = "House: " + currentHealth + "/" + maxHealth;
+        graphics.drawString(healthText, barX + 10, barY + 15);
     }
 
     // Handles mouse press events for starting tank drag

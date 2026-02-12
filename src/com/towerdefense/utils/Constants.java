@@ -122,6 +122,8 @@ public final class Constants {
         public static final String HOUSE_IMAGE = IMAGES + "castle.png";
         public static final String MAGIC_IMAGE = IMAGES + "magic.png";
         public static final String MAGIC_BOMB_IMAGE = IMAGES + "magicBomb.png";
+        public static final String NORMAL_MAGIC_BALL_IMAGE = IMAGES + "normalMagicBall.png";
+        public static final String SUPER_MAGIC_BALL_IMAGE = IMAGES + "superMagicBall.png";
         public static final String ARCHER_IMAGE = IMAGES + "archer.png";
         public static final String ARCHER_ATTACK_IMAGE = IMAGES + "archerAttack.png";
         public static final String ARROW_IMAGE = IMAGES + "arrow.png";
