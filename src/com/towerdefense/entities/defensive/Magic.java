@@ -28,9 +28,16 @@ public class Magic extends GameObject implements Defensive, Collidable {
     private Enemy lockedTarget = null;
     private int attackTimer = 0;
     private int attackCounter = 0; // Tracks number of attacks (0-4)
+    private boolean isUsingSpecialSpell = false;
+    private int spellAnimationTimer = 0;
+    private static final int SPELL_ANIMATION_DURATION = 30; // frames
 
     // Reference to enemy list for target acquisition
     private ArrayList<Enemy> enemyList;
+
+    // Images
+    private Image normalImage;
+    private Image bombImage;
 
     // Constructor that creates a magic tower at the specified grid position
     // Magic towers occupy a 2x2 tile area and attack enemies from range
@@ -42,11 +49,30 @@ public class Magic extends GameObject implements Defensive, Collidable {
     public Magic(int gridColumn, int gridRow, int tileSize, Image magicImage, ArrayList<Enemy> enemies) {
         super(gridColumn, gridRow, tileSize, 2, 2, magicImage);
         this.enemyList = enemies;
+        this.normalImage = magicImage;
+
+        // Load bomb image for special spell
+        try {
+            this.bombImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.MAGIC_BOMB_IMAGE));
+        } catch (java.io.IOException e) {
+            // If bomb image not found, use normal image
+            this.bombImage = magicImage;
+        }
     }
 
     // Updates the magic tower each frame
     // Handles target acquisition, attack timing, and combat logic
     public void update() {
+        // Update spell animation
+        if (isUsingSpecialSpell) {
+            spellAnimationTimer++;
+            if (spellAnimationTimer >= SPELL_ANIMATION_DURATION) {
+                isUsingSpecialSpell = false;
+                spellAnimationTimer = 0;
+                objectImage = normalImage; // Change back to normal image
+            }
+        }
+
         // Update target if current target is invalid
         if (!isTargetValid()) {
             acquireNewTarget();
@@ -154,8 +180,13 @@ public class Magic extends GameObject implements Defensive, Collidable {
     // Casts a powerful magic spell on the locked target
     // Deals increased damage compared to normal attacks
     private void castSpecialSpell() {
+        // Change to bomb image for special spell
+        isUsingSpecialSpell = true;
+        spellAnimationTimer = 0;
+        objectImage = bombImage;
+
         damageEnemy(lockedTarget, Constants.Entities.MAGIC_SPELL_DAMAGE);
-        System.out.println("Magic SPELL CAST! Damage: " + Constants.Entities.MAGIC_SPELL_DAMAGE + " ⚡");
+        System.out.println("Magic SPELL CAST! Damage: " + Constants.Entities.MAGIC_SPELL_DAMAGE + " 💥");
     }
 
     // Applies damage to an enemy
@@ -307,14 +338,20 @@ public class Magic extends GameObject implements Defensive, Collidable {
     private void drawTargetingLine(Graphics graphics) {
         Rectangle enemyBounds = getEnemyBounds(lockedTarget);
 
-        int magicCenterX = positionX + objectWidth / 2;
+        // Position laser start point at the left side of magic tower
+        int magicLeftX = positionX;
         int magicCenterY = positionY + Y_OFFSET + objectHeight / 2;
         int enemyCenterX = enemyBounds.x + enemyBounds.width / 2;
         int enemyCenterY = enemyBounds.y + enemyBounds.height / 2;
 
-        // Draw a cyan line to show targeting
-        graphics.setColor(new Color(0, 255, 255, 100)); // Semi-transparent cyan
-        graphics.drawLine(magicCenterX, magicCenterY, enemyCenterX, enemyCenterY);
+        // Draw a thick red laser beam
+        Graphics2D g2d = (Graphics2D) graphics;
+        g2d.setStroke(new BasicStroke(4)); // Thickness of 4 pixels
+        g2d.setColor(new Color(255, 0, 0, 200)); // Bright red with high opacity
+        g2d.drawLine(magicLeftX, magicCenterY, enemyCenterX, enemyCenterY);
+
+        // Reset stroke to default
+        g2d.setStroke(new BasicStroke(1));
     }
 
     // Draws the attack range circle (for debugging/visualization)

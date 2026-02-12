@@ -19,6 +19,10 @@ public class Tank extends GameObject implements Defensive, Collidable {
 
     // Current state
     private int currentHealth = Constants.Entities.TANK_INITIAL_HEALTH;
+    private boolean hasBeenAttacked = false;
+
+    // Images
+    private Image defendImage;
 
     // Constructor that creates a defensive tank at the specified grid position
     // Tanks occupy a 2x2 tile area and serve as defensive obstacles
@@ -28,6 +32,14 @@ public class Tank extends GameObject implements Defensive, Collidable {
     // @param tankImage - visual representation of the tank
     public Tank(int gridColumn, int gridRow, int tileSize, Image tankImage) {
         super(gridColumn, gridRow, tileSize, 2, 2, tankImage);
+
+        // Load defend image
+        try {
+            this.defendImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.TANK_DEFEND_IMAGE));
+        } catch (java.io.IOException e) {
+            // If defend image not found, use normal image
+            this.defendImage = tankImage;
+        }
     }
 
     // Updates the tank each frame
@@ -41,6 +53,12 @@ public class Tank extends GameObject implements Defensive, Collidable {
     // Implementation of Defensive interface
     @Override
     public void takeDamage(int damageAmount) {
+        // Change to defend image when attacked for the first time
+        if (!hasBeenAttacked) {
+            hasBeenAttacked = true;
+            objectImage = defendImage;
+        }
+
         // Apply defense rating to reduce incoming damage
         int actualDamage = Math.max(1, damageAmount - Constants.Entities.TANK_DEFENSE_RATING);
 

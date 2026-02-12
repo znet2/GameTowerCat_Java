@@ -23,7 +23,7 @@ public final class Constants {
     // Map and Tile Configuration
     public static final class Map {
         public static final int TILE_SIZE = 32;
-        public static final int HOUSE_COLUMN = 35;
+        public static final int HOUSE_COLUMN = 32;
         public static final int HOUSE_ROW = 4;
 
         // Tile Types
@@ -40,7 +40,7 @@ public final class Constants {
     // Entity Configuration
     public static final class Entities {
         // Tank Configuration
-        public static final int TANK_INITIAL_HEALTH = 100;
+        public static final int TANK_INITIAL_HEALTH = 10000;
         public static final int TANK_DEFENSE_RATING = 0;
         public static final int TANK_COST = 25;
 
@@ -110,7 +110,10 @@ public final class Constants {
         public static final String IMAGES = "image/";
         public static final String ENEMY_IMAGE = IMAGES + "catEnemy.png";
         public static final String TANK_IMAGE = IMAGES + "tank.png";
+        public static final String TANK_DEFEND_IMAGE = IMAGES + "tankDef.png";
         public static final String HOUSE_IMAGE = IMAGES + "castle.png";
+        public static final String MAGIC_IMAGE = IMAGES + "magic.png";
+        public static final String MAGIC_BOMB_IMAGE = IMAGES + "magicBomb.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";
