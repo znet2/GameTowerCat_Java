@@ -4,6 +4,7 @@ import com.towerdefense.entities.base.GameObject;
 import com.towerdefense.entities.defensive.House;
 import com.towerdefense.entities.defensive.Tank;
 import com.towerdefense.entities.defensive.Magic;
+import com.towerdefense.entities.defensive.Archer;
 import com.towerdefense.entities.enemies.Enemy;
 import com.towerdefense.utils.Constants;
 import javax.swing.*;
@@ -22,11 +23,13 @@ public class Map extends JPanel {
     private final ArrayList<GameObject> mapObjects = new ArrayList<>();
     private final ArrayList<Tank> defensiveTanks = new ArrayList<>();
     private final ArrayList<Magic> magicTowers = new ArrayList<>();
+    private final ArrayList<Archer> archerTowers = new ArrayList<>();
 
     // Images
     private Image houseImage;
     private Image tankImage;
     private Image magicImage;
+    private Image archerImage;
     private Image grassTile, roadTile, waterTile, waterUpTile, waterDownTile,
             waterLeftTile, waterRightTile, treeTile;
 
@@ -97,7 +100,8 @@ public class Map extends JPanel {
             treeTile = ImageIO.read(new java.io.File(Constants.Paths.TREE_TILE));
             houseImage = ImageIO.read(new java.io.File(Constants.Paths.HOUSE_IMAGE));
             tankImage = ImageIO.read(new java.io.File(Constants.Paths.TANK_IMAGE));
-            magicImage = ImageIO.read(new java.io.File("image/magic.png"));
+            magicImage = ImageIO.read(new java.io.File(Constants.Paths.MAGIC_IMAGE));
+            archerImage = ImageIO.read(new java.io.File(Constants.Paths.ARCHER_IMAGE));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -129,6 +133,7 @@ public class Map extends JPanel {
         renderMapObjects(graphics);
         renderTanks(graphics);
         renderMagicTowers(graphics);
+        renderArcherTowers(graphics);
     }
 
     // Renders all map tiles based on the grid data
@@ -198,6 +203,15 @@ public class Map extends JPanel {
     private void renderMagicTowers(Graphics graphics) {
         for (Magic magic : magicTowers) {
             magic.draw(graphics);
+        }
+    }
+
+    // Renders all player-placed archer towers
+    // Draws archer towers on top of other elements for visibility
+    // @param graphics - Graphics context for drawing
+    private void renderArcherTowers(Graphics graphics) {
+        for (Archer archer : archerTowers) {
+            archer.draw(graphics);
         }
     }
 
@@ -276,11 +290,29 @@ public class Map extends JPanel {
         repaint();
     }
 
+    // Places a new archer tower at the specified grid position
+    // Creates an archer object and adds it to the archer towers list
+    // @param gridColumn - column position in the grid
+    // @param gridRow - row position in the grid
+    // @param enemies - reference to enemy list for targeting
+    public void placeArcher(int gridColumn, int gridRow, ArrayList<Enemy> enemies) {
+        archerTowers.add(new Archer(gridColumn, gridRow, Constants.Map.TILE_SIZE, archerImage, enemies));
+        repaint();
+    }
+
     // Updates all magic towers each frame
     // Handles targeting and attack logic for all magic towers
     public void updateMagicTowers() {
         for (Magic magic : magicTowers) {
             magic.update();
+        }
+    }
+
+    // Updates all archer towers each frame
+    // Handles targeting and attack logic for all archer towers
+    public void updateArcherTowers() {
+        for (Archer archer : archerTowers) {
+            archer.update();
         }
     }
 
@@ -298,6 +330,13 @@ public class Map extends JPanel {
         return magicTowers;
     }
 
+    // Gets the list of all archer towers
+    // Used by enemies for collision detection and combat
+    // @return ArrayList of Archer objects
+    public ArrayList<Archer> getArcherTowers() {
+        return archerTowers;
+    }
+
     // Removes all dead tanks from the game
     // Cleans up destroyed tanks to prevent memory leaks
     public void removeDeadTanks() {
@@ -308,6 +347,12 @@ public class Map extends JPanel {
     // Cleans up destroyed magic towers to prevent memory leaks
     public void removeDeadMagicTowers() {
         magicTowers.removeIf(Magic::isDead);
+    }
+
+    // Removes all dead archer towers from the game
+    // Cleans up destroyed archer towers to prevent memory leaks
+    public void removeDeadArcherTowers() {
+        archerTowers.removeIf(Archer::isDead);
     }
 
     // Checks if a tank already exists at the specified grid position

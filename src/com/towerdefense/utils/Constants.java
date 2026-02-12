@@ -54,6 +54,14 @@ public final class Constants {
         public static final int MAGIC_ATTACK_RANGE = 300;
         public static final int MAGIC_ATTACKS_BEFORE_SPELL = 4;
 
+        // Archer Configuration
+        public static final int ARCHER_INITIAL_HEALTH = 75;
+        public static final int ARCHER_DEFENSE_RATING = 0;
+        public static final int ARCHER_COST = 15;
+        public static final int ARCHER_ATTACK_DAMAGE = 10;
+        public static final int ARCHER_ATTACK_COOLDOWN_FRAMES = 90; // 1.5 seconds at 60 FPS
+        public static final int ARCHER_ATTACK_RANGE = 1000;
+
         // House Configuration
         public static final int HOUSE_INITIAL_HEALTH = 100;
         public static final int HOUSE_WIDTH_TILES = 7;
@@ -114,6 +122,9 @@ public final class Constants {
         public static final String HOUSE_IMAGE = IMAGES + "castle.png";
         public static final String MAGIC_IMAGE = IMAGES + "magic.png";
         public static final String MAGIC_BOMB_IMAGE = IMAGES + "magicBomb.png";
+        public static final String ARCHER_IMAGE = IMAGES + "archer.png";
+        public static final String ARCHER_ATTACK_IMAGE = IMAGES + "archerAttack.png";
+        public static final String ARROW_IMAGE = IMAGES + "arrow.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";

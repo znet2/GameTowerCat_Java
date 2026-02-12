@@ -4,6 +4,7 @@ import com.towerdefense.world.Map;
 import com.towerdefense.entities.defensive.House;
 import com.towerdefense.entities.defensive.Tank;
 import com.towerdefense.entities.defensive.Magic;
+import com.towerdefense.entities.defensive.Archer;
 import com.towerdefense.managers.CoinManager;
 import com.towerdefense.utils.Constants;
 import java.awt.*;
@@ -139,6 +140,10 @@ public class Enemy {
             return;
         }
 
+        if (checkForArcherCollision()) {
+            return;
+        }
+
         if (isAttacking) {
             processAttack();
             return;
@@ -194,6 +199,21 @@ public class Enemy {
         return false;
     }
 
+    // Checks for collisions with archer towers and initiates combat
+    // Scans all archer towers for intersection and starts attacking if collision
+    // detected
+    // @return true if collision occurred and combat started, false otherwise
+    private boolean checkForArcherCollision() {
+        for (Archer archer : gameMap.getArcherTowers()) {
+            if (!archer.isDead() && getBounds().intersects(archer.getBounds())) {
+                positionForAttackArcher(archer);
+                startAttacking(archer);
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Positions the enemy for attacking a tank
     // Places enemy to the left of the tank with unique offset to prevent overlap
     // @param tank - the tank being attacked
@@ -209,6 +229,15 @@ public class Enemy {
     private void positionForAttackMagic(Magic magic) {
         Rectangle magicBounds = magic.getBounds();
         positionX = magicBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
+    }
+
+    // Positions the enemy for attacking an archer tower
+    // Places enemy to the left of the archer tower with unique offset to prevent
+    // overlap
+    // @param archer - the archer tower being attacked
+    private void positionForAttackArcher(Archer archer) {
+        Rectangle archerBounds = archer.getBounds();
+        positionX = archerBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
     }
 
     // Initiates attack mode on a target
@@ -232,7 +261,7 @@ public class Enemy {
     }
 
     // Executes an attack on the current target
-    // Applies damage to tanks, magic towers, or house, handles target death
+    // Applies damage to tanks, magic towers, archer towers, or house, handles target death
     private void executeAttack() {
         if (currentAttackTarget instanceof Tank) {
             Tank tank = (Tank) currentAttackTarget;
@@ -252,6 +281,15 @@ public class Enemy {
             }
 
             magic.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
+        } else if (currentAttackTarget instanceof Archer) {
+            Archer archer = (Archer) currentAttackTarget;
+
+            if (archer.isDead()) {
+                stopAttacking();
+                return;
+            }
+
+            archer.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         } else if (currentAttackTarget instanceof House) {
             targetHouse.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         }
