@@ -1,12 +1,12 @@
 package com.towerdefense.main;
 
-import com.towerdefense.core.GamePanel;
+import com.towerdefense.core.MenuPanel;
 import com.towerdefense.utils.Constants;
 import javax.swing.*;
 
 /**
  * Main entry point for the Tower Defense game.
- * Sets up the game window and initializes the game panel.
+ * Sets up the game window and initializes the menu panel.
  */
 public class Main {
 
@@ -17,13 +17,13 @@ public class Main {
     }
 
     // Creates the main game window and sets it up for display
-    // Handles window configuration, game panel creation, and final display setup
+    // Handles window configuration, menu panel creation, and final display setup
     private static void createAndShowGameWindow() {
         JFrame gameWindow = new JFrame(Constants.Game.TITLE);
         configureWindow(gameWindow);
 
-        GamePanel gamePanel = new GamePanel();
-        gameWindow.add(gamePanel);
+        MenuPanel menuPanel = new MenuPanel(gameWindow);
+        gameWindow.add(menuPanel);
 
         finalizeWindow(gameWindow);
     }

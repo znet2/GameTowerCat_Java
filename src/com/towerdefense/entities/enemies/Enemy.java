@@ -261,7 +261,8 @@ public class Enemy {
     }
 
     // Executes an attack on the current target
-    // Applies damage to tanks, magic towers, archer towers, or house, handles target death
+    // Applies damage to tanks, magic towers, archer towers, or house, handles
+    // target death
     private void executeAttack() {
         if (currentAttackTarget instanceof Tank) {
             Tank tank = (Tank) currentAttackTarget;

@@ -41,7 +41,6 @@ public final class Constants {
     public static final class Entities {
         // Tank Configuration
         public static final int TANK_INITIAL_HEALTH = 10000;
-        public static final int TANK_DEFENSE_RATING = 0;
         public static final int TANK_COST = 25;
 
         // Magic Configuration
@@ -68,7 +67,7 @@ public final class Constants {
         public static final int ASSASSIN_ATTACK_RANGE = 80; // Small range for melee attack
 
         // House Configuration
-        public static final int HOUSE_INITIAL_HEALTH = 100;
+        public static final int HOUSE_INITIAL_HEALTH = 10000;
         public static final int HOUSE_WIDTH_TILES = 7;
         public static final int HOUSE_HEIGHT_TILES = 7;
 
@@ -87,6 +86,14 @@ public final class Constants {
         public static final int TANK_ICON_SIZE = 48;
         public static final int TANK_ICON_MARGIN = 20;
         public static final int TANK_ICON_TOP_MARGIN = 16;
+
+        // Menu
+        public static final int START_BUTTON_WIDTH = 350;
+        public static final int START_BUTTON_HEIGHT = 300;
+        public static final int START_BUTTON_Y_OFFSET = 100; // Offset from center (positive = down, negative = up)
+        public static final int LOGO_WIDTH = 500;
+        public static final int LOGO_HEIGHT = 250;
+        public static final int LOGO_TOP_MARGIN = 100;
 
         // Colors
         public static final Color HERO_BAR_COLOR = Color.DARK_GRAY;
@@ -134,6 +141,9 @@ public final class Constants {
         public static final String ARROW_IMAGE = IMAGES + "arrow.png";
         public static final String ASSASSIN_IMAGE = IMAGES + "assasin.png"; // Note: file is spelled "assasin"
         public static final String ASSASSIN_ATTACK_IMAGE = IMAGES + "assasinAttack.png";
+        public static final String WALLPAPER_IMAGE = IMAGES + "wallpaper.png";
+        public static final String START_BUTTON_IMAGE = IMAGES + "startbotton.png";
+        public static final String LOGO_GAME_IMAGE = IMAGES + "logoGame.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";

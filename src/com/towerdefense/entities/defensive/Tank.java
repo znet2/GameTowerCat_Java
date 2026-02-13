@@ -59,16 +59,12 @@ public class Tank extends GameObject implements Defensive, Collidable {
             objectImage = defendImage;
         }
 
-        // Apply defense rating to reduce incoming damage
-        int actualDamage = Math.max(1, damageAmount - Constants.Entities.TANK_DEFENSE_RATING);
-
-        currentHealth -= actualDamage;
+        currentHealth -= damageAmount;
         if (currentHealth < MINIMUM_HEALTH) {
             currentHealth = MINIMUM_HEALTH;
         }
 
-        System.out.println("Tank HP: " + currentHealth + " (absorbed " +
-                (damageAmount - actualDamage) + " damage)");
+        System.out.println("Tank HP: " + currentHealth);
     }
 
     @Override
@@ -88,7 +84,7 @@ public class Tank extends GameObject implements Defensive, Collidable {
 
     @Override
     public int getDefenseRating() {
-        return Constants.Entities.TANK_DEFENSE_RATING;
+        return 0;
     }
 
     // Implementation of Collidable interface
