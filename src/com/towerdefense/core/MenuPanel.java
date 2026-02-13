@@ -16,7 +16,7 @@ public class MenuPanel extends JPanel implements MouseListener {
     private Image wallpaperImage;
     private Image startButtonImage;
     private Image logoImage;
-    private Rectangle startButtonBounds;
+    private Rectangle startButtonBounds = new Rectangle();
     private JFrame parentFrame;
 
     public MenuPanel(JFrame frame) {
@@ -37,7 +37,7 @@ public class MenuPanel extends JPanel implements MouseListener {
     }
 
     private void setupPanel() {
-        setPreferredSize(new Dimension(wallpaperImage.getWidth(null), wallpaperImage.getHeight(null)));
+        setPreferredSize(new Dimension(Constants.Game.WINDOW_WIDTH, Constants.Game.WINDOW_HEIGHT));
     }
 
     @Override
@@ -59,7 +59,7 @@ public class MenuPanel extends JPanel implements MouseListener {
         int buttonHeight = Constants.UI.START_BUTTON_HEIGHT;
         int buttonX = (getWidth() - buttonWidth) / 2;
         int buttonY = (getHeight() - buttonHeight) / 2 + Constants.UI.START_BUTTON_Y_OFFSET;
-        startButtonBounds = new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight);
+        startButtonBounds.setBounds(buttonX, buttonY, buttonWidth, buttonHeight);
 
         // Draw start button (scaled to constant size)
         graphics.drawImage(
@@ -74,7 +74,7 @@ public class MenuPanel extends JPanel implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         // Check if start button was clicked
-        if (startButtonBounds.contains(e.getPoint())) {
+        if (startButtonBounds != null && startButtonBounds.contains(e.getPoint())) {
             startGame();
         }
     }
@@ -82,7 +82,7 @@ public class MenuPanel extends JPanel implements MouseListener {
     private void startGame() {
         // Remove menu panel and add game panel
         parentFrame.getContentPane().removeAll();
-        GamePanel gamePanel = new GamePanel();
+        GamePanel gamePanel = new GamePanel(parentFrame);
         parentFrame.add(gamePanel);
         parentFrame.pack();
         parentFrame.setLocationRelativeTo(null);

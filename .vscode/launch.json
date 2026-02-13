@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Tower Defense Game",
+            "request": "launch",
+            "mainClass": "com.towerdefense.main.Main",
+            "projectName": "PacMan_game_d28de20a",
+            "classPaths": [
+                "${workspaceFolder}/bin"
+            ],
+            "preLaunchTask": "compile-java"
+        }
+    ]
+}

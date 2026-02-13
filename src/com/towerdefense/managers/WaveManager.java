@@ -123,4 +123,10 @@ public class WaveManager {
     public boolean isWaveFinished() {
         return !isCurrentlySpawning && activeEnemies.isEmpty();
     }
+
+    // Gets the current wave number
+    // @return the current wave number
+    public int getCurrentWave() {
+        return currentWaveNumber;
+    }
 }

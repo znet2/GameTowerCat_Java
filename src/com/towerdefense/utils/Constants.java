@@ -18,6 +18,8 @@ public final class Constants {
         public static final int TARGET_FPS = 60;
         public static final String TITLE = "Tower Defense";
         public static final double NANOSECONDS_PER_FRAME = 1_000_000_000.0 / TARGET_FPS;
+        public static final int WINDOW_WIDTH = 1920;
+        public static final int WINDOW_HEIGHT = 1080;
     }
 
     // Map and Tile Configuration
@@ -123,6 +125,7 @@ public final class Constants {
         public static final int BASE_ENEMIES_PER_WAVE = 3;
         public static final int ENEMIES_INCREASE_PER_WAVE = 2;
         public static final int SPAWN_DELAY_FRAMES = 30;
+        public static final int MAX_WAVES = 4; // Total waves to win
     }
 
     // File Paths
@@ -144,6 +147,8 @@ public final class Constants {
         public static final String WALLPAPER_IMAGE = IMAGES + "wallpaper.png";
         public static final String START_BUTTON_IMAGE = IMAGES + "startbotton.png";
         public static final String LOGO_GAME_IMAGE = IMAGES + "logoGame.png";
+        public static final String WIN_IMAGE = IMAGES + "win.png";
+        public static final String LOSE_IMAGE = IMAGES + "lose.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";

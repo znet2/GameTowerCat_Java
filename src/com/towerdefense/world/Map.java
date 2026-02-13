@@ -407,4 +407,49 @@ public class Map extends JPanel {
         }
         return false;
     }
+
+    // Checks if a magic tower already exists at the specified grid position
+    // Prevents placing multiple magic towers in the same location
+    // @param gridColumn - column position to check
+    // @param gridRow - row position to check
+    // @return true if a magic tower exists at the position, false otherwise
+    public boolean hasMagicAt(int gridColumn, int gridRow) {
+        for (Magic magic : magicTowers) {
+            if (magic.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+                    magic.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Checks if an archer tower already exists at the specified grid position
+    // Prevents placing multiple archer towers in the same location
+    // @param gridColumn - column position to check
+    // @param gridRow - row position to check
+    // @return true if an archer tower exists at the position, false otherwise
+    public boolean hasArcherAt(int gridColumn, int gridRow) {
+        for (Archer archer : archerTowers) {
+            if (archer.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+                    archer.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Checks if an assassin already exists at the specified grid position
+    // Prevents placing multiple assassins in the same location
+    // @param gridColumn - column position to check
+    // @param gridRow - row position to check
+    // @return true if an assassin exists at the position, false otherwise
+    public boolean hasAssassinAt(int gridColumn, int gridRow) {
+        for (Assassin assassin : assassins) {
+            if (assassin.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+                    assassin.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

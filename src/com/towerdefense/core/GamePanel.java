@@ -23,6 +23,13 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     private ArrayList<Enemy> activeEnemies = new ArrayList<>();
     private WaveManager waveManager;
     private CoinManager coinManager;
+    private JFrame parentFrame;
+
+    // Game state
+    private boolean isGameOver = false;
+    private boolean isWin = false;
+    private Image winImage;
+    private Image loseImage;
 
     // User interface
     private Rectangle heroBarArea;
@@ -40,7 +47,8 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
 
     // Constructor that initializes the game panel and starts the game
     // Sets up all game components, UI elements, and begins the game loop
-    public GamePanel() {
+    public GamePanel(JFrame frame) {
+        this.parentFrame = frame;
         initializeGameComponents();
         setupUserInterface();
         configurePanel();
@@ -54,6 +62,14 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         coinManager = new CoinManager();
         waveManager = new WaveManager(gameMap, activeEnemies, coinManager);
         waveManager.startNextWave();
+
+        // Load game over images
+        try {
+            winImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.WIN_IMAGE));
+            loseImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.LOSE_IMAGE));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Sets up user interface elements
@@ -141,6 +157,10 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Updates all game components each frame
     // Coordinates updates between wave manager, enemies, and wave progression
     private void updateGame() {
+        if (isGameOver) {
+            return; // Stop updating if game is over
+        }
+
         updateWaveManager();
         updateCoinManager();
         updateEnemies();
@@ -150,6 +170,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         cleanupDeadTanks();
         cleanupDeadMagicTowers();
         cleanupDeadArcherTowers();
+        checkGameOver();
         checkForNextWave();
     }
 
@@ -219,8 +240,37 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Handles wave progression when all enemies are defeated
     private void checkForNextWave() {
         if (waveManager.isWaveFinished()) {
-            waveManager.startNextWave();
+            // Check if all waves completed
+            if (waveManager.getCurrentWave() >= Constants.Waves.MAX_WAVES) {
+                isGameOver = true;
+                isWin = true;
+                showGameOverScreen();
+            } else {
+                waveManager.startNextWave();
+            }
         }
+    }
+
+    // Checks if game is over (house destroyed)
+    private void checkGameOver() {
+        if (gameMap.getHouse().getHealth() <= 0) {
+            isGameOver = true;
+            isWin = false;
+            showGameOverScreen();
+        }
+    }
+
+    // Shows game over screen
+    private void showGameOverScreen() {
+        SwingUtilities.invokeLater(() -> {
+            parentFrame.getContentPane().removeAll();
+            GameOverPanel gameOverPanel = new GameOverPanel(parentFrame, isWin);
+            parentFrame.add(gameOverPanel);
+            parentFrame.pack();
+            parentFrame.setLocationRelativeTo(null);
+            parentFrame.revalidate();
+            parentFrame.repaint();
+        });
     }
 
     // Main rendering method that draws all game elements
@@ -234,6 +284,11 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         renderEnemies(graphics);
         renderUserInterface(graphics);
         renderCoinDisplay(graphics);
+
+        // Draw game over screen if game ended
+        if (isGameOver) {
+            drawGameOverScreen(graphics);
+        }
     }
 
     // Renders the game map including tiles, objects, and tanks
@@ -553,7 +608,10 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     private boolean isValidPlacementPosition(int gridColumn, int gridRow) {
         return isWithinMapBounds(gridColumn, gridRow) &&
                 isRoadTile(gridColumn, gridRow) &&
-                !gameMap.hasTankAt(gridColumn, gridRow);
+                !gameMap.hasTankAt(gridColumn, gridRow) &&
+                !gameMap.hasMagicAt(gridColumn, gridRow) &&
+                !gameMap.hasArcherAt(gridColumn, gridRow) &&
+                !gameMap.hasAssassinAt(gridColumn, gridRow);
     }
 
     // Checks if the position is within the map boundaries
@@ -641,6 +699,25 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // @return the coin manager instance
     public CoinManager getCoinManager() {
         return coinManager;
+    }
+
+    // Draws the game over screen (win or lose)
+    // @param graphics - Graphics context for drawing
+    private void drawGameOverScreen(Graphics graphics) {
+        Image gameOverImage = isWin ? winImage : loseImage;
+
+        if (gameOverImage != null) {
+            // Draw semi-transparent overlay
+            graphics.setColor(new Color(0, 0, 0, 150));
+            graphics.fillRect(0, 0, getWidth(), getHeight());
+
+            // Draw win/lose image at center
+            int imageWidth = gameOverImage.getWidth(null);
+            int imageHeight = gameOverImage.getHeight(null);
+            int imageX = (getWidth() - imageWidth) / 2;
+            int imageY = (getHeight() - imageHeight) / 2;
+            graphics.drawImage(gameOverImage, imageX, imageY, null);
+        }
     }
 
     // Unused mouse event methods required by MouseListener interface

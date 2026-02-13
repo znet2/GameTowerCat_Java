@@ -13,7 +13,11 @@ public class Main {
     // Entry point for the application
     // Creates and displays the main game window
     public static void main(String[] args) {
-        createAndShowGameWindow();
+        // Disable DPI scaling to prevent image stretching on different monitors
+        System.setProperty("sun.java2d.uiScale", "1.0");
+        
+        // Run on Event Dispatch Thread
+        SwingUtilities.invokeLater(() -> createAndShowGameWindow());
     }
 
     // Creates the main game window and sets it up for display
