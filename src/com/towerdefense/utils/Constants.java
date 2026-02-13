@@ -62,6 +62,11 @@ public final class Constants {
         public static final int ARCHER_ATTACK_COOLDOWN_FRAMES = 90; // 1.5 seconds at 60 FPS
         public static final int ARCHER_ATTACK_RANGE = 1000;
 
+        // Assassin Configuration
+        public static final int ASSASSIN_COST = 20;
+        public static final int ASSASSIN_ATTACK_DAMAGE = 30;
+        public static final int ASSASSIN_ATTACK_RANGE = 80; // Small range for melee attack
+
         // House Configuration
         public static final int HOUSE_INITIAL_HEALTH = 100;
         public static final int HOUSE_WIDTH_TILES = 7;
@@ -127,6 +132,8 @@ public final class Constants {
         public static final String ARCHER_IMAGE = IMAGES + "archer.png";
         public static final String ARCHER_ATTACK_IMAGE = IMAGES + "archerAttack.png";
         public static final String ARROW_IMAGE = IMAGES + "arrow.png";
+        public static final String ASSASSIN_IMAGE = IMAGES + "assasin.png"; // Note: file is spelled "assasin"
+        public static final String ASSASSIN_ATTACK_IMAGE = IMAGES + "assasinAttack.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";

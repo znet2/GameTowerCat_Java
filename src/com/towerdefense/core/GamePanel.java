@@ -29,11 +29,13 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     private Rectangle tankIconArea;
     private Rectangle magicIconArea;
     private Rectangle archerIconArea;
+    private Rectangle assassinIconArea;
 
     // Input state
     private boolean isDraggingTank = false;
     private boolean isDraggingMagic = false;
     private boolean isDraggingArcher = false;
+    private boolean isDraggingAssassin = false;
     private int dragPositionX, dragPositionY;
 
     // Constructor that initializes the game panel and starts the game
@@ -77,6 +79,12 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
 
         archerIconArea = new Rectangle(
                 Constants.UI.TANK_ICON_MARGIN + (Constants.UI.TANK_ICON_SIZE + Constants.UI.TANK_ICON_MARGIN) * 2,
+                gameMap.getMapHeight() + Constants.UI.TANK_ICON_TOP_MARGIN,
+                Constants.UI.TANK_ICON_SIZE,
+                Constants.UI.TANK_ICON_SIZE);
+
+        assassinIconArea = new Rectangle(
+                Constants.UI.TANK_ICON_MARGIN + (Constants.UI.TANK_ICON_SIZE + Constants.UI.TANK_ICON_MARGIN) * 3,
                 gameMap.getMapHeight() + Constants.UI.TANK_ICON_TOP_MARGIN,
                 Constants.UI.TANK_ICON_SIZE,
                 Constants.UI.TANK_ICON_SIZE);
@@ -138,6 +146,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         updateEnemies();
         updateMagicTowers();
         updateArcherTowers();
+        updateAssassins();
         cleanupDeadTanks();
         cleanupDeadMagicTowers();
         cleanupDeadArcherTowers();
@@ -180,6 +189,12 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Handles targeting and attack logic for archer towers
     private void updateArcherTowers() {
         gameMap.updateArcherTowers();
+    }
+
+    // Updates all assassins
+    // Handles attack logic for assassins
+    private void updateAssassins() {
+        gameMap.updateAssassins();
     }
 
     // Removes destroyed tanks from the game
@@ -243,6 +258,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         drawTankIcon(graphics);
         drawMagicIcon(graphics);
         drawArcherIcon(graphics);
+        drawAssassinIcon(graphics);
         drawDragPreview(graphics);
         drawHouseHealthBar(graphics);
     }
@@ -331,6 +347,29 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         graphics.drawString("$" + Constants.Entities.ARCHER_COST, archerIconArea.x + 8, archerIconArea.y + 40);
     }
 
+    // Draws the assassin icon that players can drag to place assassins
+    // Shows the draggable assassin placement tool with cost indication
+    // @param graphics - Graphics context for drawing
+    private void drawAssassinIcon(Graphics graphics) {
+        boolean canAffordAssassin = coinManager.canAfford(Constants.Entities.ASSASSIN_COST);
+
+        // Set color based on affordability
+        if (canAffordAssassin) {
+            graphics.setColor(new Color(128, 0, 128)); // Purple color for assassin
+        } else {
+            graphics.setColor(Constants.UI.MAGIC_ICON_DISABLED_COLOR);
+        }
+
+        graphics.fillRect(assassinIconArea.x, assassinIconArea.y, assassinIconArea.width, assassinIconArea.height);
+
+        graphics.setColor(Color.BLACK);
+        graphics.drawRect(assassinIconArea.x, assassinIconArea.y, assassinIconArea.width, assassinIconArea.height);
+
+        // Draw assassin label and cost
+        graphics.drawString("Assassin", assassinIconArea.x + 2, assassinIconArea.y + 20);
+        graphics.drawString("$" + Constants.Entities.ASSASSIN_COST, assassinIconArea.x + 8, assassinIconArea.y + 40);
+    }
+
     // Draws the preview of tank placement while dragging
     // Shows semi-transparent tank at cursor position during drag
     // @param graphics - Graphics context for drawing
@@ -353,6 +392,14 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         }
         if (isDraggingArcher) {
             graphics.setColor(new Color(139, 69, 19, 150)); // Brown semi-transparent
+            graphics.fillRect(
+                    dragPositionX - Constants.UI.TANK_ICON_SIZE / 2,
+                    dragPositionY - Constants.UI.TANK_ICON_SIZE / 2,
+                    Constants.UI.TANK_ICON_SIZE,
+                    Constants.UI.TANK_ICON_SIZE);
+        }
+        if (isDraggingAssassin) {
+            graphics.setColor(new Color(128, 0, 128, 150)); // Purple semi-transparent
             graphics.fillRect(
                     dragPositionX - Constants.UI.TANK_ICON_SIZE / 2,
                     dragPositionY - Constants.UI.TANK_ICON_SIZE / 2,
@@ -406,6 +453,9 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
             startMagicDrag(event);
         } else if (archerIconArea.contains(event.getPoint()) && coinManager.canAfford(Constants.Entities.ARCHER_COST)) {
             startArcherDrag(event);
+        } else if (assassinIconArea.contains(event.getPoint())
+                && coinManager.canAfford(Constants.Entities.ASSASSIN_COST)) {
+            startAssassinDrag(event);
         }
     }
 
@@ -436,12 +486,21 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         dragPositionY = event.getY();
     }
 
+    // Initiates assassin dragging mode
+    // Sets drag state and initial position
+    // @param event - MouseEvent containing initial position
+    private void startAssassinDrag(MouseEvent event) {
+        isDraggingAssassin = true;
+        dragPositionX = event.getX();
+        dragPositionY = event.getY();
+    }
+
     // Handles mouse drag events for tank placement preview
     // Updates drag position while tank is being dragged
     // @param event - MouseEvent containing current position
     @Override
     public void mouseDragged(MouseEvent event) {
-        if (isDraggingTank || isDraggingMagic || isDraggingArcher) {
+        if (isDraggingTank || isDraggingMagic || isDraggingArcher || isDraggingAssassin) {
             updateDragPosition(event);
         }
     }
@@ -468,6 +527,9 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         } else if (isDraggingArcher) {
             attemptArcherPlacement(event);
             stopArcherDrag();
+        } else if (isDraggingAssassin) {
+            attemptAssassinPlacement(event);
+            stopAssassinDrag();
         }
     }
 
@@ -554,6 +616,24 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Resets drag state after placement attempt
     private void stopArcherDrag() {
         isDraggingArcher = false;
+    }
+
+    // Attempts to place an assassin at the mouse release position
+    // Validates placement location and processes purchase if valid
+    // @param event - MouseEvent containing placement position
+    private void attemptAssassinPlacement(MouseEvent event) {
+        int gridColumn = MathUtils.pixelToGrid(event.getX(), gameMap.getTileSize());
+        int gridRow = MathUtils.pixelToGrid(event.getY(), gameMap.getTileSize());
+
+        if (isValidPlacementPosition(gridColumn, gridRow) && coinManager.spendCoins(Constants.Entities.ASSASSIN_COST)) {
+            gameMap.placeAssassin(gridColumn, gridRow, activeEnemies);
+        }
+    }
+
+    // Stops assassin dragging mode
+    // Resets drag state after placement attempt
+    private void stopAssassinDrag() {
+        isDraggingAssassin = false;
     }
 
     // Gets the coin manager for external access

@@ -5,6 +5,7 @@ import com.towerdefense.entities.defensive.House;
 import com.towerdefense.entities.defensive.Tank;
 import com.towerdefense.entities.defensive.Magic;
 import com.towerdefense.entities.defensive.Archer;
+import com.towerdefense.entities.defensive.Assassin;
 import com.towerdefense.entities.enemies.Enemy;
 import com.towerdefense.utils.Constants;
 import javax.swing.*;
@@ -24,19 +25,21 @@ public class Map extends JPanel {
     private final ArrayList<Tank> defensiveTanks = new ArrayList<>();
     private final ArrayList<Magic> magicTowers = new ArrayList<>();
     private final ArrayList<Archer> archerTowers = new ArrayList<>();
+    private final ArrayList<Assassin> assassins = new ArrayList<>();
 
     // Images
     private Image houseImage;
     private Image tankImage;
     private Image magicImage;
     private Image archerImage;
+    private Image assassinImage;
     private Image grassTile, roadTile, waterTile, waterUpTile, waterDownTile,
             waterLeftTile, waterRightTile, treeTile;
 
     // Map data - defines the layout of the game world
     // 0=road, 1=grass, 2=water, 3=water_up, 4=water_down, etc.
     private final int[][] mapGrid = {
-            { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            { 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
                     2, 2, 2, 2, 2 },
             { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
                     2, 2, 2, 2, 2 },
@@ -102,6 +105,7 @@ public class Map extends JPanel {
             tankImage = ImageIO.read(new java.io.File(Constants.Paths.TANK_IMAGE));
             magicImage = ImageIO.read(new java.io.File(Constants.Paths.MAGIC_IMAGE));
             archerImage = ImageIO.read(new java.io.File(Constants.Paths.ARCHER_IMAGE));
+            assassinImage = ImageIO.read(new java.io.File(Constants.Paths.ASSASSIN_IMAGE));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -134,6 +138,7 @@ public class Map extends JPanel {
         renderTanks(graphics);
         renderMagicTowers(graphics);
         renderArcherTowers(graphics);
+        renderAssassins(graphics);
     }
 
     // Renders all map tiles based on the grid data
@@ -212,6 +217,15 @@ public class Map extends JPanel {
     private void renderArcherTowers(Graphics graphics) {
         for (Archer archer : archerTowers) {
             archer.draw(graphics);
+        }
+    }
+
+    // Renders all player-placed assassins
+    // Draws assassins on top of other elements for visibility
+    // @param graphics - Graphics context for drawing
+    private void renderAssassins(Graphics graphics) {
+        for (Assassin assassin : assassins) {
+            assassin.draw(graphics);
         }
     }
 
@@ -300,6 +314,16 @@ public class Map extends JPanel {
         repaint();
     }
 
+    // Places a new assassin at the specified grid position
+    // Creates an assassin object and adds it to the assassins list
+    // @param gridColumn - column position in the grid
+    // @param gridRow - row position in the grid
+    // @param enemies - reference to enemy list for targeting
+    public void placeAssassin(int gridColumn, int gridRow, ArrayList<Enemy> enemies) {
+        assassins.add(new Assassin(gridColumn, gridRow, Constants.Map.TILE_SIZE, assassinImage, enemies));
+        repaint();
+    }
+
     // Updates all magic towers each frame
     // Handles targeting and attack logic for all magic towers
     public void updateMagicTowers() {
@@ -313,6 +337,14 @@ public class Map extends JPanel {
     public void updateArcherTowers() {
         for (Archer archer : archerTowers) {
             archer.update();
+        }
+    }
+
+    // Updates all assassins each frame
+    // Handles attack logic for all assassins
+    public void updateAssassins() {
+        for (Assassin assassin : assassins) {
+            assassin.update();
         }
     }
 
@@ -335,6 +367,12 @@ public class Map extends JPanel {
     // @return ArrayList of Archer objects
     public ArrayList<Archer> getArcherTowers() {
         return archerTowers;
+    }
+
+    // Gets the list of all assassins
+    // @return ArrayList of Assassin objects
+    public ArrayList<Assassin> getAssassins() {
+        return assassins;
     }
 
     // Removes all dead tanks from the game

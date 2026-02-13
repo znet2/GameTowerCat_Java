@@ -1,0 +1,121 @@
+package com.towerdefense.entities.defensive;
+
+import com.towerdefense.entities.base.GameObject;
+import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.utils.Constants;
+import com.towerdefense.utils.MathUtils;
+import java.awt.*;
+import java.util.ArrayList;
+
+/**
+ * Represents an assassin trap that attacks enemies passing by.
+ * Assassins are hidden traps that deal high damage when enemies walk over them.
+ * They cannot be attacked by enemies and only attack when enemies are in range.
+ */
+public class Assassin extends GameObject {
+
+    private static final int Y_OFFSET = -30;
+    private static final int ATTACK_COOLDOWN = 30; // 0.5 seconds
+    private static final int ATTACK_ANIMATION_DURATION = 15; // 0.25 seconds
+
+    private ArrayList<Enemy> enemyList;
+    private ArrayList<Enemy> attackedEnemies = new ArrayList<>();
+    private int attackCooldown = 0;
+    private boolean isAttacking = false;
+    private int attackAnimationTimer = 0;
+    private Image normalImage;
+    private Image attackImage;
+
+    public Assassin(int gridColumn, int gridRow, int tileSize, Image assassinImage, ArrayList<Enemy> enemies) {
+        super(gridColumn, gridRow, tileSize, 2, 2, assassinImage);
+        this.enemyList = enemies;
+        this.normalImage = assassinImage;
+
+        // Load attack image
+        try {
+            this.attackImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.ASSASSIN_ATTACK_IMAGE));
+        } catch (java.io.IOException e) {
+            this.attackImage = assassinImage;
+        }
+    }
+
+    public void update() {
+        // Update attack animation
+        if (isAttacking) {
+            attackAnimationTimer++;
+            if (attackAnimationTimer >= ATTACK_ANIMATION_DURATION) {
+                isAttacking = false;
+                attackAnimationTimer = 0;
+                objectImage = normalImage; // Change back to normal image
+            }
+        }
+
+        if (attackCooldown > 0) {
+            attackCooldown--;
+        }
+
+        // Check for enemies in range
+        for (Enemy enemy : enemyList) {
+            if (enemy.isDead()) {
+                continue;
+            }
+
+            // Check if enemy is in attack range
+            double distance = calculateDistanceToEnemy(enemy);
+            if (distance <= Constants.Entities.ASSASSIN_ATTACK_RANGE) {
+                // Attack enemy if not attacked recently
+                if (!attackedEnemies.contains(enemy) && attackCooldown == 0) {
+                    attackEnemy(enemy);
+                    attackedEnemies.add(enemy);
+                    attackCooldown = ATTACK_COOLDOWN;
+                }
+            } else {
+                // Remove from attacked list when enemy moves away
+                attackedEnemies.remove(enemy);
+            }
+        }
+
+        // Clean up dead enemies from attacked list
+        attackedEnemies.removeIf(Enemy::isDead);
+    }
+
+    private double calculateDistanceToEnemy(Enemy enemy) {
+        int assassinCenterX = positionX + objectWidth / 2;
+        int assassinCenterY = positionY + objectHeight / 2;
+
+        Rectangle enemyBounds = enemy.getBounds();
+        int enemyCenterX = enemyBounds.x + enemyBounds.width / 2;
+        int enemyCenterY = enemyBounds.y + enemyBounds.height / 2;
+
+        return MathUtils.calculateDistance(assassinCenterX, assassinCenterY, enemyCenterX, enemyCenterY);
+    }
+
+    private void attackEnemy(Enemy enemy) {
+        // Change to attack image
+        isAttacking = true;
+        attackAnimationTimer = 0;
+        objectImage = attackImage;
+
+        enemy.takeDamage(Constants.Entities.ASSASSIN_ATTACK_DAMAGE);
+        System.out.println("Assassin attacked! Damage: " + Constants.Entities.ASSASSIN_ATTACK_DAMAGE);
+    }
+
+    public int getGridColumn(int tileSize) {
+        return positionX / tileSize;
+    }
+
+    public int getGridRow(int tileSize) {
+        return positionY / tileSize;
+    }
+
+    @Override
+    public void draw(Graphics graphics) {
+        graphics.drawImage(
+                objectImage,
+                positionX,
+                positionY + Y_OFFSET,
+                objectWidth,
+                objectHeight,
+                null);
+    }
+}
