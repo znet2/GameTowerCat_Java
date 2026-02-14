@@ -69,13 +69,14 @@ public class Enemy {
     }
 
     // Builds the movement path from the leftmost road tile to the house
-    // Scans the map for road tiles and creates a sequential path
+    // Uses BFS pathfinding to follow road tiles in any direction
     private void buildMovementPath() {
         int[][] mapGrid = gameMap.getRawMap();
         int tileSize = gameMap.getTileSize();
 
         Point roadStart = findRoadStartPosition(mapGrid);
-        createPathFromRoadStart(mapGrid, tileSize, roadStart);
+        Point housePosition = findHousePosition(mapGrid);
+        createPathUsingBFS(mapGrid, tileSize, roadStart, housePosition);
     }
 
     // Finds the leftmost road tile in the map as the starting position
@@ -99,19 +100,131 @@ public class Enemy {
         return new Point(leftmostRoadColumn, roadRow);
     }
 
-    // Creates a path along the road from the starting position
-    // Builds a sequence of points following the road tiles from left to right
+    // Finds the house position on the map (rightmost road tile in spawn row)
+    // @param mapGrid - 2D array representing the map tiles
+    // @return Point containing the rightmost road tile in spawn row
+    private Point findHousePosition(int[][] mapGrid) {
+        // Find spawn row first
+        Point spawn = findRoadStartPosition(mapGrid);
+        int spawnRow = spawn.y;
+        
+        // Find rightmost road tile in the same row
+        int rightmostCol = -1;
+        for (int col = mapGrid[spawnRow].length - 1; col >= 0; col--) {
+            if (mapGrid[spawnRow][col] == 0) {
+                rightmostCol = col;
+                break;
+            }
+        }
+        
+        if (rightmostCol == -1) {
+            // Fallback: find any road tile closest to house
+            int houseCol = Constants.Map.HOUSE_COLUMN;
+            int houseRow = Constants.Map.HOUSE_ROW;
+            Point closestRoad = null;
+            double minDistance = Double.MAX_VALUE;
+            
+            for (int row = 0; row < mapGrid.length; row++) {
+                for (int col = 0; col < mapGrid[row].length; col++) {
+                    if (mapGrid[row][col] == 0) {
+                        double distance = Math.sqrt(Math.pow(col - houseCol, 2) + Math.pow(row - houseRow, 2));
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestRoad = new Point(col, row);
+                        }
+                    }
+                }
+            }
+            return closestRoad != null ? closestRoad : new Point(houseCol, houseRow);
+        }
+        
+        return new Point(rightmostCol, spawnRow);
+    }
+
+    // Creates a path using BFS algorithm to follow road tiles
+    // Finds the shortest path along road tiles from start to house
     // @param mapGrid - 2D array representing the map tiles
     // @param tileSize - size of each tile in pixels
-    // @param roadStart - starting position containing column and row
-    private void createPathFromRoadStart(int[][] mapGrid, int tileSize, Point roadStart) {
-        int roadRow = roadStart.y;
-        int startColumn = roadStart.x;
+    // @param start - starting position
+    // @param goal - goal position (closest road to house)
+    private void createPathUsingBFS(int[][] mapGrid, int tileSize, Point start, Point goal) {
+        ArrayList<Point> queue = new ArrayList<>();
+        boolean[][] visited = new boolean[mapGrid.length][mapGrid[0].length];
+        Point[][] parent = new Point[mapGrid.length][mapGrid[0].length];
+
+        queue.add(start);
+        visited[start.y][start.x] = true;
+
+        // BFS to find path
+        while (!queue.isEmpty()) {
+            Point current = queue.remove(0);
+
+            // Check if reached goal
+            if (current.x == goal.x && current.y == goal.y) {
+                reconstructPath(parent, start, current, tileSize);
+                return;
+            }
+
+            // Check all 4 directions (up, down, left, right)
+            int[][] directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+            for (int[] dir : directions) {
+                int newCol = current.x + dir[0];
+                int newRow = current.y + dir[1];
+
+                // Check bounds and if it's a road tile
+                if (newRow >= 0 && newRow < mapGrid.length && 
+                    newCol >= 0 && newCol < mapGrid[0].length &&
+                    !visited[newRow][newCol] && mapGrid[newRow][newCol] == 0) {
+                    
+                    queue.add(new Point(newCol, newRow));
+                    visited[newRow][newCol] = true;
+                    parent[newRow][newCol] = current;
+                }
+            }
+        }
+
+        // Fallback: if no path found, create simple left-to-right path
+        createFallbackPath(mapGrid, tileSize, start);
+    }
+
+    // Reconstructs the path from BFS parent array
+    // @param parent - array storing parent nodes
+    // @param start - starting position
+    // @param goal - goal position
+    // @param tileSize - size of each tile in pixels
+    private void reconstructPath(Point[][] parent, Point start, Point goal, int tileSize) {
+        ArrayList<Point> path = new ArrayList<>();
+        Point current = goal;
+
+        // Trace back from goal to start
+        while (current != null && !current.equals(start)) {
+            // Add center of tile for smoother movement
+            int centerX = current.x * tileSize + tileSize / 2;
+            int centerY = current.y * tileSize + tileSize / 2;
+            path.add(0, new Point(centerX, centerY));
+            current = parent[current.y][current.x];
+        }
+
+        // Add start position (center of tile)
+        int startCenterX = start.x * tileSize + tileSize / 2;
+        int startCenterY = start.y * tileSize + tileSize / 2;
+        path.add(0, new Point(startCenterX, startCenterY));
+
+        movementPath.addAll(path);
+    }
+
+    // Creates a fallback path if BFS fails
+    // @param mapGrid - 2D array representing the map tiles
+    // @param tileSize - size of each tile in pixels
+    // @param start - starting position
+    private void createFallbackPath(int[][] mapGrid, int tileSize, Point start) {
+        int roadRow = start.y;
+        int startColumn = start.x;
 
         // Build path along the road from left to right
         for (int col = startColumn; col < mapGrid[roadRow].length; col++) {
             if (mapGrid[roadRow][col] == 0) {
-                movementPath.add(new Point(col * tileSize, roadRow * tileSize + Constants.Entities.ENEMY_Y_OFFSET));
+                movementPath.add(new Point(col * tileSize + tileSize / 2, roadRow * tileSize + tileSize / 2));
             }
         }
     }
@@ -387,11 +500,13 @@ public class Enemy {
     }
 
     // Renders the enemy to the screen
-    // Draws the enemy image at its current position
+    // Draws the enemy image at its current position with offset
     // @param graphics - Graphics context for drawing
     public void draw(Graphics graphics) {
         if (!isDead) {
-            graphics.drawImage(enemyImage, (int) positionX, (int) positionY,
+            graphics.drawImage(enemyImage, 
+                    (int) positionX + Constants.Entities.ENEMY_X_OFFSET, 
+                    (int) positionY + Constants.Entities.ENEMY_Y_OFFSET,
                     Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE, null);
             drawHealthBar(graphics);
         }
@@ -403,8 +518,8 @@ public class Enemy {
         if (currentHealth < Constants.Entities.ENEMY_INITIAL_HEALTH) {
             int barWidth = Constants.Entities.ENEMY_SIZE;
             int barHeight = 4;
-            int barX = (int) positionX;
-            int barY = (int) positionY - 8;
+            int barX = (int) positionX + Constants.Entities.ENEMY_X_OFFSET;
+            int barY = (int) positionY + Constants.Entities.ENEMY_Y_OFFSET - 8;
 
             // Background (red)
             graphics.setColor(Color.RED);
@@ -424,10 +539,13 @@ public class Enemy {
 
     // Gets the collision bounds for this enemy
     // Used for collision detection with tanks and house
-    // @return Rectangle representing the enemy's bounds
+    // @return Rectangle representing the enemy's bounds (with offset applied)
     public Rectangle getBounds() {
-        return new Rectangle((int) positionX, (int) positionY,
-                Constants.Entities.ENEMY_SIZE, Constants.Entities.ENEMY_SIZE);
+        return new Rectangle(
+                (int) positionX + Constants.Entities.ENEMY_X_OFFSET, 
+                (int) positionY + Constants.Entities.ENEMY_Y_OFFSET,
+                Constants.Entities.ENEMY_SIZE, 
+                Constants.Entities.ENEMY_SIZE);
     }
 
     // Resets the enemy count for new wave

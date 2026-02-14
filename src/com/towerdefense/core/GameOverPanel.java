@@ -29,10 +29,11 @@ public class GameOverPanel extends JPanel implements MouseListener {
 
     private void loadImages() {
         try {
-            backgroundImage = ImageIO.read(new File(Constants.Paths.WALLPAPER_IMAGE));
             if (isWin) {
+                backgroundImage = ImageIO.read(new File(Constants.Paths.WIN_BACKGROUND_IMAGE));
                 resultImage = ImageIO.read(new File(Constants.Paths.WIN_IMAGE));
             } else {
+                backgroundImage = ImageIO.read(new File(Constants.Paths.LOSE_BACKGROUND_IMAGE));
                 resultImage = ImageIO.read(new File(Constants.Paths.LOSE_IMAGE));
             }
         } catch (Exception e) {
@@ -52,17 +53,18 @@ public class GameOverPanel extends JPanel implements MouseListener {
         graphics.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
 
         // Draw result image at center
-        int resultWidth = 600;
-        int resultHeight = 400;
+        int resultWidth = isWin ? Constants.UI.WIN_IMAGE_WIDTH : Constants.UI.LOSE_IMAGE_WIDTH;
+        int resultHeight = isWin ? Constants.UI.WIN_IMAGE_HEIGHT : Constants.UI.LOSE_IMAGE_HEIGHT;
+        int resultYOffset = isWin ? Constants.UI.WIN_IMAGE_Y_OFFSET : Constants.UI.LOSE_IMAGE_Y_OFFSET;
         int resultX = (getWidth() - resultWidth) / 2;
-        int resultY = (getHeight() - resultHeight) / 2 - 50;
+        int resultY = (getHeight() - resultHeight) / 2 + resultYOffset;
         graphics.drawImage(resultImage, resultX, resultY, resultWidth, resultHeight, null);
 
         // Draw restart button
-        int buttonWidth = 200;
-        int buttonHeight = 60;
+        int buttonWidth = Constants.UI.RESTART_BUTTON_WIDTH;
+        int buttonHeight = Constants.UI.RESTART_BUTTON_HEIGHT;
         int buttonX = (getWidth() - buttonWidth) / 2;
-        int buttonY = resultY + resultHeight + 50;
+        int buttonY = resultY + resultHeight + Constants.UI.RESTART_BUTTON_Y_OFFSET;
         restartButtonBounds.setBounds(buttonX, buttonY, buttonWidth, buttonHeight);
 
         graphics.setColor(new Color(0, 150, 0));

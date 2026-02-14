@@ -28,8 +28,6 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Game state
     private boolean isGameOver = false;
     private boolean isWin = false;
-    private Image winImage;
-    private Image loseImage;
 
     // User interface
     private Rectangle heroBarArea;
@@ -62,14 +60,6 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         coinManager = new CoinManager();
         waveManager = new WaveManager(gameMap, activeEnemies, coinManager);
         waveManager.startNextWave();
-
-        // Load game over images
-        try {
-            winImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.WIN_IMAGE));
-            loseImage = javax.imageio.ImageIO.read(new java.io.File(Constants.Paths.LOSE_IMAGE));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     // Sets up user interface elements
@@ -284,11 +274,6 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         renderEnemies(graphics);
         renderUserInterface(graphics);
         renderCoinDisplay(graphics);
-
-        // Draw game over screen if game ended
-        if (isGameOver) {
-            drawGameOverScreen(graphics);
-        }
     }
 
     // Renders the game map including tiles, objects, and tanks
@@ -699,25 +684,6 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // @return the coin manager instance
     public CoinManager getCoinManager() {
         return coinManager;
-    }
-
-    // Draws the game over screen (win or lose)
-    // @param graphics - Graphics context for drawing
-    private void drawGameOverScreen(Graphics graphics) {
-        Image gameOverImage = isWin ? winImage : loseImage;
-
-        if (gameOverImage != null) {
-            // Draw semi-transparent overlay
-            graphics.setColor(new Color(0, 0, 0, 150));
-            graphics.fillRect(0, 0, getWidth(), getHeight());
-
-            // Draw win/lose image at center
-            int imageWidth = gameOverImage.getWidth(null);
-            int imageHeight = gameOverImage.getHeight(null);
-            int imageX = (getWidth() - imageWidth) / 2;
-            int imageY = (getHeight() - imageHeight) / 2;
-            graphics.drawImage(gameOverImage, imageX, imageY, null);
-        }
     }
 
     // Unused mouse event methods required by MouseListener interface

@@ -59,7 +59,7 @@ public final class Constants {
         public static final int ARCHER_INITIAL_HEALTH = 75;
         public static final int ARCHER_DEFENSE_RATING = 0;
         public static final int ARCHER_COST = 15;
-        public static final int ARCHER_ATTACK_DAMAGE = 10;
+        public static final int ARCHER_ATTACK_DAMAGE = 100000;
         public static final int ARCHER_ATTACK_COOLDOWN_FRAMES = 90; // 1.5 seconds at 60 FPS
         public static final int ARCHER_ATTACK_RANGE = 1000;
 
@@ -69,7 +69,7 @@ public final class Constants {
         public static final int ASSASSIN_ATTACK_RANGE = 80; // Small range for melee attack
 
         // House Configuration
-        public static final int HOUSE_INITIAL_HEALTH = 10000;
+        public static final int HOUSE_INITIAL_HEALTH = 100;
         public static final int HOUSE_WIDTH_TILES = 7;
         public static final int HOUSE_HEIGHT_TILES = 7;
 
@@ -79,7 +79,8 @@ public final class Constants {
         public static final int ENEMY_INITIAL_HEALTH = 50;
         public static final int ENEMY_ATTACK_DAMAGE = 5;
         public static final int ENEMY_ATTACK_COOLDOWN_FRAMES = 60;
-        public static final int ENEMY_Y_OFFSET = -25;
+        public static final int ENEMY_X_OFFSET = -25; // Offset for drawing (negative = left)
+        public static final int ENEMY_Y_OFFSET = -25; // Offset for drawing (negative = up)
     }
 
     // UI Configuration
@@ -90,12 +91,27 @@ public final class Constants {
         public static final int TANK_ICON_TOP_MARGIN = 16;
 
         // Menu
-        public static final int START_BUTTON_WIDTH = 350;
-        public static final int START_BUTTON_HEIGHT = 300;
+        public static final int START_BUTTON_WIDTH = 300;
+        public static final int START_BUTTON_HEIGHT = 200;
         public static final int START_BUTTON_Y_OFFSET = 100; // Offset from center (positive = down, negative = up)
         public static final int LOGO_WIDTH = 500;
         public static final int LOGO_HEIGHT = 250;
         public static final int LOGO_TOP_MARGIN = 100;
+
+        // Game Over Screen - Win
+        public static final int WIN_IMAGE_WIDTH = 600;
+        public static final int WIN_IMAGE_HEIGHT = 400;
+        public static final int WIN_IMAGE_Y_OFFSET = -50; // Offset from center (positive = down, negative = up)
+
+        // Game Over Screen - Lose
+        public static final int LOSE_IMAGE_WIDTH = 600;
+        public static final int LOSE_IMAGE_HEIGHT = 700;
+        public static final int LOSE_IMAGE_Y_OFFSET = -50; // Offset from center (positive = down, negative = up)
+
+        // Game Over Screen - Restart Button
+        public static final int RESTART_BUTTON_WIDTH = 200;
+        public static final int RESTART_BUTTON_HEIGHT = 60;
+        public static final int RESTART_BUTTON_Y_OFFSET = 50; // Offset from result image bottom
 
         // Colors
         public static final Color HERO_BAR_COLOR = Color.DARK_GRAY;
@@ -149,6 +165,8 @@ public final class Constants {
         public static final String LOGO_GAME_IMAGE = IMAGES + "logoGame.png";
         public static final String WIN_IMAGE = IMAGES + "win.png";
         public static final String LOSE_IMAGE = IMAGES + "lose.png";
+        public static final String WIN_BACKGROUND_IMAGE = IMAGES + "winBackground.png";
+        public static final String LOSE_BACKGROUND_IMAGE = IMAGES + "loseBackground.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";
