@@ -63,9 +63,16 @@ public static final class Entities
 ```
 **วัตถุประสงค์**: ค่าคงที่ของหน่วยต่างๆ ในเกม
 
+#### Common Configuration
+- `MINIMUM_HEALTH = 0` - เลือดต่ำสุด
+- `ATTACK_ANIMATION_DURATION = 15` - ระยะเวลา animation การโจมตี (frames)
+- `SPELL_ANIMATION_DURATION = 30` - ระยะเวลา animation เวทมนตร์ (frames)
+
 #### Tank Configuration
 - `TANK_INITIAL_HEALTH = 10000` - เลือดเริ่มต้น Tank
 - `TANK_COST = 25` - ราคา Tank
+- `TANK_X_OFFSET = 0` - offset การแสดงผลแนวนอน
+- `TANK_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
 
 #### Magic Configuration
 - `MAGIC_INITIAL_HEALTH = 50` - เลือดเริ่มต้น Magic
@@ -76,19 +83,28 @@ public static final class Entities
 - `MAGIC_ATTACK_COOLDOWN_FRAMES = 45` - cooldown การโจมตี (0.75 วินาที)
 - `MAGIC_ATTACK_RANGE = 300` - ระยะโจมตี
 - `MAGIC_ATTACKS_BEFORE_SPELL = 4` - จำนวนการโจมตีก่อนใช้เวทมนตร์
+- `MAGIC_X_OFFSET = 0` - offset การแสดงผลแนวนอน
+- `MAGIC_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
 
 #### Archer Configuration
 - `ARCHER_INITIAL_HEALTH = 75` - เลือดเริ่มต้น Archer
 - `ARCHER_DEFENSE_RATING = 0` - ค่าป้องกัน Archer
 - `ARCHER_COST = 15` - ราคา Archer
-- `ARCHER_ATTACK_DAMAGE = 100000` - ความเสียหายสูงมาก
+- `ARCHER_ATTACK_DAMAGE = 10` - ความเสียหาย
 - `ARCHER_ATTACK_COOLDOWN_FRAMES = 90` - cooldown การโจมตี (1.5 วินาที)
 - `ARCHER_ATTACK_RANGE = 1000` - ระยะโจมตีไกลมาก
+- `ARCHER_X_OFFSET = 0` - offset การแสดงผลแนวนอน
+- `ARCHER_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
 
 #### Assassin Configuration
 - `ASSASSIN_COST = 20` - ราคา Assassin
 - `ASSASSIN_ATTACK_DAMAGE = 30` - ความเสียหาย Assassin
 - `ASSASSIN_ATTACK_RANGE = 80` - ระยะโจมตีใกล้ (melee)
+- `ASSASSIN_ATTACK_COOLDOWN = 30` - cooldown การโจมตี (0.5 วินาที)
+- `ASSASSIN_X_OFFSET = 0` - offset การแสดงผลแนวนอน
+- `ASSASSIN_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
+
+**หมายเหตุ**: X_OFFSET และ Y_OFFSET ใช้สำหรับปรับตำแหน่งการแสดงผลให้ตัวละครแต่ละตัวยืนตรงกันในแมพ เนื่องจากขนาดรูปภาพไม่เท่ากัน
 
 #### House Configuration
 - `HOUSE_INITIAL_HEALTH = 100` - เลือดเริ่มต้นบ้าน
@@ -103,6 +119,31 @@ public static final class Entities
 - `ENEMY_ATTACK_COOLDOWN_FRAMES = 60` - cooldown การโจมตี (1 วินาที)
 - `ENEMY_X_OFFSET = -25` - offset การแสดงผลแนวนอน
 - `ENEMY_Y_OFFSET = -25` - offset การแสดงผลแนวตั้ง
+- `ENEMY_POSITION_OFFSET_MULTIPLIER = 12` - ระยะห่างระหว่างศัตรูเมื่อโจมตีเป้าหมายเดียวกัน (ป้องกันการซ้อนทับ)
+
+### Projectile Configuration
+```java
+public static final class Projectiles
+```
+**วัตถุประสงค์**: ค่าคงที่เกี่ยวกับ projectiles (ลูกธนู, ลูกไฟ)
+
+#### Arrow Configuration
+- `ARROW_SPEED = 5.0` - ความเร็วลูกธนู (พิกเซลต่อ frame)
+- `ARROW_SIZE = 24` - ขนาดลูกธนู (พิกเซล)
+- `ARROW_FALLBACK_COLOR = Color(139, 69, 19)` - สีน้ำตาลสำหรับ fallback
+- `ARROW_FALLBACK_SIZE = 6` - ขนาดวงกลม fallback
+
+#### Magic Ball Configuration
+- `MAGIC_BALL_SPEED = 6.0` - ความเร็วลูกไฟ (พิกเซลต่อ frame, เร็วกว่า Arrow)
+- `MAGIC_BALL_SIZE = 20` - ขนาดลูกไฟ (พิกเซล, เล็กกว่า Arrow)
+- `MAGIC_BALL_FALLBACK_COLOR = Color(255, 0, 255)` - สีม่วงแดงสำหรับ fallback
+- `MAGIC_BALL_FALLBACK_SIZE = 10` - ขนาดวงกลม fallback
+- `ENEMY_INITIAL_HEALTH = 50` - เลือดเริ่มต้นศัตรู
+- `ENEMY_ATTACK_DAMAGE = 5` - ความเสียหายศัตรู
+- `ENEMY_ATTACK_COOLDOWN_FRAMES = 60` - cooldown การโจมตี (1 วินาที)
+- `ENEMY_X_OFFSET = -25` - offset การแสดงผลแนวนอน
+- `ENEMY_Y_OFFSET = -25` - offset การแสดงผลแนวตั้ง
+- `ENEMY_POSITION_OFFSET_MULTIPLIER = 12` - ระยะห่างระหว่างศัตรูเมื่อโจมตีเป้าหมายเดียวกัน (ป้องกันการซ้อนทับ)
 
 ### UI Configuration
 ```java
@@ -162,14 +203,13 @@ public static final class Economy
 
 #### ค่าคงที่
 - `STARTING_COINS = 50` - เหรียญเริ่มต้น
-- `COINS_PER_ENEMY_KILL = 10` - เหรียญรางวัลการฆ่าศัตรู
-- `PASSIVE_INCOME_AMOUNT = 5` - จำนวนเหรียญ passive income
-- `PASSIVE_INCOME_INTERVAL_FRAMES = 300` - ช่วงเวลา passive income (5 วินาที)
+- `COINS_PER_ENEMY_KILL = 10` - เหรียญรางวัลการฆ่าศัตรูแต่ละตัว
+- `COINS_PER_WAVE_COMPLETE = 50` - เหรียญโบนัสเมื่อจบแต่ละ wave
 
 #### การใช้งาน
 - **Game Start**: ใช้ STARTING_COINS สำหรับเหรียญเริ่มต้น
-- **Passive Income**: ใช้ PASSIVE_INCOME_* สำหรับรายได้อัตโนมัติ
-- **Rewards**: ใช้ COINS_PER_ENEMY_KILL สำหรับรางวัล
+- **Enemy Kill**: ได้รับ COINS_PER_ENEMY_KILL ทุกครั้งที่ฆ่าศัตรู
+- **Wave Complete**: ได้รับ COINS_PER_WAVE_COMPLETE เมื่อจบแต่ละ wave
 
 ### Wave Configuration
 ```java
@@ -181,7 +221,7 @@ public static final class Waves
 - `BASE_ENEMIES_PER_WAVE = 3` - จำนวนศัตรูพื้นฐานต่อ wave
 - `ENEMIES_INCREASE_PER_WAVE = 2` - จำนวนศัตรูเพิ่มต่อ wave
 - `SPAWN_DELAY_FRAMES = 30` - ช่วงเวลาการสร้างศัตรู (0.5 วินาที)
-- `MAX_WAVES = 4` - จำนวน wave ทั้งหมดเพื่อชนะ
+- `MAX_WAVES = 5` - จำนวน wave ทั้งหมดเพื่อชนะ
 
 #### สูตรการคำนวณ
 ```
@@ -190,6 +230,8 @@ Wave 1: 3 + (1 * 2) = 5 ตัว
 Wave 2: 3 + (2 * 2) = 7 ตัว
 Wave 3: 3 + (3 * 2) = 9 ตัว
 Wave 4: 3 + (4 * 2) = 11 ตัว
+Wave 5: 3 + (5 * 2) = 13 ตัว
+รวมทั้งหมด: 5 + 7 + 9 + 11 + 13 = 45 ตัว
 ```
 
 ### File Paths
@@ -225,6 +267,7 @@ public static final class Paths
 - `LOSE_IMAGE = IMAGES + "lose.png"` - รูปแพ้
 - `WIN_BACKGROUND_IMAGE = IMAGES + "winBackground.png"` - พื้นหลังชนะ
 - `LOSE_BACKGROUND_IMAGE = IMAGES + "loseBackground.png"` - พื้นหลังแพ้
+- `RESTART_BUTTON_IMAGE = IMAGES + "restart.png"` - ปุ่ม Restart
 
 #### Tile Images
 - `GRASS_TILE = IMAGES + "grass.png"` - ไทล์หญ้า
@@ -248,6 +291,7 @@ public static final class Paths
 - **Game**: ค่าพื้นฐานของเกม
 - **Map**: ค่าเกี่ยวกับแผนที่
 - **Entities**: ค่าเกี่ยวกับหน่วยต่างๆ
+- **Projectiles**: ค่าเกี่ยวกับ projectiles (ลูกธนู, ลูกไฟ)
 - **UI**: ค่าเกี่ยวกับ interface
 - **Economy**: ค่าเกี่ยวกับเศรษฐกิจ
 - **Waves**: ค่าเกี่ยวกับ wave system
@@ -258,6 +302,7 @@ public static final class Paths
 // ตัวอย่างการใช้งาน
 int windowWidth = Constants.Game.WINDOW_WIDTH;
 int tankCost = Constants.Entities.TANK_COST;
+double arrowSpeed = Constants.Projectiles.ARROW_SPEED;
 String enemyImage = Constants.Paths.ENEMY_IMAGE;
 Color heroBarColor = Constants.UI.HERO_BAR_COLOR;
 ```

@@ -25,8 +25,8 @@ public final class Constants {
     // Map and Tile Configuration
     public static final class Map {
         public static final int TILE_SIZE = 32;
-        public static final int HOUSE_COLUMN = 32;
-        public static final int HOUSE_ROW = 4;
+        public static final int HOUSE_COLUMN = 53;
+        public static final int HOUSE_ROW = 9;
 
         // Tile Types
         public static final int TILE_ROAD = 0;
@@ -41,9 +41,16 @@ public final class Constants {
 
     // Entity Configuration
     public static final class Entities {
+        // Common Configuration
+        public static final int MINIMUM_HEALTH = 0;
+        public static final int ATTACK_ANIMATION_DURATION = 15; // frames
+        public static final int SPELL_ANIMATION_DURATION = 30; // frames
+
         // Tank Configuration
         public static final int TANK_INITIAL_HEALTH = 10000;
         public static final int TANK_COST = 25;
+        public static final int TANK_X_OFFSET = 0; // Visual offset X
+        public static final int TANK_Y_OFFSET = -30; // Visual offset Y
 
         // Magic Configuration
         public static final int MAGIC_INITIAL_HEALTH = 50;
@@ -54,19 +61,26 @@ public final class Constants {
         public static final int MAGIC_ATTACK_COOLDOWN_FRAMES = 45;
         public static final int MAGIC_ATTACK_RANGE = 300;
         public static final int MAGIC_ATTACKS_BEFORE_SPELL = 4;
+        public static final int MAGIC_X_OFFSET = 0; // Visual offset X
+        public static final int MAGIC_Y_OFFSET = -30; // Visual offset Y
 
         // Archer Configuration
         public static final int ARCHER_INITIAL_HEALTH = 75;
         public static final int ARCHER_DEFENSE_RATING = 0;
         public static final int ARCHER_COST = 15;
-        public static final int ARCHER_ATTACK_DAMAGE = 100000;
+        public static final int ARCHER_ATTACK_DAMAGE = 10;
         public static final int ARCHER_ATTACK_COOLDOWN_FRAMES = 90; // 1.5 seconds at 60 FPS
         public static final int ARCHER_ATTACK_RANGE = 1000;
+        public static final int ARCHER_X_OFFSET = 0; // Visual offset X
+        public static final int ARCHER_Y_OFFSET = -30; // Visual offset Y
 
         // Assassin Configuration
         public static final int ASSASSIN_COST = 20;
         public static final int ASSASSIN_ATTACK_DAMAGE = 30;
         public static final int ASSASSIN_ATTACK_RANGE = 80; // Small range for melee attack
+        public static final int ASSASSIN_ATTACK_COOLDOWN = 30; // 0.5 seconds
+        public static final int ASSASSIN_X_OFFSET = 0; // Visual offset X
+        public static final int ASSASSIN_Y_OFFSET = -30; // Visual offset Y
 
         // House Configuration
         public static final int HOUSE_INITIAL_HEALTH = 100;
@@ -81,6 +95,22 @@ public final class Constants {
         public static final int ENEMY_ATTACK_COOLDOWN_FRAMES = 60;
         public static final int ENEMY_X_OFFSET = -25; // Offset for drawing (negative = left)
         public static final int ENEMY_Y_OFFSET = -25; // Offset for drawing (negative = up)
+        public static final int ENEMY_POSITION_OFFSET_MULTIPLIER = 12; // Spacing between enemies when attacking same target
+    }
+
+    // Projectile Configuration
+    public static final class Projectiles {
+        // Arrow Configuration
+        public static final double ARROW_SPEED = 5.0;
+        public static final int ARROW_SIZE = 24;
+        public static final Color ARROW_FALLBACK_COLOR = new Color(139, 69, 19); // Brown
+        public static final int ARROW_FALLBACK_SIZE = 6;
+
+        // Magic Ball Configuration
+        public static final double MAGIC_BALL_SPEED = 6.0;
+        public static final int MAGIC_BALL_SIZE = 20;
+        public static final Color MAGIC_BALL_FALLBACK_COLOR = new Color(255, 0, 255); // Magenta
+        public static final int MAGIC_BALL_FALLBACK_SIZE = 10;
     }
 
     // UI Configuration
@@ -91,26 +121,26 @@ public final class Constants {
         public static final int TANK_ICON_TOP_MARGIN = 16;
 
         // Menu
-        public static final int START_BUTTON_WIDTH = 300;
-        public static final int START_BUTTON_HEIGHT = 200;
-        public static final int START_BUTTON_Y_OFFSET = 100; // Offset from center (positive = down, negative = up)
-        public static final int LOGO_WIDTH = 500;
-        public static final int LOGO_HEIGHT = 250;
-        public static final int LOGO_TOP_MARGIN = 100;
+        public static final int START_BUTTON_WIDTH = 510;
+        public static final int START_BUTTON_HEIGHT = 240;
+        public static final int START_BUTTON_Y_OFFSET = 150; // Offset from center (positive = down, negative = up)
+        public static final int LOGO_WIDTH = 750;
+        public static final int LOGO_HEIGHT = 400;
+        public static final int LOGO_TOP_MARGIN = 150;
 
         // Game Over Screen - Win
-        public static final int WIN_IMAGE_WIDTH = 600;
-        public static final int WIN_IMAGE_HEIGHT = 400;
-        public static final int WIN_IMAGE_Y_OFFSET = -50; // Offset from center (positive = down, negative = up)
+        public static final int WIN_IMAGE_WIDTH = 870;
+        public static final int WIN_IMAGE_HEIGHT = 460;
+        public static final int WIN_IMAGE_Y_OFFSET = -150; // Offset from center (positive = down, negative = up)
 
         // Game Over Screen - Lose
-        public static final int LOSE_IMAGE_WIDTH = 600;
-        public static final int LOSE_IMAGE_HEIGHT = 700;
-        public static final int LOSE_IMAGE_Y_OFFSET = -50; // Offset from center (positive = down, negative = up)
+        public static final int LOSE_IMAGE_WIDTH = 850;
+        public static final int LOSE_IMAGE_HEIGHT = 560;
+        public static final int LOSE_IMAGE_Y_OFFSET = -150; // Offset from center (positive = down, negative = up)
 
         // Game Over Screen - Restart Button
-        public static final int RESTART_BUTTON_WIDTH = 200;
-        public static final int RESTART_BUTTON_HEIGHT = 60;
+        public static final int RESTART_BUTTON_WIDTH = 500;
+        public static final int RESTART_BUTTON_HEIGHT = 180;
         public static final int RESTART_BUTTON_Y_OFFSET = 50; // Offset from result image bottom
 
         // Colors
@@ -130,10 +160,9 @@ public final class Constants {
 
     // Economy Configuration
     public static final class Economy {
-        public static final int STARTING_COINS = 50;
+        public static final int STARTING_COINS = 50000;
         public static final int COINS_PER_ENEMY_KILL = 10;
-        public static final int PASSIVE_INCOME_AMOUNT = 5;
-        public static final int PASSIVE_INCOME_INTERVAL_FRAMES = 300; // 5 seconds at 60 FPS
+        public static final int COINS_PER_WAVE_COMPLETE = 50; // Bonus coins when completing a wave
     }
 
     // Wave Configuration
@@ -141,7 +170,7 @@ public final class Constants {
         public static final int BASE_ENEMIES_PER_WAVE = 3;
         public static final int ENEMIES_INCREASE_PER_WAVE = 2;
         public static final int SPAWN_DELAY_FRAMES = 30;
-        public static final int MAX_WAVES = 4; // Total waves to win
+        public static final int MAX_WAVES = 2; // Total waves to win
     }
 
     // File Paths
@@ -167,6 +196,7 @@ public final class Constants {
         public static final String LOSE_IMAGE = IMAGES + "lose.png";
         public static final String WIN_BACKGROUND_IMAGE = IMAGES + "winBackground.png";
         public static final String LOSE_BACKGROUND_IMAGE = IMAGES + "loseBackground.png";
+        public static final String RESTART_BUTTON_IMAGE = IMAGES + "restart.png";
 
         // Tile Images
         public static final String GRASS_TILE = IMAGES + "grass.png";

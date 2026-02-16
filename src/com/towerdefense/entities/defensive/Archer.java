@@ -18,10 +18,6 @@ import java.util.Iterator;
  */
 public class Archer extends GameObject implements Defensive, Collidable {
 
-    private static final int Y_OFFSET = -30;
-    private static final int MINIMUM_HEALTH = 0;
-    private static final int ATTACK_ANIMATION_DURATION = 15; // frames
-
     private int currentHealth = Constants.Entities.ARCHER_INITIAL_HEALTH;
     private Enemy lockedTarget = null;
     private int attackTimer = 0;
@@ -57,7 +53,7 @@ public class Archer extends GameObject implements Defensive, Collidable {
         // Update attack animation
         if (isAttacking) {
             attackAnimationTimer++;
-            if (attackAnimationTimer >= ATTACK_ANIMATION_DURATION) {
+            if (attackAnimationTimer >= Constants.Entities.ATTACK_ANIMATION_DURATION) {
                 isAttacking = false;
                 attackAnimationTimer = 0;
                 objectImage = normalImage; // Change back to normal image
@@ -143,8 +139,8 @@ public class Archer extends GameObject implements Defensive, Collidable {
         objectImage = attackImage;
 
         // Create arrow from archer center position
-        int startX = positionX + objectWidth / 2;
-        int startY = positionY + Y_OFFSET + objectHeight / 2;
+        int startX = positionX + Constants.Entities.ARCHER_X_OFFSET + objectWidth / 2;
+        int startY = positionY + Constants.Entities.ARCHER_Y_OFFSET + objectHeight / 2;
 
         Arrow arrow = new Arrow(startX, startY, lockedTarget, Constants.Entities.ARCHER_ATTACK_DAMAGE, arrowImage);
         arrows.add(arrow);
@@ -158,8 +154,8 @@ public class Archer extends GameObject implements Defensive, Collidable {
         int actualDamage = Math.max(1, damageAmount - Constants.Entities.ARCHER_DEFENSE_RATING);
 
         currentHealth -= actualDamage;
-        if (currentHealth < MINIMUM_HEALTH) {
-            currentHealth = MINIMUM_HEALTH;
+        if (currentHealth < Constants.Entities.MINIMUM_HEALTH) {
+            currentHealth = Constants.Entities.MINIMUM_HEALTH;
         }
 
         System.out.println("Archer HP: " + currentHealth + " (absorbed " +
@@ -168,7 +164,7 @@ public class Archer extends GameObject implements Defensive, Collidable {
 
     @Override
     public boolean isDestroyed() {
-        return currentHealth <= MINIMUM_HEALTH;
+        return currentHealth <= Constants.Entities.MINIMUM_HEALTH;
     }
 
     @Override
@@ -188,31 +184,13 @@ public class Archer extends GameObject implements Defensive, Collidable {
 
     @Override
     public Rectangle getCollisionBounds() {
-        return new Rectangle(positionX, positionY + Y_OFFSET, objectWidth, objectHeight);
-    }
-
-    public void damage(int damageAmount) {
-        takeDamage(damageAmount);
-    }
-
-    public boolean isDead() {
-        return isDestroyed();
+        return new Rectangle(positionX + Constants.Entities.ARCHER_X_OFFSET, 
+                           positionY + Constants.Entities.ARCHER_Y_OFFSET, 
+                           objectWidth, objectHeight);
     }
 
     public Rectangle getBounds() {
         return getCollisionBounds();
-    }
-
-    public int getGridColumn(int tileSize) {
-        return positionX / tileSize;
-    }
-
-    public int getGridRow(int tileSize) {
-        return positionY / tileSize;
-    }
-
-    public double getHealthPercentage() {
-        return (double) currentHealth / Constants.Entities.ARCHER_INITIAL_HEALTH;
     }
 
     @Override
@@ -220,8 +198,8 @@ public class Archer extends GameObject implements Defensive, Collidable {
         // Draw archer
         graphics.drawImage(
                 objectImage,
-                positionX,
-                positionY + Y_OFFSET,
+                positionX + Constants.Entities.ARCHER_X_OFFSET,
+                positionY + Constants.Entities.ARCHER_Y_OFFSET,
                 objectWidth,
                 objectHeight,
                 null);
@@ -239,8 +217,8 @@ public class Archer extends GameObject implements Defensive, Collidable {
         if (currentHealth < Constants.Entities.ARCHER_INITIAL_HEALTH) {
             int barWidth = objectWidth;
             int barHeight = 4;
-            int barX = positionX;
-            int barY = positionY + Y_OFFSET - 8;
+            int barX = positionX + Constants.Entities.ARCHER_X_OFFSET;
+            int barY = positionY + Constants.Entities.ARCHER_Y_OFFSET - 8;
 
             // Background (red)
             graphics.setColor(Color.RED);

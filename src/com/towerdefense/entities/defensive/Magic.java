@@ -19,10 +19,6 @@ import java.util.Iterator;
  */
 public class Magic extends GameObject implements Defensive, Collidable {
 
-    // Visual positioning
-    private static final int Y_OFFSET = -30;
-    private static final int MINIMUM_HEALTH = 0;
-
     // Current state
     private int currentHealth = Constants.Entities.MAGIC_INITIAL_HEALTH;
 
@@ -32,7 +28,6 @@ public class Magic extends GameObject implements Defensive, Collidable {
     private int attackCounter = 0; // Tracks number of attacks (0-4)
     private boolean isUsingSpecialSpell = false;
     private int spellAnimationTimer = 0;
-    private static final int SPELL_ANIMATION_DURATION = 30; // frames
 
     // Reference to enemy list for target acquisition
     private ArrayList<Enemy> enemyList;
@@ -94,7 +89,7 @@ public class Magic extends GameObject implements Defensive, Collidable {
         // Update spell animation
         if (isUsingSpecialSpell) {
             spellAnimationTimer++;
-            if (spellAnimationTimer >= SPELL_ANIMATION_DURATION) {
+            if (spellAnimationTimer >= Constants.Entities.SPELL_ANIMATION_DURATION) {
                 isUsingSpecialSpell = false;
                 spellAnimationTimer = 0;
                 objectImage = normalImage; // Change back to normal image
@@ -224,8 +219,8 @@ public class Magic extends GameObject implements Defensive, Collidable {
             return;
         }
 
-        int startX = positionX + objectWidth / 2;
-        int startY = positionY + Y_OFFSET + objectHeight / 2;
+        int startX = positionX + Constants.Entities.MAGIC_X_OFFSET + objectWidth / 2;
+        int startY = positionY + Constants.Entities.MAGIC_Y_OFFSET + objectHeight / 2;
         int damage = isSuper ? Constants.Entities.MAGIC_SPELL_DAMAGE : Constants.Entities.MAGIC_ATTACK_DAMAGE;
         Image ballImage = isSuper ? superBallImage : normalBallImage;
 
@@ -240,8 +235,8 @@ public class Magic extends GameObject implements Defensive, Collidable {
         int actualDamage = Math.max(1, damageAmount - Constants.Entities.MAGIC_DEFENSE_RATING);
 
         currentHealth -= actualDamage;
-        if (currentHealth < MINIMUM_HEALTH) {
-            currentHealth = MINIMUM_HEALTH;
+        if (currentHealth < Constants.Entities.MINIMUM_HEALTH) {
+            currentHealth = Constants.Entities.MINIMUM_HEALTH;
         }
 
         System.out.println("Magic HP: " + currentHealth + " (absorbed " +
@@ -250,7 +245,7 @@ public class Magic extends GameObject implements Defensive, Collidable {
 
     @Override
     public boolean isDestroyed() {
-        return currentHealth <= MINIMUM_HEALTH;
+        return currentHealth <= Constants.Entities.MINIMUM_HEALTH;
     }
 
     @Override
@@ -271,21 +266,9 @@ public class Magic extends GameObject implements Defensive, Collidable {
     // Implementation of Collidable interface
     @Override
     public Rectangle getCollisionBounds() {
-        return new Rectangle(positionX, positionY + Y_OFFSET, objectWidth, objectHeight);
-    }
-
-    // Legacy method for compatibility with existing enemy damage system
-    // Delegates to the Defensive interface method
-    // @param damageAmount - amount of damage to apply
-    public void damage(int damageAmount) {
-        takeDamage(damageAmount);
-    }
-
-    // Legacy method for compatibility with existing game systems
-    // Delegates to the Defensive interface method
-    // @return true if magic tower is dead, false otherwise
-    public boolean isDead() {
-        return isDestroyed();
+        return new Rectangle(positionX + Constants.Entities.MAGIC_X_OFFSET, 
+                           positionY + Constants.Entities.MAGIC_Y_OFFSET, 
+                           objectWidth, objectHeight);
     }
 
     // Legacy method for compatibility with existing collision system
@@ -295,28 +278,6 @@ public class Magic extends GameObject implements Defensive, Collidable {
         return getCollisionBounds();
     }
 
-    // Converts the magic tower's pixel X position to grid column
-    // Used for grid-based positioning and placement validation
-    // @param tileSize - size of each tile in pixels
-    // @return grid column position
-    public int getGridColumn(int tileSize) {
-        return positionX / tileSize;
-    }
-
-    // Converts the magic tower's pixel Y position to grid row
-    // Used for grid-based positioning and placement validation
-    // @param tileSize - size of each tile in pixels
-    // @return grid row position
-    public int getGridRow(int tileSize) {
-        return positionY / tileSize;
-    }
-
-    // Gets the health percentage for UI display
-    // @return health as a percentage (0.0 to 1.0)
-    public double getHealthPercentage() {
-        return (double) currentHealth / Constants.Entities.MAGIC_INITIAL_HEALTH;
-    }
-
     // Renders the magic tower to the screen
     // Draws the magic tower image at its position with visual offset
     // @param graphics - Graphics context for drawing
@@ -324,8 +285,8 @@ public class Magic extends GameObject implements Defensive, Collidable {
     public void draw(Graphics graphics) {
         graphics.drawImage(
                 objectImage,
-                positionX,
-                positionY + Y_OFFSET,
+                positionX + Constants.Entities.MAGIC_X_OFFSET,
+                positionY + Constants.Entities.MAGIC_Y_OFFSET,
                 objectWidth,
                 objectHeight,
                 null);
@@ -346,8 +307,8 @@ public class Magic extends GameObject implements Defensive, Collidable {
         if (currentHealth < Constants.Entities.MAGIC_INITIAL_HEALTH) {
             int barWidth = objectWidth;
             int barHeight = 4;
-            int barX = positionX;
-            int barY = positionY + Y_OFFSET - 8;
+            int barX = positionX + Constants.Entities.MAGIC_X_OFFSET;
+            int barY = positionY + Constants.Entities.MAGIC_Y_OFFSET - 8;
 
             // Background (red)
             graphics.setColor(Color.RED);

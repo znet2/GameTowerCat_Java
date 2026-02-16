@@ -152,7 +152,6 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         }
 
         updateWaveManager();
-        updateCoinManager();
         updateEnemies();
         updateMagicTowers();
         updateArcherTowers();
@@ -168,12 +167,6 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Handles timing and creation of new enemies
     private void updateWaveManager() {
         waveManager.update();
-    }
-
-    // Updates the coin manager for passive income
-    // Handles automatic coin generation over time
-    private void updateCoinManager() {
-        coinManager.update();
     }
 
     // Updates all active enemies
@@ -230,8 +223,11 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Handles wave progression when all enemies are defeated
     private void checkForNextWave() {
         if (waveManager.isWaveFinished()) {
+            // Award bonus coins for completing the wave
+            coinManager.awardCoinsForWaveComplete();
+            
             // Check if all waves completed
-            if (waveManager.getCurrentWave() >= Constants.Waves.MAX_WAVES) {
+            if (waveManager.getCurrentWave() > Constants.Waves.MAX_WAVES) {
                 isGameOver = true;
                 isWin = true;
                 showGameOverScreen();
@@ -322,7 +318,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Shows the draggable tank placement tool with cost indication
     // @param graphics - Graphics context for drawing
     private void drawTankIcon(Graphics graphics) {
-        boolean canAffordTank = coinManager.canAfford(coinManager.getTankCost());
+        boolean canAffordTank = coinManager.canAfford(Constants.Entities.TANK_COST);
 
         // Set color based on affordability
         if (canAffordTank) {
@@ -338,7 +334,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
 
         // Draw tank label and cost
         graphics.drawString("Tank", tankIconArea.x + 8, tankIconArea.y + 20);
-        graphics.drawString("$" + coinManager.getTankCost(), tankIconArea.x + 8, tankIconArea.y + 40);
+        graphics.drawString("$" + Constants.Entities.TANK_COST, tankIconArea.x + 8, tankIconArea.y + 40);
     }
 
     // Draws the magic icon that players can drag to place magic towers
@@ -487,7 +483,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // @param event - MouseEvent containing click information
     @Override
     public void mousePressed(MouseEvent event) {
-        if (tankIconArea.contains(event.getPoint()) && coinManager.canAfford(coinManager.getTankCost())) {
+        if (tankIconArea.contains(event.getPoint()) && coinManager.canAfford(Constants.Entities.TANK_COST)) {
             startTankDrag(event);
         } else if (magicIconArea.contains(event.getPoint()) && coinManager.canAfford(Constants.Entities.MAGIC_COST)) {
             startMagicDrag(event);
@@ -580,7 +576,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         int gridColumn = MathUtils.pixelToGrid(event.getX(), gameMap.getTileSize());
         int gridRow = MathUtils.pixelToGrid(event.getY(), gameMap.getTileSize());
 
-        if (isValidPlacementPosition(gridColumn, gridRow) && coinManager.purchaseTank()) {
+        if (isValidPlacementPosition(gridColumn, gridRow) && coinManager.spendCoins(Constants.Entities.TANK_COST)) {
             gameMap.placeTank(gridColumn, gridRow);
         }
     }

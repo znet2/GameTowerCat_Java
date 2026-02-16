@@ -58,6 +58,37 @@ default int getDefenseRating() {
 **ค่าเริ่มต้น**: 0 (ไม่มีโบนัสป้องกัน)
 **การใช้งาน**: ใช้สำหรับการคำนวณความเสียหายจริงที่ได้รับ
 
+### getHealthPercentage() (Default Method)
+```java
+default double getHealthPercentage() {
+    return (double) getCurrentHealth() / getMaxHealth();
+}
+```
+**วัตถุประสงค์**: คำนวณเปอร์เซ็นต์เลือดที่เหลือ
+**การทำงาน**: หารเลือดปัจจุบันด้วยเลือดสูงสุด
+**ค่าที่ return**: 0.0 ถึง 1.0 (0% ถึง 100%)
+**การใช้งาน**: ใช้สำหรับการแสดงผลแถบเลือด
+
+### damage(int damageAmount) (Default Method - Legacy)
+```java
+default void damage(int damageAmount) {
+    takeDamage(damageAmount);
+}
+```
+**วัตถุประสงค์**: Method เก่าสำหรับความเข้ากันได้
+**การทำงาน**: เรียก `takeDamage()` โดยตรง
+**หมายเหตุ**: ใช้เพื่อความเข้ากันได้กับโค้ดเดิม ควรใช้ `takeDamage()` แทน
+
+### isDead() (Default Method - Legacy)
+```java
+default boolean isDead() {
+    return isDestroyed();
+}
+```
+**วัตถุประสงค์**: Method เก่าสำหรับความเข้ากันได้
+**การทำงาน**: เรียก `isDestroyed()` โดยตรง
+**หมายเหตุ**: ใช้เพื่อความเข้ากันได้กับโค้ดเดิม ควรใช้ `isDestroyed()` แทน
+
 ## การใช้งาน Interface
 
 ### การ Implement

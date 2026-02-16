@@ -60,6 +60,7 @@ private void calculateEnemiesForWave()
 - Wave 2: 3 + 2×2 = 7 ตัว
 - Wave 3: 3 + 3×2 = 9 ตัว
 - Wave 4: 3 + 4×2 = 11 ตัว
+- Wave 5: 3 + 5×2 = 13 ตัว
 
 ### resetWaveState()
 ```java
@@ -133,8 +134,10 @@ private void completeWave()
 ```
 **วัตถุประสงค์**: จบ wave ปัจจุบันและเตรียมพร้อมสำหรับ wave ถัดไป
 **การทำงาน**:
-1. ตั้ง `isCurrentlySpawning = false`
-2. เพิ่ม `currentWaveNumber++`
+1. ตั้ง `isCurrentlySpawning = false` - หยุดการสร้างศัตรู
+2. เพิ่ม `currentWaveNumber++` - เพิ่มหมายเลข wave ทันที
+
+**หมายเหตุ**: การเพิ่ม wave number ทันทีหลังจบการ spawn ทำให้ต้องใช้เงื่อนไข `currentWave > MAX_WAVES` ในการเช็คชนะ (ไม่ใช่ `>=`)
 
 ### isWaveFinished()
 ```java
@@ -169,9 +172,10 @@ public int getCurrentWave()
 4. **List Management**: เพิ่มเข้าไปใน activeEnemies list
 
 ### การจบ Wave
-1. **Spawn Completion**: สร้างศัตรูครบตามจำนวนที่กำหนด
+1. **Spawn Completion**: สร้างศัตรูครบตามจำนวนที่กำหนด → `currentWaveNumber++` ทันที
 2. **Enemy Elimination**: รอให้ศัตรูทั้งหมดตาย
-3. **Wave Transition**: เตรียมพร้อมสำหรับ wave ถัดไป
+3. **Wave Check**: GamePanel เช็คว่า `currentWave > MAX_WAVES` (ใช้ `>` เพราะ wave number เพิ่มแล้ว)
+4. **Wave Transition**: หากยังไม่ครบ เริ่ม wave ถัดไป / หากครบแล้ว ชนะเกม
 
 ## การกำหนดค่าและสมดุล
 
@@ -185,8 +189,8 @@ public int getCurrentWave()
 - **Consistent**: ระยะเวลาเท่ากันทุก wave
 
 ### จำนวน Wave ทั้งหมด
-- **Total Waves**: 4 waves
-- **Win Condition**: ผ่าน wave 4 แล้วชนะ
+- **Total Waves**: 5 waves
+- **Win Condition**: ผ่าน wave 5 แล้วชนะ
 
 ## ความสัมพันธ์กับคลาสอื่น
 
@@ -214,7 +218,7 @@ public int getCurrentWave()
 - **BASE_ENEMIES_PER_WAVE**: 3
 - **ENEMIES_INCREASE_PER_WAVE**: 2
 - **SPAWN_DELAY_FRAMES**: 30
-- **MAX_WAVES**: 4
+- **MAX_WAVES**: 5
 
 ## จุดเด่นของการออกแบบ
 

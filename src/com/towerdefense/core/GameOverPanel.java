@@ -15,6 +15,7 @@ public class GameOverPanel extends JPanel implements MouseListener {
 
     private Image backgroundImage;
     private Image resultImage;
+    private Image restartButtonImage;
     private Rectangle restartButtonBounds = new Rectangle();
     private JFrame parentFrame;
     private boolean isWin;
@@ -36,6 +37,7 @@ public class GameOverPanel extends JPanel implements MouseListener {
                 backgroundImage = ImageIO.read(new File(Constants.Paths.LOSE_BACKGROUND_IMAGE));
                 resultImage = ImageIO.read(new File(Constants.Paths.LOSE_IMAGE));
             }
+            restartButtonImage = ImageIO.read(new File(Constants.Paths.RESTART_BUTTON_IMAGE));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,15 +69,7 @@ public class GameOverPanel extends JPanel implements MouseListener {
         int buttonY = resultY + resultHeight + Constants.UI.RESTART_BUTTON_Y_OFFSET;
         restartButtonBounds.setBounds(buttonX, buttonY, buttonWidth, buttonHeight);
 
-        graphics.setColor(new Color(0, 150, 0));
-        graphics.fillRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 20, 20);
-        graphics.setColor(Color.WHITE);
-        graphics.setFont(new Font("Arial", Font.BOLD, 24));
-        String buttonText = "RESTART";
-        FontMetrics fm = graphics.getFontMetrics();
-        int textX = buttonX + (buttonWidth - fm.stringWidth(buttonText)) / 2;
-        int textY = buttonY + ((buttonHeight - fm.getHeight()) / 2) + fm.getAscent();
-        graphics.drawString(buttonText, textX, textY);
+        graphics.drawImage(restartButtonImage, buttonX, buttonY, buttonWidth, buttonHeight, null);
     }
 
     @Override

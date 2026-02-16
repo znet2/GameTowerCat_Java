@@ -11,7 +11,6 @@ public class CoinManager {
 
     // Current coin state
     private int currentCoins;
-    private int passiveIncomeTimer = 0;
 
     // Constructor that initializes the coin system
     // Sets the player's starting coin amount
@@ -24,17 +23,6 @@ public class CoinManager {
     // @return current coin count
     public int getCurrentCoins() {
         return currentCoins;
-    }
-
-    // Updates the coin manager each frame
-    // Handles passive income generation over time
-    public void update() {
-        passiveIncomeTimer++;
-
-        if (passiveIncomeTimer >= Constants.Economy.PASSIVE_INCOME_INTERVAL_FRAMES) {
-            addCoins(Constants.Economy.PASSIVE_INCOME_AMOUNT);
-            passiveIncomeTimer = 0;
-        }
     }
 
     // Adds coins to the player's total
@@ -72,18 +60,10 @@ public class CoinManager {
         addCoins(Constants.Economy.COINS_PER_ENEMY_KILL);
     }
 
-    // Gets the cost of placing a tank
-    // Used for UI feedback and purchase validation
-    // @return cost of a tank in coins
-    public int getTankCost() {
-        return Constants.Entities.TANK_COST;
-    }
-
-    // Attempts to purchase a tank
-    // Handles the transaction for tank placement
-    // @return true if tank was purchased successfully, false if insufficient funds
-    public boolean purchaseTank() {
-        return spendCoins(Constants.Entities.TANK_COST);
+    // Awards bonus coins for completing a wave
+    // Called when all enemies in a wave are defeated
+    public void awardCoinsForWaveComplete() {
+        addCoins(Constants.Economy.COINS_PER_WAVE_COMPLETE);
     }
 
     // Renders the coin display on the screen
@@ -122,12 +102,5 @@ public class CoinManager {
     // Used for game restart or new game scenarios
     public void resetCoins() {
         currentCoins = Constants.Economy.STARTING_COINS;
-    }
-
-    // Gets the reward amount for killing an enemy
-    // Used for UI feedback and game balance information
-    // @return coins awarded per enemy kill
-    public int getEnemyKillReward() {
-        return Constants.Economy.COINS_PER_ENEMY_KILL;
     }
 }

@@ -33,8 +33,8 @@ public class Enemy
 - `int currentHealth` - เลือดปัจจุบัน
 
 ### การจัดการตำแหน่ง
-- `static int totalEnemyCount` - จำนวนศัตรูทั้งหมด (สำหรับ offset)
-- `int attackPositionOffset` - offset เฉพาะตัวเพื่อป้องกันการซ้อนทับ
+- `static int totalEnemyCount` - จำนวนศัตรูทั้งหมด (สำหรับคำนวณ offset)
+- `int attackPositionOffset` - offset เฉพาะตัวเพื่อป้องกันการซ้อนทับ (คำนวณจาก `totalEnemyCount * Constants.Entities.ENEMY_POSITION_OFFSET_MULTIPLIER`)
 - `boolean isPositionLocked` - ล็อคตำแหน่งขณะโจมตี
 
 ## Methods อย่างละเอียด
@@ -50,7 +50,7 @@ public Enemy(Map gameMap, CoinManager coinManager)
 **การทำงาน**:
 1. เก็บอ้างอิงแผนที่และบ้าน
 2. โหลดรูปภาพศัตรู
-3. คำนวณ `attackPositionOffset` เฉพาะตัว
+3. คำนวณ `attackPositionOffset` เฉพาะตัว = `totalEnemyCount * Constants.Entities.ENEMY_POSITION_OFFSET_MULTIPLIER`
 4. เพิ่ม `totalEnemyCount`
 5. เรียก `buildMovementPath()` - สร้างเส้นทาง
 6. เรียก `initializeStartingPosition()` - ตั้งตำแหน่งเริ่มต้น
@@ -153,8 +153,8 @@ private void positionForAttack(Tank tank)
 **วัตถุประสงค์**: จัดตำแหน่งศัตรูสำหรับโจมตี Tank
 **การทำงาน**:
 1. ดึง bounds ของ Tank
-2. ตั้งตำแหน่ง X ให้อยู่ทางซ้ายของ Tank
-3. เพิ่ม `attackPositionOffset` เพื่อป้องกันการซ้อนทับ
+2. ตั้งตำแหน่ง X ให้อยู่ทางซ้ายของ Tank: `positionX = tankBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset`
+3. `attackPositionOffset` ทำให้ศัตรูแต่ละตัวไม่ซ้อนทับกัน (ศัตรูตัวที่ 1 offset=0, ตัวที่ 2 offset=12, ตัวที่ 3 offset=24, ...)
 
 ### startAttacking(Object target)
 ```java
@@ -290,19 +290,20 @@ public static void resetEnemyCount()
 
 ### การเคลื่อนที่
 1. **Pathfinding**: ใช้ BFS หาเส้นทางสั้นสุดตามไทล์ถนน
-2. **Smooth Movement**: เคลื่อนที่ด้วยความเร็วคงที่ระหว่างจุด
-3. **Collision Avoidance**: ใช้ offset เพื่อป้องกันการซ้อนทับ
+2. **Smooth Movement**: เคลื่อนที่ด้วยความเร็วคงที่ระหว่างจุด (Constants.Entities.ENEMY_SPEED = 1.2)
+3. **Collision Avoidance**: ใช้ `attackPositionOffset` เพื่อป้องกันการซ้อนทับ (แต่ละตัวห่างกัน 12 pixels)
 
 ### การต่อสู้
 1. **Target Priority**: Tank → Magic → Archer → House
-2. **Attack Positioning**: จัดตำแหน่งทางซ้ายของเป้าหมาย
-3. **Attack Cooldown**: โจมตีทุก 1 วินาที (60 frames)
-4. **Position Locking**: หยุดเคลื่อนที่ขณะโจมตี
+2. **Attack Positioning**: จัดตำแหน่งทางซ้ายของเป้าหมาย พร้อม offset เพื่อไม่ให้ซ้อนทับ
+3. **Attack Cooldown**: โจมตีทุก 1 วินาที (Constants.Entities.ENEMY_ATTACK_COOLDOWN_FRAMES = 60 frames)
+4. **Attack Damage**: สร้างความเสียหาย 5 จุดต่อครั้ง (Constants.Entities.ENEMY_ATTACK_DAMAGE)
+5. **Position Locking**: หยุดเคลื่อนที่ขณะโจมตี
 
 ### การจัดการสถานะ
-1. **Health System**: เลือด 50 จุด
-2. **Death Handling**: ตายเมื่อเลือดหมดหรือถึงจุดสิ้นสุด
-3. **Visual Feedback**: แถบเลือดและ offset สำหรับการแสดงผล
+1. **Health System**: เลือด 50 จุด (Constants.Entities.ENEMY_INITIAL_HEALTH)
+2. **Death Handling**: ตายเมื่อเลือดหมดหรือถึงจุดสิ้นสุดเส้นทาง
+3. **Visual Feedback**: แถบเลือดและ offset สำหรับการแสดงผล (Constants.Entities.ENEMY_X_OFFSET, ENEMY_Y_OFFSET)
 
 ## ความสัมพันธ์กับคลาสอื่น
 - **Map.java**: ใช้สำหรับ pathfinding และดึงรายการหน่วยป้องกัน
@@ -312,7 +313,8 @@ public static void resetEnemyCount()
 - **Constants.java**: ใช้ค่าคงที่สำหรับสถิติและ path
 
 ## จุดเด่นของการออกแบบ
-1. **Smart Pathfinding**: ใช้ BFS เพื่อหาเส้นทางที่ดีที่สุด
-2. **Flexible Combat**: รองรับการโจมตีหลายประเภทเป้าหมาย
-3. **Position Management**: ป้องกันการซ้อนทับด้วย offset system
+1. **Smart Pathfinding**: ใช้ BFS เพื่อหาเส้นทางที่ดีที่สุดตามไทล์ถนน
+2. **Flexible Combat**: รองรับการโจมตีหลายประเภทเป้าหมาย (Tank, Magic, Archer, House)
+3. **Position Management**: ป้องกันการซ้อนทับด้วย offset system (ใช้ Constants.Entities.ENEMY_POSITION_OFFSET_MULTIPLIER = 12)
 4. **State Management**: จัดการสถานะการเคลื่อนที่และการต่อสู้อย่างชัดเจน
+5. **Clean Code**: ย้าย magic numbers ไปเป็น constants ใน Constants.java เพื่อง่ายต่อการปรับแต่ง

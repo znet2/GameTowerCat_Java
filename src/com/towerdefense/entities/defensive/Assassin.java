@@ -14,10 +14,6 @@ import java.util.ArrayList;
  */
 public class Assassin extends GameObject {
 
-    private static final int Y_OFFSET = -30;
-    private static final int ATTACK_COOLDOWN = 30; // 0.5 seconds
-    private static final int ATTACK_ANIMATION_DURATION = 15; // 0.25 seconds
-
     private ArrayList<Enemy> enemyList;
     private ArrayList<Enemy> attackedEnemies = new ArrayList<>();
     private int attackCooldown = 0;
@@ -43,7 +39,7 @@ public class Assassin extends GameObject {
         // Update attack animation
         if (isAttacking) {
             attackAnimationTimer++;
-            if (attackAnimationTimer >= ATTACK_ANIMATION_DURATION) {
+            if (attackAnimationTimer >= Constants.Entities.ATTACK_ANIMATION_DURATION) {
                 isAttacking = false;
                 attackAnimationTimer = 0;
                 objectImage = normalImage; // Change back to normal image
@@ -67,7 +63,7 @@ public class Assassin extends GameObject {
                 if (!attackedEnemies.contains(enemy) && attackCooldown == 0) {
                     attackEnemy(enemy);
                     attackedEnemies.add(enemy);
-                    attackCooldown = ATTACK_COOLDOWN;
+                    attackCooldown = Constants.Entities.ASSASSIN_ATTACK_COOLDOWN;
                 }
             } else {
                 // Remove from attacked list when enemy moves away
@@ -100,20 +96,12 @@ public class Assassin extends GameObject {
         System.out.println("Assassin attacked! Damage: " + Constants.Entities.ASSASSIN_ATTACK_DAMAGE);
     }
 
-    public int getGridColumn(int tileSize) {
-        return positionX / tileSize;
-    }
-
-    public int getGridRow(int tileSize) {
-        return positionY / tileSize;
-    }
-
     @Override
     public void draw(Graphics graphics) {
         graphics.drawImage(
                 objectImage,
-                positionX,
-                positionY + Y_OFFSET,
+                positionX + Constants.Entities.ASSASSIN_X_OFFSET,
+                positionY + Constants.Entities.ASSASSIN_Y_OFFSET,
                 objectWidth,
                 objectHeight,
                 null);

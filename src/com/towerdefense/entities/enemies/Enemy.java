@@ -46,9 +46,6 @@ public class Enemy {
     private final int attackPositionOffset;
     private boolean isPositionLocked = false;
 
-    // Constants
-    private static final int POSITION_OFFSET_MULTIPLIER = 12;
-
     // Constructor that creates an enemy and sets up its path
     // Initializes movement path, position, and assigns unique attack offset
     // @param gameMap - reference to the game map for pathfinding and collision
@@ -61,7 +58,7 @@ public class Enemy {
 
         // Calculate unique attack position offset for this enemy
         // Counter is reset at the start of each wave for consistent positioning
-        this.attackPositionOffset = totalEnemyCount * POSITION_OFFSET_MULTIPLIER;
+        this.attackPositionOffset = totalEnemyCount * Constants.Entities.ENEMY_POSITION_OFFSET_MULTIPLIER;
         totalEnemyCount++;
 
         buildMovementPath();

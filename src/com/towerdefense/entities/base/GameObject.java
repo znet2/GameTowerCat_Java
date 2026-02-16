@@ -37,4 +37,20 @@ public abstract class GameObject {
     public void draw(Graphics graphics) {
         graphics.drawImage(objectImage, positionX, positionY, objectWidth, objectHeight, null);
     }
+
+    // Converts the object's pixel X position to grid column
+    // Used for grid-based positioning and placement validation
+    // @param tileSize - size of each tile in pixels
+    // @return grid column position
+    public int getGridColumn(int tileSize) {
+        return positionX / tileSize;
+    }
+
+    // Converts the object's pixel Y position to grid row
+    // Used for grid-based positioning and placement validation
+    // @param tileSize - size of each tile in pixels
+    // @return grid row position
+    public int getGridRow(int tileSize) {
+        return positionY / tileSize;
+    }
 }

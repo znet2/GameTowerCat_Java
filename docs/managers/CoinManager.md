@@ -13,7 +13,6 @@ public class CoinManager
 
 ### สถานะเหรียญ
 - `int currentCoins` - จำนวนเหรียญปัจจุบัน
-- `int passiveIncomeTimer` - ตัวจับเวลาสำหรับรายได้ passive
 
 ## Methods อย่างละเอียด
 
@@ -32,18 +31,6 @@ public int getCurrentCoins()
 **วัตถุประสงค์**: ดึงจำนวนเหรียญปัจจุบัน
 **การทำงาน**: return `currentCoins`
 **การใช้งาน**: ใช้สำหรับการแสดงผลและการตรวจสอบ
-
-### update()
-```java
-public void update()
-```
-**วัตถุประสงค์**: อัปเดต CoinManager ทุก frame
-**การทำงาน**:
-1. เพิ่ม `passiveIncomeTimer++`
-2. ตรวจสอบว่า timer ถึง interval หรือยัง (300 frames = 5 วินาที)
-3. หากถึงแล้ว:
-   - เรียก `addCoins(Constants.Economy.PASSIVE_INCOME_AMOUNT)` (5 เหรียญ)
-   - รีเซ็ต `passiveIncomeTimer = 0`
 
 ### addCoins(int amount)
 ```java
@@ -88,23 +75,15 @@ public void awardCoinsForEnemyKill()
 ```
 **วัตถุประสงค์**: ให้รางวัลเหรียญสำหรับการฆ่าศัตรู
 **การทำงาน**: เรียก `addCoins(Constants.Economy.COINS_PER_ENEMY_KILL)` (10 เหรียญ)
-**หมายเหตุ**: ไม่ได้ใช้ในโหมดป้องกันปัจจุบัน เพราะ Tank ไม่ฆ่าศัตรู
+**การใช้งาน**: เรียกโดย Enemy เมื่อถูกฆ่า
 
-### getTankCost()
+### awardCoinsForWaveComplete()
 ```java
-public int getTankCost()
+public void awardCoinsForWaveComplete()
 ```
-**วัตถุประสงค์**: ดึงราคา Tank
-**การทำงาน**: return `Constants.Entities.TANK_COST` (25 เหรียญ)
-**การใช้งาน**: ใช้สำหรับการแสดงผล UI และการตรวจสอบ
-
-### purchaseTank()
-```java
-public boolean purchaseTank()
-```
-**วัตถุประสงค์**: ซื้อ Tank
-**การทำงาน**: เรียก `spendCoins(Constants.Entities.TANK_COST)`
-**การใช้งาน**: ใช้โดย GamePanel เมื่อผู้เล่นวาง Tank
+**วัตถุประสงค์**: ให้รางวัลเหรียญโบนัสเมื่อจบ wave
+**การทำงาน**: เรียก `addCoins(Constants.Economy.COINS_PER_WAVE_COMPLETE)` (50 เหรียญ)
+**การใช้งาน**: เรียกโดย GamePanel เมื่อจบแต่ละ wave
 
 ### renderCoinDisplay(Graphics graphics, int screenWidth, int screenHeight)
 ```java
@@ -130,26 +109,18 @@ public void resetCoins()
 **การทำงาน**: ตั้ง `currentCoins = Constants.Economy.STARTING_COINS`
 **การใช้งาน**: ใช้เมื่อเริ่มเกมใหม่หรือ restart
 
-### getEnemyKillReward()
-```java
-public int getEnemyKillReward()
-```
-**วัตถุประสงค์**: ดึงจำนวนเหรียญรางวัลการฆ่าศัตรู
-**การทำงาน**: return `Constants.Economy.COINS_PER_ENEMY_KILL` (10 เหรียญ)
-**การใช้งาน**: ใช้สำหรับการแสดงข้อมูลและการปรับสมดุล
-
 ## ระบบเศรษฐกิจ
 
 ### รายได้ (Income)
 1. **เหรียญเริ่มต้น**: 50 เหรียญ
-2. **Passive Income**: 5 เหรียญทุก 5 วินาที
-3. **Enemy Kill Reward**: 10 เหรียญต่อตัว (ไม่ได้ใช้ในปัจจุบัน)
+2. **Enemy Kill Reward**: 10 เหรียญต่อตัว (เมื่อศัตรูถูกฆ่า)
+3. **Wave Complete Bonus**: 50 เหรียญต่อ wave (เมื่อจบแต่ละ wave)
 
 ### รายจ่าย (Expenses)
-1. **Tank**: 25 เหรียญ
-2. **Magic**: 10 เหรียญ
-3. **Archer**: 15 เหรียญ
-4. **Assassin**: 20 เหรียญ
+- **Tank**: 25 เหรียญ (ใช้ `spendCoins(Constants.Entities.TANK_COST)`)
+- **Magic**: 10 เหรียญ (ใช้ `spendCoins(Constants.Entities.MAGIC_COST)`)
+- **Archer**: 15 เหรียญ (ใช้ `spendCoins(Constants.Entities.ARCHER_COST)`)
+- **Assassin**: 20 เหรียญ (ใช้ `spendCoins(Constants.Entities.ASSASSIN_COST)`)
 
 ### การแสดงผล
 1. **ตำแหน่ง**: มุมขวาล่างของหน้าจอ
@@ -159,12 +130,11 @@ public int getEnemyKillReward()
 
 ## การทำงานของระบบ
 
-### Passive Income System
+### Income System
 ```
-Timer: 0 → 300 frames (5 seconds)
-Action: Add 5 coins
-Reset: Timer = 0
-Repeat: Continuously
+1. Starting Coins: 50 coins (เริ่มเกม)
+2. Enemy Kill: +10 coins (ทุกครั้งที่ฆ่าศัตรู)
+3. Wave Complete: +50 coins (ทุกครั้งที่จบ wave)
 ```
 
 ### Purchase Validation
@@ -173,6 +143,12 @@ Repeat: Continuously
 2. Check: cost >= 0
 3. If valid: Deduct coins, return true
 4. If invalid: Return false
+
+ทุกหน่วยใช้ spendCoins() โดยตรง:
+- Tank: spendCoins(Constants.Entities.TANK_COST)
+- Magic: spendCoins(Constants.Entities.MAGIC_COST)
+- Archer: spendCoins(Constants.Entities.ARCHER_COST)
+- Assassin: spendCoins(Constants.Entities.ASSASSIN_COST)
 ```
 
 ### UI Integration
@@ -186,10 +162,10 @@ Repeat: Continuously
 ## ความสัมพันธ์กับคลาสอื่น
 
 ### GamePanel.java
-- **Update**: GamePanel เรียก update() ทุก frame
-- **Purchase**: GamePanel เรียก purchaseTank() เมื่อวาง Tank
+- **Purchase**: GamePanel เรียก spendCoins() เมื่อวางหน่วยป้องกัน (Tank, Magic, Archer, Assassin)
 - **Validation**: GamePanel เรียก canAfford() เพื่อตรวจสอบ UI
 - **Display**: GamePanel เรียก renderCoinDisplay() เพื่อแสดงผล
+- **Wave Bonus**: GamePanel เรียก awardCoinsForWaveComplete() เมื่อจบ wave
 
 ### WaveManager.java
 - **Reference**: WaveManager เก็บอ้างอิง CoinManager
@@ -197,14 +173,13 @@ Repeat: Continuously
 
 ### Enemy.java
 - **Reference**: Enemy เก็บอ้างอิง CoinManager
-- **Rewards**: (ไม่ได้ใช้ในโหมดป้องกันปัจจุบัน)
+- **Rewards**: Enemy เรียก awardCoinsForEnemyKill() เมื่อถูกฆ่า
 
 ### Constants.java
 - **Configuration**: ใช้ค่าคงที่จาก Constants.Economy
 - **STARTING_COINS**: 50
 - **COINS_PER_ENEMY_KILL**: 10
-- **PASSIVE_INCOME_AMOUNT**: 5
-- **PASSIVE_INCOME_INTERVAL_FRAMES**: 300
+- **COINS_PER_WAVE_COMPLETE**: 50
 
 ## จุดเด่นของการออกแบบ
 
@@ -214,7 +189,11 @@ Repeat: Continuously
 
 ### ความยืดหยุ่น
 - สามารถปรับค่าต่างๆ ผ่าน Constants ได้ง่าย
-- รองรับการเพิ่มประเภทการซื้อใหม่
+- ใช้ `spendCoins()` โดยตรงสำหรับทุกหน่วย - ไม่ต้องมี wrapper method
+
+### ความเรียบง่าย
+- ไม่มี method ซ้ำซ้อนสำหรับแต่ละหน่วย
+- ใช้ `spendCoins()` และ `canAfford()` ครอบคลุมทุกการซื้อ
 
 ### การแสดงผลที่ดี
 - แสดงผลแบบ real-time
@@ -222,9 +201,10 @@ Repeat: Continuously
 - ตำแหน่งที่เหมาะสม
 
 ### ระบบเศรษฐกิจที่สมดุล
-- รายได้ passive ที่สม่ำเสมอ
+- รายได้จากการฆ่าศัตรูและจบ wave
 - ราคาหน่วยที่แตกต่างกันตามความแข็งแกร่ง
 - เหรียญเริ่มต้นที่เพียงพอสำหรับการเริ่มเกม
+- โบนัส wave ช่วยให้สามารถซื้อหน่วยเพิ่มได้
 
 ## การปรับแต่งและขยายระบบ
 1. **เพิ่มประเภทรายได้**: เพิ่ม method สำหรับรายได้จากแหล่งอื่น

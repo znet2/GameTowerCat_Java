@@ -27,4 +27,24 @@ public interface Defensive {
     default int getDefenseRating() {
         return 0; // Default no defense bonus
     }
+
+    // Gets the health percentage for UI display
+    // @return health as a percentage (0.0 to 1.0)
+    default double getHealthPercentage() {
+        return (double) getCurrentHealth() / getMaxHealth();
+    }
+
+    // Legacy method for compatibility with existing enemy damage system
+    // Delegates to the takeDamage method
+    // @param damageAmount - amount of damage to apply
+    default void damage(int damageAmount) {
+        takeDamage(damageAmount);
+    }
+
+    // Legacy method for compatibility with existing game systems
+    // Delegates to the isDestroyed method
+    // @return true if unit is dead, false otherwise
+    default boolean isDead() {
+        return isDestroyed();
+    }
 }

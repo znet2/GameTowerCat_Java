@@ -62,6 +62,24 @@ public void draw(Graphics graphics)
 
 **หมายเหตุ**: Method นี้สามารถ override ได้ในคลาสลูกเพื่อการแสดงผลพิเศษ
 
+### getGridColumn(int tileSize)
+```java
+public int getGridColumn(int tileSize)
+```
+**วัตถุประสงค์**: แปลงตำแหน่ง X เป็นคอลัมน์กริด
+**พารามิเตอร์**: `tileSize` - ขนาดแต่ละไทล์เป็นพิกเซล
+**การทำงาน**: `return positionX / tileSize`
+**การใช้งาน**: ใช้สำหรับการตรวจสอบตำแหน่งและการวางหน่วย
+
+### getGridRow(int tileSize)
+```java
+public int getGridRow(int tileSize)
+```
+**วัตถุประสงค์**: แปลงตำแหน่ง Y เป็นแถวกริด
+**พารามิเตอร์**: `tileSize` - ขนาดแต่ละไทล์เป็นพิกเซล
+**การทำงาน**: `return positionY / tileSize`
+**การใช้งาน**: ใช้สำหรับการตรวจสอบตำแหน่งและการวางหน่วย
+
 ## การใช้งานและตัวอย่าง
 
 ### การสร้างคลาสลูก
