@@ -39,8 +39,8 @@ public static final class Map
 
 #### ค่าคงที่พื้นฐาน
 - `TILE_SIZE = 32` - ขนาดไทล์เป็นพิกเซล
-- `HOUSE_COLUMN = 32` - คอลัมน์ของบ้าน
-- `HOUSE_ROW = 4` - แถวของบ้าน
+- `HOUSE_COLUMN = 53` - คอลัมน์ของบ้าน
+- `HOUSE_ROW = 9` - แถวของบ้าน
 
 #### ประเภทไทล์
 - `TILE_ROAD = 0` - ถนน (ศัตรูเดินได้, วางหน่วยได้)
@@ -69,53 +69,53 @@ public static final class Entities
 - `SPELL_ANIMATION_DURATION = 30` - ระยะเวลา animation เวทมนตร์ (frames)
 
 #### Tank Configuration
-- `TANK_INITIAL_HEALTH = 10000` - เลือดเริ่มต้น Tank
-- `TANK_COST = 25` - ราคา Tank
+- `TANK_INITIAL_HEALTH = 16000` - เลือดเริ่มต้น Tank
+- `TANK_COST = 120` - ราคา Tank
 - `TANK_X_OFFSET = 0` - offset การแสดงผลแนวนอน
 - `TANK_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
 
 #### Magic Configuration
-- `MAGIC_INITIAL_HEALTH = 50` - เลือดเริ่มต้น Magic
+- `MAGIC_INITIAL_HEALTH = 5000` - เลือดเริ่มต้น Magic
 - `MAGIC_DEFENSE_RATING = 0` - ค่าป้องกัน Magic
-- `MAGIC_COST = 10` - ราคา Magic
-- `MAGIC_ATTACK_DAMAGE = 5` - ความเสียหายการโจมตีปกติ
-- `MAGIC_SPELL_DAMAGE = 20` - ความเสียหายเวทมนตร์พิเศษ
-- `MAGIC_ATTACK_COOLDOWN_FRAMES = 45` - cooldown การโจมตี (0.75 วินาที)
-- `MAGIC_ATTACK_RANGE = 300` - ระยะโจมตี
+- `MAGIC_COST = 100` - ราคา Magic
+- `MAGIC_ATTACK_DAMAGE = 250` - ความเสียหายการโจมตีปกติ
+- `MAGIC_SPELL_DAMAGE = 400` - ความเสียหายเวทมนตร์พิเศษ
+- `MAGIC_ATTACK_COOLDOWN_FRAMES = 60` - cooldown การโจมตี (1 วินาที)
+- `MAGIC_ATTACK_RANGE = 250` - ระยะโจมตี
 - `MAGIC_ATTACKS_BEFORE_SPELL = 4` - จำนวนการโจมตีก่อนใช้เวทมนตร์
 - `MAGIC_X_OFFSET = 0` - offset การแสดงผลแนวนอน
 - `MAGIC_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
 
 #### Archer Configuration
-- `ARCHER_INITIAL_HEALTH = 75` - เลือดเริ่มต้น Archer
+- `ARCHER_INITIAL_HEALTH = 5000` - เลือดเริ่มต้น Archer
 - `ARCHER_DEFENSE_RATING = 0` - ค่าป้องกัน Archer
-- `ARCHER_COST = 15` - ราคา Archer
-- `ARCHER_ATTACK_DAMAGE = 10` - ความเสียหาย
-- `ARCHER_ATTACK_COOLDOWN_FRAMES = 90` - cooldown การโจมตี (1.5 วินาที)
-- `ARCHER_ATTACK_RANGE = 1000` - ระยะโจมตีไกลมาก
+- `ARCHER_COST = 200` - ราคา Archer
+- `ARCHER_ATTACK_DAMAGE = 100` - ความเสียหาย
+- `ARCHER_ATTACK_COOLDOWN_FRAMES = 30` - cooldown การโจมตี (0.5 วินาที)
+- `ARCHER_ATTACK_RANGE = 400` - ระยะโจมตี
 - `ARCHER_X_OFFSET = 0` - offset การแสดงผลแนวนอน
 - `ARCHER_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
 
 #### Assassin Configuration
-- `ASSASSIN_COST = 20` - ราคา Assassin
-- `ASSASSIN_ATTACK_DAMAGE = 30` - ความเสียหาย Assassin
+- `ASSASSIN_COST = 150` - ราคา Assassin
+- `ASSASSIN_ATTACK_DAMAGE = 500` - ความเสียหาย Assassin
 - `ASSASSIN_ATTACK_RANGE = 80` - ระยะโจมตีใกล้ (melee)
-- `ASSASSIN_ATTACK_COOLDOWN = 30` - cooldown การโจมตี (0.5 วินาที)
+- `ASSASSIN_ATTACK_COOLDOWN = 45` - cooldown การโจมตี (0.75 วินาที)
 - `ASSASSIN_X_OFFSET = 0` - offset การแสดงผลแนวนอน
 - `ASSASSIN_Y_OFFSET = -30` - offset การแสดงผลแนวตั้ง
 
 **หมายเหตุ**: X_OFFSET และ Y_OFFSET ใช้สำหรับปรับตำแหน่งการแสดงผลให้ตัวละครแต่ละตัวยืนตรงกันในแมพ เนื่องจากขนาดรูปภาพไม่เท่ากัน
 
 #### House Configuration
-- `HOUSE_INITIAL_HEALTH = 100` - เลือดเริ่มต้นบ้าน
+- `HOUSE_INITIAL_HEALTH = 10000` - เลือดเริ่มต้นบ้าน
 - `HOUSE_WIDTH_TILES = 7` - ความกว้างบ้านเป็นไทล์
 - `HOUSE_HEIGHT_TILES = 7` - ความสูงบ้านเป็นไทล์
 
 #### Enemy Configuration
 - `ENEMY_SIZE = 64` - ขนาดศัตรูเป็นพิกเซล
-- `ENEMY_SPEED = 1.2` - ความเร็วศัตรู
-- `ENEMY_INITIAL_HEALTH = 50` - เลือดเริ่มต้นศัตรู
-- `ENEMY_ATTACK_DAMAGE = 5` - ความเสียหายศัตรู
+- `ENEMY_SPEED = 0.5` - ความเร็วศัตรู
+- `ENEMY_INITIAL_HEALTH = 3000` - เลือดเริ่มต้นศัตรู
+- `ENEMY_ATTACK_DAMAGE = 500` - ความเสียหายศัตรู
 - `ENEMY_ATTACK_COOLDOWN_FRAMES = 60` - cooldown การโจมตี (1 วินาที)
 - `ENEMY_X_OFFSET = -25` - offset การแสดงผลแนวนอน
 - `ENEMY_Y_OFFSET = -25` - offset การแสดงผลแนวตั้ง
@@ -158,28 +158,28 @@ public static final class UI
 - `TANK_ICON_TOP_MARGIN = 16` - ระยะห่างจากด้านบน
 
 #### Menu Configuration
-- `START_BUTTON_WIDTH = 300` - ความกว้างปุ่ม Start
-- `START_BUTTON_HEIGHT = 200` - ความสูงปุ่ม Start
-- `START_BUTTON_Y_OFFSET = 100` - offset ปุ่ม Start จากกึ่งกลาง
-- `LOGO_WIDTH = 500` - ความกว้างโลโก้
-- `LOGO_HEIGHT = 250` - ความสูงโลโก้
-- `LOGO_TOP_MARGIN = 100` - ระยะห่างโลโก้จากด้านบน
+- `START_BUTTON_WIDTH = 510` - ความกว้างปุ่ม Start
+- `START_BUTTON_HEIGHT = 240` - ความสูงปุ่ม Start
+- `START_BUTTON_Y_OFFSET = 150` - offset ปุ่ม Start จากกึ่งกลาง (บวก = ลง, ลบ = ขึ้น)
+- `LOGO_WIDTH = 750` - ความกว้างโลโก้
+- `LOGO_HEIGHT = 400` - ความสูงโลโก้
+- `LOGO_TOP_MARGIN = 150` - ระยะห่างโลโก้จากด้านบน
 
 #### Game Over Screen
 **Win Image**:
-- `WIN_IMAGE_WIDTH = 600` - ความกว้างรูปชนะ
-- `WIN_IMAGE_HEIGHT = 400` - ความสูงรูปชนะ
-- `WIN_IMAGE_Y_OFFSET = -50` - offset รูปชนะ
+- `WIN_IMAGE_WIDTH = 870` - ความกว้างรูปชนะ
+- `WIN_IMAGE_HEIGHT = 460` - ความสูงรูปชนะ
+- `WIN_IMAGE_Y_OFFSET = -150` - offset รูปชนะจากกึ่งกลาง (บวก = ลง, ลบ = ขึ้น)
 
 **Lose Image**:
-- `LOSE_IMAGE_WIDTH = 600` - ความกว้างรูปแพ้
-- `LOSE_IMAGE_HEIGHT = 700` - ความสูงรูปแพ้
-- `LOSE_IMAGE_Y_OFFSET = -50` - offset รูปแพ้
+- `LOSE_IMAGE_WIDTH = 850` - ความกว้างรูปแพ้
+- `LOSE_IMAGE_HEIGHT = 560` - ความสูงรูปแพ้
+- `LOSE_IMAGE_Y_OFFSET = -150` - offset รูปแพ้จากกึ่งกลาง (บวก = ลง, ลบ = ขึ้น)
 
 **Restart Button**:
-- `RESTART_BUTTON_WIDTH = 200` - ความกว้างปุ่ม Restart
-- `RESTART_BUTTON_HEIGHT = 60` - ความสูงปุ่ม Restart
-- `RESTART_BUTTON_Y_OFFSET = 50` - offset ปุ่ม Restart
+- `RESTART_BUTTON_WIDTH = 400` - ความกว้างปุ่ม Restart
+- `RESTART_BUTTON_HEIGHT = 200` - ความสูงปุ่ม Restart
+- `RESTART_BUTTON_Y_OFFSET = 45` - offset ปุ่ม Restart จากรูปผลลัพธ์
 
 #### Colors
 - `HERO_BAR_COLOR = Color.DARK_GRAY` - สีแถบ UI
@@ -202,9 +202,9 @@ public static final class Economy
 **วัตถุประสงค์**: ค่าคงที่เกี่ยวกับระบบเศรษฐกิจ
 
 #### ค่าคงที่
-- `STARTING_COINS = 50` - เหรียญเริ่มต้น
-- `COINS_PER_ENEMY_KILL = 10` - เหรียญรางวัลการฆ่าศัตรูแต่ละตัว
-- `COINS_PER_WAVE_COMPLETE = 50` - เหรียญโบนัสเมื่อจบแต่ละ wave
+- `STARTING_COINS = 640` - เหรียญเริ่มต้น
+- `COINS_PER_ENEMY_KILL = 15` - เหรียญรางวัลการฆ่าศัตรูแต่ละตัว
+- `COINS_PER_WAVE_COMPLETE = 200` - เหรียญโบนัสเมื่อจบแต่ละ wave
 
 #### การใช้งาน
 - **Game Start**: ใช้ STARTING_COINS สำหรับเหรียญเริ่มต้น
@@ -219,19 +219,19 @@ public static final class Waves
 
 #### ค่าคงที่
 - `BASE_ENEMIES_PER_WAVE = 3` - จำนวนศัตรูพื้นฐานต่อ wave
-- `ENEMIES_INCREASE_PER_WAVE = 2` - จำนวนศัตรูเพิ่มต่อ wave
+- `ENEMIES_INCREASE_PER_WAVE = 3` - จำนวนศัตรูเพิ่มต่อ wave
 - `SPAWN_DELAY_FRAMES = 30` - ช่วงเวลาการสร้างศัตรู (0.5 วินาที)
 - `MAX_WAVES = 5` - จำนวน wave ทั้งหมดเพื่อชนะ
 
 #### สูตรการคำนวณ
 ```
 จำนวนศัตรูใน wave = BASE_ENEMIES_PER_WAVE + (wave_number * ENEMIES_INCREASE_PER_WAVE)
-Wave 1: 3 + (1 * 2) = 5 ตัว
-Wave 2: 3 + (2 * 2) = 7 ตัว
-Wave 3: 3 + (3 * 2) = 9 ตัว
-Wave 4: 3 + (4 * 2) = 11 ตัว
-Wave 5: 3 + (5 * 2) = 13 ตัว
-รวมทั้งหมด: 5 + 7 + 9 + 11 + 13 = 45 ตัว
+Wave 1: 3 + (1 * 3) = 6 ตัว
+Wave 2: 3 + (2 * 3) = 9 ตัว
+Wave 3: 3 + (3 * 3) = 12 ตัว
+Wave 4: 3 + (4 * 3) = 15 ตัว
+Wave 5: 3 + (5 * 3) = 18 ตัว
+รวมทั้งหมด: 6 + 9 + 12 + 15 + 18 = 60 ตัว
 ```
 
 ### File Paths
@@ -250,14 +250,15 @@ public static final class Paths
 - `HOUSE_IMAGE = IMAGES + "castle.png"` - รูปบ้าน
 - `MAGIC_IMAGE = IMAGES + "magic.png"` - รูป Magic tower
 - `MAGIC_BOMB_IMAGE = IMAGES + "magicBomb.png"` - รูป Magic เวทมนตร์
-- `ARCHER_IMAGE = IMAGES + "archer.png"` - รูป Archer ปกติ
-- `ARCHER_ATTACK_IMAGE = IMAGES + "archerAttack.png"` - รูป Archer โจมตี
-- `ASSASSIN_IMAGE = IMAGES + "assasin.png"` - รูป Assassin
-
-#### Projectile Images
 - `NORMAL_MAGIC_BALL_IMAGE = IMAGES + "normalMagicBall.png"` - ลูกไฟปกติ
 - `SUPER_MAGIC_BALL_IMAGE = IMAGES + "superMagicBall.png"` - ลูกไฟพิเศษ
+- `ARCHER_IMAGE = IMAGES + "archer.png"` - รูป Archer ปกติ
+- `ARCHER_ATTACK_IMAGE = IMAGES + "archerAttack.png"` - รูป Archer โจมตี
 - `ARROW_IMAGE = IMAGES + "arrow.png"` - ลูกธนุ
+- `ASSASSIN_IMAGE = IMAGES + "assasin.png"` - รูป Assassin (ไฟล์สะกดผิด)
+- `ASSASSIN_ATTACK_IMAGE = IMAGES + "assasinAttack.png"` - รูป Assassin โจมตี
+
+#### Projectile Images (ย้ายไปอยู่ใน Entity Images แล้ว)
 
 #### UI Images
 - `WALLPAPER_IMAGE = IMAGES + "wallpaper.png"` - พื้นหลังเมนู

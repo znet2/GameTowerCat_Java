@@ -1,320 +1,431 @@
-# Enemy.java - ระบบศัตรูและ AI
+# Enemy Class Documentation
 
 ## ภาพรวม
-Enemy เป็นคลาสที่จัดการศัตรูในเกม รวมถึงการเคลื่อนที่ตาม pathfinding, การต่อสู้กับหน่วยป้องกัน, และ AI behavior
+คลาส `Enemy` เป็นตัวแทนของศัตรูในเกม Tower Defense ที่เคลื่อนที่ตามเส้นทางที่กำหนดและโจมตีหน่วยป้องกัน (Tank, Magic, Archer) และบ้าน (House) ศัตรูจะใช้ BFS pathfinding เพื่อหาเส้นทางที่สั้นที่สุดตามถนน และจะหยุดโจมตีเมื่อพบหน่วยป้องกันหรือบ้าน
 
-## คลาสและการสืบทอด
+## Package
+`com.towerdefense.entities.enemies`
+
+## Imports
 ```java
-public class Enemy
+import com.towerdefense.world.Map;
+import com.towerdefense.entities.defensive.House;
+import com.towerdefense.entities.defensive.Tank;
+import com.towerdefense.entities.defensive.Magic;
+import com.towerdefense.entities.defensive.Archer;
+import com.towerdefense.managers.CoinManager;
+import com.towerdefense.utils.Constants;
+import java.awt.*;
+import java.util.ArrayList;
+import javax.swing.ImageIcon;
 ```
-- คลาสอิสระที่ไม่สืบทอดจากคลาสอื่น
 
-## ตัวแปรสำคัญ
+## คุณสมบัติหลัก (Fields)
 
-### ตัวแปรภาพและตำแหน่ง
-- `Image enemyImage` - รูปภาพศัตรู
-- `double positionX, positionY` - ตำแหน่งปัจจุบันเป็นพิกเซล
+### Visual Properties
+- `enemyImage` (Image, final): รูปภาพของศัตรู
 
-### ระบบ Pathfinding
-- `ArrayList<Point> movementPath` - เส้นทางการเคลื่อนที่
-- `int currentPathIndex` - จุดปัจจุบันในเส้นทาง
+### Position and Movement
+- `positionX` (double): ตำแหน่ง X ปัจจุบันของศัตรู
+- `positionY` (double): ตำแหน่ง Y ปัจจุบันของศัตรู
+- `movementPath` (ArrayList<Point>, final): รายการจุดที่ศัตรูจะเดินผ่าน
+- `currentPathIndex` (int): ดัชนีของจุดปัจจุบันในเส้นทาง
 
-### การอ้างอิงเกม
-- `Map gameMap` - อ้างอิงไปยังแผนที่
-- `House targetHouse` - บ้านที่ต้องโจมตี
+### Game References
+- `gameMap` (Map, final): อ้างอิงถึงแผนที่เกม
+- `targetHouse` (House, final): อ้างอิงถึงบ้านที่เป็นเป้าหมาย
+- `coinManager` (CoinManager, final): อ้างอิงถึงระบบเหรียญสำหรับให้รางวัลเมื่อฆ่าศัตรู
 
-### สถานะการต่อสู้
-- `boolean isAttacking` - กำลังโจมตีหรือไม่
-- `int attackTimer` - ตัวจับเวลาการโจมตี
-- `Object currentAttackTarget` - เป้าหมายที่กำลังโจมตี
+### Combat State
+- `isAttacking` (boolean): สถานะว่าศัตรูกำลังโจมตีอยู่หรือไม่
+- `attackTimer` (int): ตัวนับเวลาสำหรับการโจมตี
+- `currentAttackTarget` (Object): เป้าหมายที่กำลังโจมตีอยู่
 
-### สถานะศัตรู
-- `boolean isDead` - ตายหรือยัง
-- `int currentHealth` - เลือดปัจจุบัน
+### Enemy State
+- `isDead` (boolean): สถานะว่าศัตรูตายแล้วหรือไม่
+- `currentHealth` (int): พลังชีวิตปัจจุบัน (เริ่มต้นที่ ENEMY_INITIAL_HEALTH)
 
-### การจัดการตำแหน่ง
-- `static int totalEnemyCount` - จำนวนศัตรูทั้งหมด (สำหรับคำนวณ offset)
-- `int attackPositionOffset` - offset เฉพาะตัวเพื่อป้องกันการซ้อนทับ (คำนวณจาก `totalEnemyCount * Constants.Entities.ENEMY_POSITION_OFFSET_MULTIPLIER`)
-- `boolean isPositionLocked` - ล็อคตำแหน่งขณะโจมตี
+### Position Management
+- `totalEnemyCount` (static int): จำนวนศัตรูทั้งหมดที่ถูกสร้าง (ใช้สำหรับ offset)
+- `attackPositionOffset` (int, final): ระยะ offset สำหรับตำแหน่งโจมตีเพื่อป้องกันศัตรูซ้อนกัน
+- `isPositionLocked` (boolean): สถานะว่าตำแหน่งถูกล็อคหรือไม่ (ระหว่างโจมตี)
 
-## Methods อย่างละเอียด
+## Constructor
 
-### Constructor
-```java
-public Enemy(Map gameMap, CoinManager coinManager)
-```
-**วัตถุประสงค์**: สร้างศัตรูใหม่และตั้งค่าเส้นทาง
-**พารามิเตอร์**:
-- `gameMap` - แผนที่สำหรับ pathfinding
-- `coinManager` - ระบบเหรียญ (ไม่ได้ใช้ในโหมดป้องกัน)
-**การทำงาน**:
-1. เก็บอ้างอิงแผนที่และบ้าน
-2. โหลดรูปภาพศัตรู
-3. คำนวณ `attackPositionOffset` เฉพาะตัว = `totalEnemyCount * Constants.Entities.ENEMY_POSITION_OFFSET_MULTIPLIER`
-4. เพิ่ม `totalEnemyCount`
-5. เรียก `buildMovementPath()` - สร้างเส้นทาง
-6. เรียก `initializeStartingPosition()` - ตั้งตำแหน่งเริ่มต้น
+### `public Enemy(Map gameMap, CoinManager coinManager)`
+สร้างศัตรูใหม่และตั้งค่าเส้นทางการเคลื่อนที่
 
-### buildMovementPath()
-```java
-private void buildMovementPath()
-```
-**วัตถุประสงค์**: สร้างเส้นทางจากจุดเริ่มต้นไปยังบ้าน
-**การทำงาน**:
-1. ดึงข้อมูลแผนที่และขนาดไทล์
-2. เรียก `findRoadStartPosition()` - หาจุดเริ่มต้น
-3. เรียก `findHousePosition()` - หาจุดปลายทาง
-4. เรียก `createPathUsingBFS()` - สร้างเส้นทางด้วย BFS
+**Parameters:**
+- `gameMap` (Map): อ้างอิงถึงแผนที่เกมสำหรับ pathfinding และ collision detection
+- `coinManager` (CoinManager): อ้างอิงถึงระบบเหรียญสำหรับให้รางวัลเมื่อฆ่าศัตรู
 
-### findRoadStartPosition(int[][] mapGrid)
-```java
-private Point findRoadStartPosition(int[][] mapGrid)
-```
-**วัตถุประสงค์**: หาไทล์ถนนซ้ายสุดเป็นจุดเริ่มต้น
-**การทำงาน**:
-1. วนลูปผ่านทุกไทล์ในแผนที่
-2. หาไทล์ถนน (ค่า 0) ที่อยู่ซ้ายสุด
-3. return Point(column, row) ของจุดเริ่มต้น
+**การทำงาน:**
+1. เก็บ reference ของ gameMap และ targetHouse
+2. เก็บ reference ของ coinManager สำหรับให้รางวัลเหรียญ
+3. โหลดรูปภาพศัตรูจาก Constants.Paths.ENEMY_IMAGE
+4. คำนวณ attackPositionOffset ที่ไม่ซ้ำกันสำหรับศัตรูแต่ละตัว
+5. เพิ่ม totalEnemyCount
+6. สร้างเส้นทางการเคลื่อนที่ด้วย buildMovementPath()
+7. ตั้งค่าตำแหน่งเริ่มต้นด้วย initializeStartingPosition()
 
-### findHousePosition(int[][] mapGrid)
-```java
-private Point findHousePosition(int[][] mapGrid)
-```
-**วัตถุประสงค์**: หาไทล์ถนนขวาสุดในแถวเดียวกับจุดเริ่มต้น
-**การทำงาน**:
-1. หาแถวของจุดเริ่มต้น
-2. หาไทล์ถนนขวาสุดในแถวนั้น
-3. หากไม่พบ ใช้ fallback: หาไทล์ถนนที่ใกล้บ้านที่สุด
+## Methods - Pathfinding
 
-### createPathUsingBFS(int[][] mapGrid, int tileSize, Point start, Point goal)
-```java
-private void createPathUsingBFS(int[][] mapGrid, int tileSize, Point start, Point goal)
-```
-**วัตถุประสงค์**: สร้างเส้นทางด้วยอัลกอริทึม BFS
-**การทำงาน**:
-1. **เริ่มต้น BFS**:
-   - สร้าง queue, visited array, parent array
-   - เพิ่มจุดเริ่มต้นใน queue
-2. **วนลูป BFS**:
-   - ดึงจุดจาก queue
-   - ตรวจสอบว่าถึงเป้าหมายหรือยัง
+### `private void buildMovementPath()`
+สร้างเส้นทางการเคลื่อนที่จากช่องถนนซ้ายสุดไปยังบ้าน
+
+**การทำงาน:**
+1. ดึง mapGrid และ tileSize จาก gameMap
+2. หาตำแหน่งเริ่มต้นบนถนนด้วย findRoadStartPosition()
+3. หาตำแหน่งบ้านด้วย findHousePosition()
+4. สร้างเส้นทางด้วย BFS algorithm ผ่าน createPathUsingBFS()
+
+### `private Point findRoadStartPosition(int[][] mapGrid)`
+หาช่องถนนซ้ายสุดในแผนที่เป็นจุดเริ่มต้น
+
+**Parameters:**
+- `mapGrid` (int[][]): อาร์เรย์ 2 มิติที่แทนช่องแผนที่
+
+**Returns:**
+- Point: จุดเริ่มต้น (column, row) ของถนนซ้ายสุด
+
+**การทำงาน:**
+1. วนลูปผ่านทุกช่องในแผนที่
+2. หาช่องถนน (ค่า 0) ที่อยู่ซ้ายสุด
+3. คืนค่าตำแหน่ง (column, row)
+
+### `private Point findHousePosition(int[][] mapGrid)`
+หาตำแหน่งบ้านบนแผนที่ (ช่องถนนขวาสุดในแถวเดียวกับจุดเริ่มต้น)
+
+**Parameters:**
+- `mapGrid` (int[][]): อาร์เรย์ 2 มิติที่แทนช่องแผนที่
+
+**Returns:**
+- Point: ตำแหน่งบ้าน (column, row)
+
+**การทำงาน:**
+1. หาแถวที่มีจุดเริ่มต้น
+2. หาช่องถนนขวาสุดในแถวเดียวกัน
+3. ถ้าไม่เจอ ใช้ fallback: หาช่องถนนที่ใกล้บ้านที่สุด
+4. คืนค่าตำแหน่งที่เจอ
+
+### `private void createPathUsingBFS(int[][] mapGrid, int tileSize, Point start, Point goal)`
+สร้างเส้นทางโดยใช้ BFS algorithm เพื่อเดินตามช่องถนน
+
+**Parameters:**
+- `mapGrid` (int[][]): อาร์เรย์ 2 มิติที่แทนช่องแผนที่
+- `tileSize` (int): ขนาดของแต่ละช่องเป็นพิกเซล
+- `start` (Point): ตำแหน่งเริ่มต้น
+- `goal` (Point): ตำแหน่งเป้าหมาย (ช่องถนนที่ใกล้บ้านที่สุด)
+
+**การทำงาน:**
+1. สร้าง queue, visited array, และ parent array
+2. เพิ่ม start point ลง queue
+3. วนลูป BFS:
+   - ดึง point ปัจจุบันจาก queue
+   - ถ้าถึง goal แล้ว ให้ reconstruct path และจบ
    - ตรวจสอบ 4 ทิศทาง (บน, ล่าง, ซ้าย, ขวา)
-   - เพิ่มจุดใหม่ที่เป็นไทล์ถนนใน queue
-3. **สร้างเส้นทาง**: เรียก `reconstructPath()` เมื่อพบเป้าหมาย
-4. **Fallback**: เรียก `createFallbackPath()` หากไม่พบเส้นทาง
+   - เพิ่ม neighbor ที่เป็นช่องถนนลง queue
+4. ถ้าไม่เจอเส้นทาง ใช้ createFallbackPath()
 
-### reconstructPath(Point[][] parent, Point start, Point goal, int tileSize)
-```java
-private void reconstructPath(Point[][] parent, Point start, Point goal, int tileSize)
-```
-**วัตถุประสงค์**: สร้างเส้นทางจาก parent array ของ BFS
-**การทำงาน**:
-1. เริ่มจากเป้าหมายย้อนกลับไปจุดเริ่มต้น
-2. แปลงตำแหน่งกริดเป็นพิกเซล (ใช้จุดกึ่งกลางไทล์)
-3. เพิ่มจุดเข้าไปใน movementPath
+### `private void reconstructPath(Point[][] parent, Point start, Point goal, int tileSize)`
+สร้างเส้นทางจาก parent array ของ BFS
 
-### initializeStartingPosition()
-```java
-private void initializeStartingPosition()
-```
-**วัตถุประสงค์**: ตั้งตำแหน่งเริ่มต้นของศัตรู
-**การทำงาน**: ตั้ง positionX, positionY เป็นจุดแรกในเส้นทาง
+**Parameters:**
+- `parent` (Point[][]): อาร์เรย์เก็บ parent nodes
+- `start` (Point): ตำแหน่งเริ่มต้น
+- `goal` (Point): ตำแหน่งเป้าหมาย
+- `tileSize` (int): ขนาดของแต่ละช่องเป็นพิกเซล
 
-### update()
-```java
-public void update()
-```
-**วัตถุประสงค์**: อัปเดตพฤติกรรมศัตรูทุก frame
-**การทำงาน**:
-1. ตรวจสอบว่าตายหรือยัง หากตายเรียก `handleDeath()`
-2. ตรวจสอบการชนกับ Tank - เรียก `checkForTankCollision()`
-3. ตรวจสอบการชนกับ Magic - เรียก `checkForMagicCollision()`
-4. ตรวจสอบการชนกับ Archer - เรียก `checkForArcherCollision()`
-5. หากกำลังโจมตี เรียก `processAttack()`
-6. หากไม่ได้โจมตี เรียก `moveAlongPath()`
-7. ตรวจสอบการชนกับบ้าน - เรียก `checkForHouseCollision()`
-8. ตรวจสอบว่าถึงจุดสิ้นสุดหรือยัง - เรียก `checkIfReachedEnd()`
+**การทำงาน:**
+1. สร้าง ArrayList เก็บเส้นทาง
+2. ย้อนกลับจาก goal ไป start ผ่าน parent array
+3. แปลงตำแหน่ง grid เป็นพิกเซล (ใช้จุดกึ่งกลางของช่อง)
+4. เพิ่มจุดทั้งหมดลง movementPath
 
-### checkForTankCollision()
-```java
-private boolean checkForTankCollision()
-```
-**วัตถุประสงค์**: ตรวจสอบการชนกับ Tank
-**การทำงาน**:
-1. วนลูปผ่าน Tank ทั้งหมดในแผนที่
-2. ตรวจสอบว่า Tank ยังมีชีวิตและชนกับศัตรูหรือไม่
-3. หากชน เรียก `positionForAttack()` และ `startAttacking()`
-4. return true หากเริ่มการต่อสู้
+### `private void createFallbackPath(int[][] mapGrid, int tileSize, Point start)`
+สร้างเส้นทาง fallback ถ้า BFS ล้มเหลว
 
-### positionForAttack(Tank tank)
-```java
-private void positionForAttack(Tank tank)
-```
-**วัตถุประสงค์**: จัดตำแหน่งศัตรูสำหรับโจมตี Tank
-**การทำงาน**:
-1. ดึง bounds ของ Tank
-2. ตั้งตำแหน่ง X ให้อยู่ทางซ้ายของ Tank: `positionX = tankBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset`
-3. `attackPositionOffset` ทำให้ศัตรูแต่ละตัวไม่ซ้อนทับกัน (ศัตรูตัวที่ 1 offset=0, ตัวที่ 2 offset=12, ตัวที่ 3 offset=24, ...)
+**Parameters:**
+- `mapGrid` (int[][]): อาร์เรย์ 2 มิติที่แทนช่องแผนที่
+- `tileSize` (int): ขนาดของแต่ละช่องเป็นพิกเซล
+- `start` (Point): ตำแหน่งเริ่มต้น
 
-### startAttacking(Object target)
-```java
-private void startAttacking(Object target)
-```
-**วัตถุประสงค์**: เริ่มโหมดโจมตี
-**การทำงาน**:
-1. ตั้ง `currentAttackTarget` เป็นเป้าหมาย
-2. ตั้ง `isAttacking = true`
-3. ตั้ง `isPositionLocked = true` เพื่อหยุดการเคลื่อนที่
+**การทำงาน:**
+1. ใช้แถวเดียวกับจุดเริ่มต้น
+2. สร้างเส้นทางตรงจากซ้ายไปขวาตามช่องถนน
+3. เพิ่มจุดทั้งหมดลง movementPath
 
-### processAttack()
-```java
-private void processAttack()
-```
-**วัตถุประสงค์**: จัดการการโจมตีและ cooldown
-**การทำงาน**:
-1. เพิ่ม `attackTimer`
-2. เมื่อ timer ถึง cooldown เรียก `executeAttack()`
-3. รีเซ็ต timer
+### `private void initializeStartingPosition()`
+ตั้งค่าตำแหน่งเริ่มต้นของศัตรูที่จุดแรกในเส้นทาง
 
-### executeAttack()
-```java
-private void executeAttack()
-```
-**วัตถุประสงค์**: ทำการโจมตีจริง
-**การทำงาน**:
-1. ตรวจสอบประเภทของเป้าหมาย (Tank, Magic, Archer, House)
-2. ตรวจสอบว่าเป้าหมายยังมีชีวิตหรือไม่
-3. เรียก `damage()` หรือ `takeDamage()` ของเป้าหมาย
-4. หากเป้าหมายตาย เรียก `stopAttacking()`
+**การทำงาน:**
+1. ดึงจุดแรกจาก movementPath
+2. ตั้งค่า positionX และ positionY
 
-### moveAlongPath()
-```java
-private void moveAlongPath()
-```
-**วัตถุประสงค์**: เคลื่อนที่ตามเส้นทางที่กำหนด
-**การทำงาน**:
+## Methods - Update & Behavior
+
+### `public void update()`
+เมธอดหลักที่จัดการพฤติกรรมของศัตรูในแต่ละเฟรม
+
+**การทำงาน:**
+1. ถ้าศัตรูตายแล้ว ให้ return
+2. ตรวจสอบการชนกับหน่วยป้องกัน (Tank, Magic, Archer)
+3. ถ้ากำลังโจมตี ให้ประมวลผลการโจมตี
+4. ถ้าไม่โจมตี ให้เคลื่อนที่ตามเส้นทาง
+5. ตรวจสอบการชนกับบ้าน
+6. ตรวจสอบว่าถึงจุดสิ้นสุดเส้นทางหรือไม่
+
+### `private void checkIfReachedEnd()`
+ตรวจสอบว่าศัตรูถึงจุดสิ้นสุดเส้นทางหรือไม่
+
+**การทำงาน:**
+- ถ้า currentPathIndex >= movementPath.size() ให้ตั้ง isDead = true
+
+## Methods - Collision Detection
+
+### `private boolean checkForDefensiveCollision()`
+ตรวจสอบการชนกับหน่วยป้องกันทั้งหมด (Tank, Magic, Archer)
+
+**Returns:**
+- boolean: true ถ้าเกิดการชนและเริ่มโจมตี, false ถ้าไม่มีการชน
+
+**การทำงาน:**
+1. ตรวจสอบการชนกับ Tank ทุกตัว
+2. ตรวจสอบการชนกับ Magic ทุกตัว
+3. ตรวจสอบการชนกับ Archer ทุกตัว
+4. ถ้าเจอการชน ให้วางตำแหน่งและเริ่มโจมตี
+5. คืนค่า true ถ้าเจอการชน, false ถ้าไม่เจอ
+
+### `private void positionForAttack(Object target)`
+วางตำแหน่งศัตรูสำหรับโจมตีหน่วยป้องกัน
+
+**Parameters:**
+- `target` (Object): หน่วยป้องกันที่ถูกโจมตี (Tank, Magic, หรือ Archer)
+
+**การทำงาน:**
+1. ตรวจสอบประเภทของ target
+2. ดึง bounds ของ target
+3. วางศัตรูทางซ้ายของ target พร้อม offset เพื่อป้องกันการซ้อนกัน
+
+### `private void checkForHouseCollision()`
+ตรวจสอบการชนกับบ้านและเริ่มโจมตี
+
+**การทำงาน:**
+1. ตรวจสอบว่าตำแหน่งถูกล็อคหรือไม่
+2. ตรวจสอบการชนกับบ้าน
+3. ถ้าชน ให้วางตำแหน่งทางซ้ายของบ้าน
+4. ล็อคตำแหน่งและเริ่มโจมตี
+
+## Methods - Combat
+
+### `private void startAttacking(Object target)`
+เริ่มโหมดโจมตีเป้าหมาย
+
+**Parameters:**
+- `target` (Object): วัตถุที่ถูกโจมตี (Tank, Magic, Archer, หรือ House)
+
+**การทำงาน:**
+1. ตั้งค่า currentAttackTarget
+2. ตั้งค่า isAttacking = true
+3. ตั้งค่า isPositionLocked = true
+
+### `private void processAttack()`
+ประมวลผลเวลาและการโจมตี
+
+**การทำงาน:**
+1. เพิ่ม attackTimer
+2. ถ้า attackTimer >= ENEMY_ATTACK_COOLDOWN_FRAMES ให้โจมตีและรีเซ็ต timer
+
+### `private void executeAttack()`
+ดำเนินการโจมตีเป้าหมายปัจจุบัน
+
+**การทำงาน:**
+1. ตรวจสอบประเภทของเป้าหมาย
+2. ถ้าเป้าหมายเป็นหน่วยป้องกัน (Tank, Magic, Archer):
+   - ตรวจสอบว่าตายแล้วหรือไม่
+   - ถ้ายังไม่ตาย ให้สร้างความเสียหาย ENEMY_ATTACK_DAMAGE
+   - ถ้าตายแล้ว ให้หยุดโจมตี
+3. ถ้าเป้าหมายเป็นบ้าน ให้สร้างความเสียหาย
+
+### `private void stopAttacking()`
+หยุดโจมตีและรีเซ็ตสถานะการต่อสู้
+
+**การทำงาน:**
+1. ตั้งค่า isAttacking = false
+2. ตั้งค่า isPositionLocked = false
+3. ตั้งค่า currentAttackTarget = null
+
+### `public void takeDamage(int damage)`
+รับความเสียหายและลดพลังชีวิต
+
+**Parameters:**
+- `damage` (int): จำนวนความเสียหายที่จะใช้
+
+**การทำงาน:**
+1. ลด currentHealth ด้วยค่า damage
+2. ถ้า currentHealth <= 0:
+   - ตั้งค่า currentHealth = 0
+   - ตั้งค่า isDead = true
+   - เรียก coinManager.awardCoinsForEnemyKill() เพื่อให้รางวัลเหรียญ
+
+## Methods - Movement
+
+### `private void moveAlongPath()`
+เคลื่อนที่ศัตรูตามเส้นทางที่กำหนด
+
+**การทำงาน:**
 1. ตรวจสอบว่ายังมีจุดในเส้นทางหรือไม่
-2. ดึงจุดปลายทางปัจจุบัน
-3. เรียก `moveTowardsPoint()` เพื่อเคลื่อนที่
-4. หากถึงจุดแล้ว เพิ่ม `currentPathIndex`
+2. ดึงจุดเป้าหมายปัจจุบัน
+3. เคลื่อนที่ไปยังจุดนั้น
+4. ถ้าถึงจุดแล้ว ให้เพิ่ม currentPathIndex
 
-### moveTowardsPoint(Point targetPoint)
-```java
-private boolean moveTowardsPoint(Point targetPoint)
-```
-**วัตถุประสงค์**: เคลื่อนที่ไปยังจุดเป้าหมายด้วยความเร็วคงที่
-**การทำงาน**:
-1. คำนวณ vector ระยะทาง (deltaX, deltaY)
-2. คำนวณระยะทางรวม
-3. หากระยะทางมากกว่าความเร็ว:
-   - เคลื่อนที่ด้วยความเร็วคงที่ตาม vector
-   - return false
-4. หากระยะทางน้อยกว่าความเร็ว:
+### `private boolean moveTowardsPoint(Point targetPoint)`
+เคลื่อนที่ศัตรูไปยังจุดเฉพาะด้วยความเร็วคงที่
+
+**Parameters:**
+- `targetPoint` (Point): จุดปลายทางที่จะเคลื่อนที่ไป
+
+**Returns:**
+- boolean: true ถ้าถึงจุดเป้าหมายแล้ว, false ถ้ายังเคลื่อนที่อยู่
+
+**การทำงาน:**
+1. คำนวณ deltaX และ deltaY
+2. คำนวณระยะทางถึงเป้าหมาย
+3. ถ้าระยะทาง > ENEMY_SPEED:
+   - เคลื่อนที่ไปยังเป้าหมายด้วยความเร็วคงที่
+   - คืนค่า false
+4. ถ้าระยะทาง <= ENEMY_SPEED:
    - ตั้งตำแหน่งเป็นจุดเป้าหมาย
-   - return true
+   - คืนค่า true
 
-### checkForHouseCollision()
+## Methods - State
+
+### `public int getCurrentHealth()`
+ดึงพลังชีวิตปัจจุบันของศัตรู
+
+**Returns:**
+- int: ค่าพลังชีวิตปัจจุบัน
+
+### `public int getMaxHealth()`
+ดึงพลังชีวิตสูงสุดของศัตรู
+
+**Returns:**
+- int: ค่าพลังชีวิตสูงสุด (ENEMY_INITIAL_HEALTH)
+
+### `public void kill()`
+ทำเครื่องหมายศัตรูว่าตาย
+
+**การทำงาน:**
+- ตั้งค่า isDead = true
+
+### `public boolean isDead()`
+ตรวจสอบว่าศัตรูตายหรือไม่
+
+**Returns:**
+- boolean: true ถ้าศัตรูตาย, false ถ้ายังมีชีวิต
+
+## Methods - Rendering
+
+### `public void draw(Graphics graphics)`
+วาดศัตรูบนหน้าจอ
+
+**Parameters:**
+- `graphics` (Graphics): Graphics context สำหรับการวาด
+
+**การทำงาน:**
+1. ถ้าศัตรูยังไม่ตาย:
+   - วาดรูปภาพศัตรูที่ตำแหน่งปัจจุบัน (พร้อม offset)
+   - วาดแถบพลังชีวิต
+
+### `private void drawHealthBar(Graphics graphics)`
+วาดแถบพลังชีวิตเหนือศัตรู
+
+**Parameters:**
+- `graphics` (Graphics): Graphics context สำหรับการวาด
+
+**การทำงาน:**
+1. ถ้าพลังชีวิตไม่เต็ม:
+   - วาดพื้นหลังสีแดง
+   - วาดแถบสีเขียวตามเปอร์เซ็นต์พลังชีวิต
+   - วาดกรอบสีดำ
+
+### `public Rectangle getBounds()`
+ดึง collision bounds ของศัตรู
+
+**Returns:**
+- Rectangle: สี่เหลี่ยมที่แทน bounds ของศัตรู (พร้อม offset)
+
+**การทำงาน:**
+- สร้าง Rectangle จากตำแหน่งปัจจุบัน (พร้อม offset) และขนาดศัตรู
+
+## Methods - Static
+
+### `public static void resetEnemyCount()`
+รีเซ็ตจำนวนศัตรูสำหรับเวฟใหม่
+
+**การทำงาน:**
+- ตั้งค่า totalEnemyCount = 0
+
+**หมายเหตุ:** เรียกเมธอดนี้ที่จุดเริ่มต้นของแต่ละเวฟเพื่อรีเซ็ตตำแหน่งโจมตี
+
+## ระบบเหรียญ (Coin System)
+
+ศัตรูจะให้รางวัลเหรียญเมื่อถูกฆ่า:
+- เมื่อ `takeDamage()` ทำให้พลังชีวิตเป็น 0 จะเรียก `coinManager.awardCoinsForEnemyKill()`
+- จำนวนเหรียญที่ได้กำหนดโดย `Constants.Economy.COINS_PER_ENEMY_KILL` (50 เหรียญ)
+- ศัตรูที่เดินถึงจุดสิ้นสุดเส้นทางจะไม่ให้รางวัลเหรียญ
+
+## Constants ที่ใช้
+
+จาก `Constants.Entities`:
+- `ENEMY_INITIAL_HEALTH`: พลังชีวิตเริ่มต้นของศัตรู
+- `ENEMY_SIZE`: ขนาดของศัตรู
+- `ENEMY_X_OFFSET`: ระยะ offset แกน X สำหรับการวาด
+- `ENEMY_Y_OFFSET`: ระยะ offset แกน Y สำหรับการวาด
+- `ENEMY_SPEED`: ความเร็วการเคลื่อนที่
+- `ENEMY_ATTACK_DAMAGE`: ความเสียหายต่อการโจมตี
+- `ENEMY_ATTACK_COOLDOWN_FRAMES`: จำนวนเฟรมระหว่างการโจมตี
+- `ENEMY_POSITION_OFFSET_MULTIPLIER`: ตัวคูณสำหรับ offset ตำแหน่งโจมตี
+
+จาก `Constants.Paths`:
+- `ENEMY_IMAGE`: เส้นทางไปยังรูปภาพศัตรู
+
+จาก `Constants.Map`:
+- `HOUSE_COLUMN`: คอลัมน์ของบ้าน
+- `HOUSE_ROW`: แถวของบ้าน
+
+จาก `Constants.Economy`:
+- `COINS_PER_ENEMY_KILL`: จำนวนเหรียญที่ได้เมื่อฆ่าศัตรู (50 เหรียญ)
+
+## การใช้งาน
+
 ```java
-private void checkForHouseCollision()
+// สร้างศัตรูใหม่
+Enemy enemy = new Enemy(gameMap, coinManager);
+
+// อัปเดตศัตรูในแต่ละเฟรม
+enemy.update();
+
+// วาดศัตรู
+enemy.draw(graphics);
+
+// ให้ความเสียหายศัตรู (จะให้รางวัลเหรียญถ้าตาย)
+enemy.takeDamage(10);
+
+// ตรวจสอบว่าศัตรูตายหรือไม่
+if (enemy.isDead()) {
+    // ลบศัตรูออกจากเกม
+}
+
+// รีเซ็ตจำนวนศัตรูที่จุดเริ่มต้นของเวฟใหม่
+Enemy.resetEnemyCount();
 ```
-**วัตถุประสงค์**: ตรวจสอบการชนกับบ้าน
-**การทำงาน**:
-1. ตรวจสอบว่าตำแหน่งไม่ถูกล็อคและชนกับบ้าน
-2. จัดตำแหน่งให้อยู่ทางซ้ายของบ้าน
-3. ล็อคตำแหน่งและเริ่มโจมตี
 
-### stopAttacking()
-```java
-private void stopAttacking()
-```
-**วัตถุประสงค์**: หยุดการโจมตีและกลับไปเคลื่อนที่
-**การทำงาน**:
-1. ตั้ง `isAttacking = false`
-2. ตั้ง `isPositionLocked = false`
-3. ล้าง `currentAttackTarget`
+## หมายเหตุ
 
-### takeDamage(int damage)
-```java
-public void takeDamage(int damage)
-```
-**วัตถุประสงค์**: รับความเสียหาย
-**การทำงาน**:
-1. ลดเลือดตามจำนวนความเสียหาย
-2. หากเลือดหมด ตั้ง `isDead = true`
-
-### kill()
-```java
-public void kill()
-```
-**วัตถุประสงค์**: ฆ่าศัตรูทันที (ใช้โดยระบบภายนอก)
-**การทำงาน**: ตั้ง `isDead = true`
-
-### draw(Graphics graphics)
-```java
-public void draw(Graphics graphics)
-```
-**วัตถุประสงค์**: วาดศัตรูบนหน้าจอ
-**การทำงาน**:
-1. ตรวจสอบว่ายังมีชีวิตหรือไม่
-2. วาดรูปศัตรูที่ตำแหน่งปัจจุบัน + offset
-3. เรียก `drawHealthBar()` เพื่อวาดแถบเลือด
-
-### drawHealthBar(Graphics graphics)
-```java
-private void drawHealthBar(Graphics graphics)
-```
-**วัตถุประสงค์**: วาดแถบเลือดเหนือศัตรู
-**การทำงาน**:
-1. ตรวจสอบว่าเลือดไม่เต็มหรือไม่
-2. คำนวณตำแหน่งเหนือศัตรู
-3. วาดพื้นหลังสีแดง
-4. วาดแถบเลือดสีเขียวตามเปอร์เซ็นต์
-5. วาดขอบสีดำ
-
-### getBounds()
-```java
-public Rectangle getBounds()
-```
-**วัตถุประสงค์**: ให้ bounds สำหรับการตรวจสอบการชน
-**การทำงาน**: return Rectangle ที่ตำแหน่งปัจจุบัน + offset
-
-### resetEnemyCount()
-```java
-public static void resetEnemyCount()
-```
-**วัตถุประสงค์**: รีเซ็ตตัวนับศัตรูสำหรับ wave ใหม่
-**การทำงาน**: ตั้ง `totalEnemyCount = 0`
-**การใช้งาน**: เรียกโดย WaveManager เมื่อเริ่ม wave ใหม่
-
-## ระบบ AI และพฤติกรรม
-
-### การเคลื่อนที่
-1. **Pathfinding**: ใช้ BFS หาเส้นทางสั้นสุดตามไทล์ถนน
-2. **Smooth Movement**: เคลื่อนที่ด้วยความเร็วคงที่ระหว่างจุด (Constants.Entities.ENEMY_SPEED = 1.2)
-3. **Collision Avoidance**: ใช้ `attackPositionOffset` เพื่อป้องกันการซ้อนทับ (แต่ละตัวห่างกัน 12 pixels)
-
-### การต่อสู้
-1. **Target Priority**: Tank → Magic → Archer → House
-2. **Attack Positioning**: จัดตำแหน่งทางซ้ายของเป้าหมาย พร้อม offset เพื่อไม่ให้ซ้อนทับ
-3. **Attack Cooldown**: โจมตีทุก 1 วินาที (Constants.Entities.ENEMY_ATTACK_COOLDOWN_FRAMES = 60 frames)
-4. **Attack Damage**: สร้างความเสียหาย 5 จุดต่อครั้ง (Constants.Entities.ENEMY_ATTACK_DAMAGE)
-5. **Position Locking**: หยุดเคลื่อนที่ขณะโจมตี
-
-### การจัดการสถานะ
-1. **Health System**: เลือด 50 จุด (Constants.Entities.ENEMY_INITIAL_HEALTH)
-2. **Death Handling**: ตายเมื่อเลือดหมดหรือถึงจุดสิ้นสุดเส้นทาง
-3. **Visual Feedback**: แถบเลือดและ offset สำหรับการแสดงผล (Constants.Entities.ENEMY_X_OFFSET, ENEMY_Y_OFFSET)
-
-## ความสัมพันธ์กับคลาสอื่น
-- **Map.java**: ใช้สำหรับ pathfinding และดึงรายการหน่วยป้องกัน
-- **Tank/Magic/Archer.java**: เป้าหมายการโจมตี
-- **House.java**: เป้าหมายสุดท้าย
-- **WaveManager.java**: สร้างและจัดการศัตรู
-- **Constants.java**: ใช้ค่าคงที่สำหรับสถิติและ path
-
-## จุดเด่นของการออกแบบ
-1. **Smart Pathfinding**: ใช้ BFS เพื่อหาเส้นทางที่ดีที่สุดตามไทล์ถนน
-2. **Flexible Combat**: รองรับการโจมตีหลายประเภทเป้าหมาย (Tank, Magic, Archer, House)
-3. **Position Management**: ป้องกันการซ้อนทับด้วย offset system (ใช้ Constants.Entities.ENEMY_POSITION_OFFSET_MULTIPLIER = 12)
-4. **State Management**: จัดการสถานะการเคลื่อนที่และการต่อสู้อย่างชัดเจน
-5. **Clean Code**: ย้าย magic numbers ไปเป็น constants ใน Constants.java เพื่อง่ายต่อการปรับแต่ง
+1. ศัตรูใช้ BFS pathfinding เพื่อหาเส้นทางที่สั้นที่สุดตามช่องถนน
+2. ศัตรูจะหยุดและโจมตีเมื่อพบหน่วยป้องกัน (Tank, Magic, Archer) หรือบ้าน
+3. ศัตรูแต่ละตัวมี attackPositionOffset ที่ไม่ซ้ำกันเพื่อป้องกันการซ้อนกัน
+4. ศัตรูจะให้รางวัลเหรียญเมื่อถูกฆ่า แต่ไม่ให้รางวัลถ้าเดินถึงจุดสิ้นสุด
+5. ระบบ collision detection ตรวจสอบทั้ง Tank, Magic, Archer และ House
+6. ศัตรูจะโจมตีเป้าหมายจนกว่าเป้าหมายจะตาย จากนั้นจะเดินต่อ

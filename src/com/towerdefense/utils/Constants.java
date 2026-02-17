@@ -47,51 +47,51 @@ public final class Constants {
         public static final int SPELL_ANIMATION_DURATION = 30; // frames
 
         // Tank Configuration
-        public static final int TANK_INITIAL_HEALTH = 10000;
-        public static final int TANK_COST = 25;
+        public static final int TANK_INITIAL_HEALTH = 16000;
+        public static final int TANK_COST = 120;
         public static final int TANK_X_OFFSET = 0; // Visual offset X
         public static final int TANK_Y_OFFSET = -30; // Visual offset Y
 
         // Magic Configuration
-        public static final int MAGIC_INITIAL_HEALTH = 50;
+        public static final int MAGIC_INITIAL_HEALTH = 5000;
         public static final int MAGIC_DEFENSE_RATING = 0;
-        public static final int MAGIC_COST = 10;
-        public static final int MAGIC_ATTACK_DAMAGE = 5;
-        public static final int MAGIC_SPELL_DAMAGE = 20;
-        public static final int MAGIC_ATTACK_COOLDOWN_FRAMES = 45;
-        public static final int MAGIC_ATTACK_RANGE = 300;
+        public static final int MAGIC_COST = 100;
+        public static final int MAGIC_ATTACK_DAMAGE = 250;
+        public static final int MAGIC_SPELL_DAMAGE = 400;
+        public static final int MAGIC_ATTACK_COOLDOWN_FRAMES = 60;
+        public static final int MAGIC_ATTACK_RANGE = 250;
         public static final int MAGIC_ATTACKS_BEFORE_SPELL = 4;
         public static final int MAGIC_X_OFFSET = 0; // Visual offset X
         public static final int MAGIC_Y_OFFSET = -30; // Visual offset Y
 
         // Archer Configuration
-        public static final int ARCHER_INITIAL_HEALTH = 75;
+        public static final int ARCHER_INITIAL_HEALTH = 5000;
         public static final int ARCHER_DEFENSE_RATING = 0;
-        public static final int ARCHER_COST = 15;
-        public static final int ARCHER_ATTACK_DAMAGE = 10;
-        public static final int ARCHER_ATTACK_COOLDOWN_FRAMES = 90; // 1.5 seconds at 60 FPS
-        public static final int ARCHER_ATTACK_RANGE = 1000;
+        public static final int ARCHER_COST = 200;
+        public static final int ARCHER_ATTACK_DAMAGE = 100;
+        public static final int ARCHER_ATTACK_COOLDOWN_FRAMES = 30; // 1.5 seconds at 60 FPS
+        public static final int ARCHER_ATTACK_RANGE = 400;
         public static final int ARCHER_X_OFFSET = 0; // Visual offset X
         public static final int ARCHER_Y_OFFSET = -30; // Visual offset Y
 
         // Assassin Configuration
-        public static final int ASSASSIN_COST = 20;
-        public static final int ASSASSIN_ATTACK_DAMAGE = 30;
+        public static final int ASSASSIN_COST = 150;
+        public static final int ASSASSIN_ATTACK_DAMAGE = 500;
         public static final int ASSASSIN_ATTACK_RANGE = 80; // Small range for melee attack
-        public static final int ASSASSIN_ATTACK_COOLDOWN = 30; // 0.5 seconds
+        public static final int ASSASSIN_ATTACK_COOLDOWN = 45; // 0.5 seconds
         public static final int ASSASSIN_X_OFFSET = 0; // Visual offset X
         public static final int ASSASSIN_Y_OFFSET = -30; // Visual offset Y
 
         // House Configuration
-        public static final int HOUSE_INITIAL_HEALTH = 100;
+        public static final int HOUSE_INITIAL_HEALTH = 10000;
         public static final int HOUSE_WIDTH_TILES = 7;
         public static final int HOUSE_HEIGHT_TILES = 7;
 
         // Enemy Configuration
         public static final int ENEMY_SIZE = 64;
-        public static final double ENEMY_SPEED = 1.2;
-        public static final int ENEMY_INITIAL_HEALTH = 50;
-        public static final int ENEMY_ATTACK_DAMAGE = 5;
+        public static final double ENEMY_SPEED = 0.5;
+        public static final int ENEMY_INITIAL_HEALTH = 3000;
+        public static final int ENEMY_ATTACK_DAMAGE = 500;
         public static final int ENEMY_ATTACK_COOLDOWN_FRAMES = 60;
         public static final int ENEMY_X_OFFSET = -25; // Offset for drawing (negative = left)
         public static final int ENEMY_Y_OFFSET = -25; // Offset for drawing (negative = up)
@@ -139,9 +139,9 @@ public final class Constants {
         public static final int LOSE_IMAGE_Y_OFFSET = -150; // Offset from center (positive = down, negative = up)
 
         // Game Over Screen - Restart Button
-        public static final int RESTART_BUTTON_WIDTH = 500;
-        public static final int RESTART_BUTTON_HEIGHT = 180;
-        public static final int RESTART_BUTTON_Y_OFFSET = 50; // Offset from result image bottom
+        public static final int RESTART_BUTTON_WIDTH = 400;
+        public static final int RESTART_BUTTON_HEIGHT = 200;
+        public static final int RESTART_BUTTON_Y_OFFSET = 45; // Offset from result image bottom
 
         // Colors
         public static final Color HERO_BAR_COLOR = Color.DARK_GRAY;
@@ -160,17 +160,17 @@ public final class Constants {
 
     // Economy Configuration
     public static final class Economy {
-        public static final int STARTING_COINS = 50000;
-        public static final int COINS_PER_ENEMY_KILL = 10;
-        public static final int COINS_PER_WAVE_COMPLETE = 50; // Bonus coins when completing a wave
+        public static final int STARTING_COINS = 640;
+        public static final int COINS_PER_ENEMY_KILL = 15;
+        public static final int COINS_PER_WAVE_COMPLETE = 200; // Bonus coins when completing a wave
     }
 
     // Wave Configuration
     public static final class Waves {
         public static final int BASE_ENEMIES_PER_WAVE = 3;
-        public static final int ENEMIES_INCREASE_PER_WAVE = 2;
+        public static final int ENEMIES_INCREASE_PER_WAVE = 3;
         public static final int SPAWN_DELAY_FRAMES = 30;
-        public static final int MAX_WAVES = 2; // Total waves to win
+        public static final int MAX_WAVES = 5; // Total waves to win
     }
 
     // File Paths

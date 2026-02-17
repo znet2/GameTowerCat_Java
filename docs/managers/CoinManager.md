@@ -22,7 +22,7 @@ public CoinManager()
 ```
 **วัตถุประสงค์**: สร้าง CoinManager และตั้งค่าเริ่มต้น
 **การทำงาน**:
-- ตั้งเหรียญเริ่มต้นเป็น `Constants.Economy.STARTING_COINS` (50 เหรียญ)
+- ตั้งเหรียญเริ่มต้นเป็น `Constants.Economy.STARTING_COINS` (640 เหรียญ)
 
 ### getCurrentCoins()
 ```java
@@ -74,7 +74,7 @@ public boolean canAfford(int amount)
 public void awardCoinsForEnemyKill()
 ```
 **วัตถุประสงค์**: ให้รางวัลเหรียญสำหรับการฆ่าศัตรู
-**การทำงาน**: เรียก `addCoins(Constants.Economy.COINS_PER_ENEMY_KILL)` (10 เหรียญ)
+**การทำงาน**: เรียก `addCoins(Constants.Economy.COINS_PER_ENEMY_KILL)` (15 เหรียญ)
 **การใช้งาน**: เรียกโดย Enemy เมื่อถูกฆ่า
 
 ### awardCoinsForWaveComplete()
@@ -82,7 +82,7 @@ public void awardCoinsForEnemyKill()
 public void awardCoinsForWaveComplete()
 ```
 **วัตถุประสงค์**: ให้รางวัลเหรียญโบนัสเมื่อจบ wave
-**การทำงาน**: เรียก `addCoins(Constants.Economy.COINS_PER_WAVE_COMPLETE)` (50 เหรียญ)
+**การทำงาน**: เรียก `addCoins(Constants.Economy.COINS_PER_WAVE_COMPLETE)` (200 เหรียญ)
 **การใช้งาน**: เรียกโดย GamePanel เมื่อจบแต่ละ wave
 
 ### renderCoinDisplay(Graphics graphics, int screenWidth, int screenHeight)
@@ -112,15 +112,15 @@ public void resetCoins()
 ## ระบบเศรษฐกิจ
 
 ### รายได้ (Income)
-1. **เหรียญเริ่มต้น**: 50 เหรียญ
-2. **Enemy Kill Reward**: 10 เหรียญต่อตัว (เมื่อศัตรูถูกฆ่า)
-3. **Wave Complete Bonus**: 50 เหรียญต่อ wave (เมื่อจบแต่ละ wave)
+1. **เหรียญเริ่มต้น**: 640 เหรียญ
+2. **Enemy Kill Reward**: 15 เหรียญต่อตัว (เมื่อศัตรูถูกฆ่า)
+3. **Wave Complete Bonus**: 200 เหรียญต่อ wave (เมื่อจบแต่ละ wave)
 
 ### รายจ่าย (Expenses)
-- **Tank**: 25 เหรียญ (ใช้ `spendCoins(Constants.Entities.TANK_COST)`)
-- **Magic**: 10 เหรียญ (ใช้ `spendCoins(Constants.Entities.MAGIC_COST)`)
-- **Archer**: 15 เหรียญ (ใช้ `spendCoins(Constants.Entities.ARCHER_COST)`)
-- **Assassin**: 20 เหรียญ (ใช้ `spendCoins(Constants.Entities.ASSASSIN_COST)`)
+- **Tank**: 120 เหรียญ (ใช้ `spendCoins(Constants.Entities.TANK_COST)`)
+- **Magic**: 100 เหรียญ (ใช้ `spendCoins(Constants.Entities.MAGIC_COST)`)
+- **Archer**: 200 เหรียญ (ใช้ `spendCoins(Constants.Entities.ARCHER_COST)`)
+- **Assassin**: 150 เหรียญ (ใช้ `spendCoins(Constants.Entities.ASSASSIN_COST)`)
 
 ### การแสดงผล
 1. **ตำแหน่ง**: มุมขวาล่างของหน้าจอ
@@ -132,9 +132,9 @@ public void resetCoins()
 
 ### Income System
 ```
-1. Starting Coins: 50 coins (เริ่มเกม)
-2. Enemy Kill: +10 coins (ทุกครั้งที่ฆ่าศัตรู)
-3. Wave Complete: +50 coins (ทุกครั้งที่จบ wave)
+1. Starting Coins: 640 coins (เริ่มเกม)
+2. Enemy Kill: +15 coins (ทุกครั้งที่ฆ่าศัตรู)
+3. Wave Complete: +200 coins (ทุกครั้งที่จบ wave)
 ```
 
 ### Purchase Validation
@@ -177,9 +177,9 @@ public void resetCoins()
 
 ### Constants.java
 - **Configuration**: ใช้ค่าคงที่จาก Constants.Economy
-- **STARTING_COINS**: 50
-- **COINS_PER_ENEMY_KILL**: 10
-- **COINS_PER_WAVE_COMPLETE**: 50
+- **STARTING_COINS**: 640
+- **COINS_PER_ENEMY_KILL**: 15
+- **COINS_PER_WAVE_COMPLETE**: 200
 
 ## จุดเด่นของการออกแบบ
 

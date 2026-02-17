@@ -56,11 +56,11 @@ private void calculateEnemiesForWave()
 **วัตถุประสงค์**: คำนวณจำนวนศัตรูใน wave ปัจจุบัน
 **การทำงาน**:
 - ใช้สูตร: `BASE_ENEMIES_PER_WAVE + currentWaveNumber * ENEMIES_INCREASE_PER_WAVE`
-- Wave 1: 3 + 1×2 = 5 ตัว
-- Wave 2: 3 + 2×2 = 7 ตัว
-- Wave 3: 3 + 3×2 = 9 ตัว
-- Wave 4: 3 + 4×2 = 11 ตัว
-- Wave 5: 3 + 5×2 = 13 ตัว
+- Wave 1: 3 + 1×3 = 6 ตัว
+- Wave 2: 3 + 2×3 = 9 ตัว
+- Wave 3: 3 + 3×3 = 12 ตัว
+- Wave 4: 3 + 4×3 = 15 ตัว
+- Wave 5: 3 + 5×3 = 18 ตัว
 
 ### resetWaveState()
 ```java
@@ -181,8 +181,8 @@ public int getCurrentWave()
 
 ### จำนวนศัตรูต่อ Wave
 - **Base**: 3 ตัว
-- **Increase**: +2 ตัวต่อ wave
-- **Formula**: 3 + (wave × 2)
+- **Increase**: +3 ตัวต่อ wave
+- **Formula**: 3 + (wave × 3)
 
 ### ระยะเวลาการสร้าง
 - **Spawn Delay**: 30 frames (0.5 วินาที)
@@ -216,7 +216,7 @@ public int getCurrentWave()
 ### Constants.java
 - **Configuration**: ใช้ค่าคงที่จาก Constants.Waves
 - **BASE_ENEMIES_PER_WAVE**: 3
-- **ENEMIES_INCREASE_PER_WAVE**: 2
+- **ENEMIES_INCREASE_PER_WAVE**: 3
 - **SPAWN_DELAY_FRAMES**: 30
 - **MAX_WAVES**: 5
 

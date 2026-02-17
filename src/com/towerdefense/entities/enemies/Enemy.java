@@ -31,6 +31,7 @@ public class Enemy {
     // Game references
     private final Map gameMap;
     private final House targetHouse;
+    private final CoinManager coinManager;
 
     // Combat state
     private boolean isAttacking = false;
@@ -49,10 +50,11 @@ public class Enemy {
     // Constructor that creates an enemy and sets up its path
     // Initializes movement path, position, and assigns unique attack offset
     // @param gameMap - reference to the game map for pathfinding and collision
-    // @param coinManager - reference to coin system (unused in defensive mode)
+    // @param coinManager - reference to coin system for rewarding kills
     public Enemy(Map gameMap, CoinManager coinManager) {
         this.gameMap = gameMap;
         this.targetHouse = gameMap.getHouse();
+        this.coinManager = coinManager;
 
         this.enemyImage = new ImageIcon(Constants.Paths.ENEMY_IMAGE).getImage();
 
@@ -238,19 +240,10 @@ public class Enemy {
     // Processes collision detection, combat, movement, and state transitions
     public void update() {
         if (isDead) {
-            handleDeath();
             return;
         }
 
-        if (checkForTankCollision()) {
-            return;
-        }
-
-        if (checkForMagicCollision()) {
-            return;
-        }
-
-        if (checkForArcherCollision()) {
+        if (checkForDefensiveCollision()) {
             return;
         }
 
@@ -264,14 +257,6 @@ public class Enemy {
         checkIfReachedEnd();
     }
 
-    // Handles enemy death
-    // Enemies die when they reach the end of their path (no coin reward)
-    // or when they are killed by external means (with coin reward)
-    private void handleDeath() {
-        // Death handling is now passive - enemies are simply removed when dead
-        // No automatic coin rewards since tanks don't kill enemies
-    }
-
     // Checks if enemy has reached the end of the path
     // Marks enemy as dead if it completes the path without being killed
     private void checkIfReachedEnd() {
@@ -280,10 +265,11 @@ public class Enemy {
         }
     }
 
-    // Checks for collisions with tanks and initiates combat
-    // Scans all tanks for intersection and starts attacking if collision detected
+    // Checks for collisions with all defensive units (Tank, Magic, Archer)
+    // Scans all defensive units for intersection and starts attacking if collision detected
     // @return true if collision occurred and combat started, false otherwise
-    private boolean checkForTankCollision() {
+    private boolean checkForDefensiveCollision() {
+        // Check tanks
         for (Tank tank : gameMap.getTanks()) {
             if (!tank.isDead() && getBounds().intersects(tank.getBounds())) {
                 positionForAttack(tank);
@@ -291,63 +277,45 @@ public class Enemy {
                 return true;
             }
         }
-        return false;
-    }
 
-    // Checks for collisions with magic towers and initiates combat
-    // Scans all magic towers for intersection and starts attacking if collision
-    // detected
-    // @return true if collision occurred and combat started, false otherwise
-    private boolean checkForMagicCollision() {
+        // Check magic towers
         for (Magic magic : gameMap.getMagicTowers()) {
             if (!magic.isDead() && getBounds().intersects(magic.getBounds())) {
-                positionForAttackMagic(magic);
+                positionForAttack(magic);
                 startAttacking(magic);
                 return true;
             }
         }
-        return false;
-    }
 
-    // Checks for collisions with archer towers and initiates combat
-    // Scans all archer towers for intersection and starts attacking if collision
-    // detected
-    // @return true if collision occurred and combat started, false otherwise
-    private boolean checkForArcherCollision() {
+        // Check archer towers
         for (Archer archer : gameMap.getArcherTowers()) {
             if (!archer.isDead() && getBounds().intersects(archer.getBounds())) {
-                positionForAttackArcher(archer);
+                positionForAttack(archer);
                 startAttacking(archer);
                 return true;
             }
         }
+
         return false;
     }
 
-    // Positions the enemy for attacking a tank
-    // Places enemy to the left of the tank with unique offset to prevent overlap
-    // @param tank - the tank being attacked
-    private void positionForAttack(Tank tank) {
-        Rectangle tankBounds = tank.getBounds();
-        positionX = tankBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
-    }
-
-    // Positions the enemy for attacking a magic tower
-    // Places enemy to the left of the magic tower with unique offset to prevent
-    // overlap
-    // @param magic - the magic tower being attacked
-    private void positionForAttackMagic(Magic magic) {
-        Rectangle magicBounds = magic.getBounds();
-        positionX = magicBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
-    }
-
-    // Positions the enemy for attacking an archer tower
-    // Places enemy to the left of the archer tower with unique offset to prevent
-    // overlap
-    // @param archer - the archer tower being attacked
-    private void positionForAttackArcher(Archer archer) {
-        Rectangle archerBounds = archer.getBounds();
-        positionX = archerBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
+    // Positions the enemy for attacking a defensive unit
+    // Places enemy to the left of the target with unique offset to prevent overlap
+    // @param target - the defensive unit being attacked (Tank, Magic, or Archer)
+    private void positionForAttack(Object target) {
+        Rectangle targetBounds = null;
+        
+        if (target instanceof Tank) {
+            targetBounds = ((Tank) target).getBounds();
+        } else if (target instanceof Magic) {
+            targetBounds = ((Magic) target).getBounds();
+        } else if (target instanceof Archer) {
+            targetBounds = ((Archer) target).getBounds();
+        }
+        
+        if (targetBounds != null) {
+            positionX = targetBounds.x - Constants.Entities.ENEMY_SIZE - attackPositionOffset;
+        }
     }
 
     // Initiates attack mode on a target
@@ -371,36 +339,40 @@ public class Enemy {
     }
 
     // Executes an attack on the current target
-    // Applies damage to tanks, magic towers, archer towers, or house, handles
-    // target death
+    // Applies damage to defensive units or house, handles target death
     private void executeAttack() {
-        if (currentAttackTarget instanceof Tank) {
-            Tank tank = (Tank) currentAttackTarget;
-
-            if (tank.isDead()) {
-                stopAttacking();
-                return;
+        // Check if target is a defensive unit (Tank, Magic, or Archer)
+        if (currentAttackTarget instanceof Tank || 
+            currentAttackTarget instanceof Magic || 
+            currentAttackTarget instanceof Archer) {
+            
+            // Cast to Defensive interface to use common methods
+            Object target = currentAttackTarget;
+            boolean targetDead = false;
+            
+            if (target instanceof Tank) {
+                Tank tank = (Tank) target;
+                targetDead = tank.isDead();
+                if (!targetDead) {
+                    tank.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
+                }
+            } else if (target instanceof Magic) {
+                Magic magic = (Magic) target;
+                targetDead = magic.isDead();
+                if (!targetDead) {
+                    magic.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
+                }
+            } else if (target instanceof Archer) {
+                Archer archer = (Archer) target;
+                targetDead = archer.isDead();
+                if (!targetDead) {
+                    archer.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
+                }
             }
-
-            tank.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
-        } else if (currentAttackTarget instanceof Magic) {
-            Magic magic = (Magic) currentAttackTarget;
-
-            if (magic.isDead()) {
+            
+            if (targetDead) {
                 stopAttacking();
-                return;
             }
-
-            magic.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
-        } else if (currentAttackTarget instanceof Archer) {
-            Archer archer = (Archer) currentAttackTarget;
-
-            if (archer.isDead()) {
-                stopAttacking();
-                return;
-            }
-
-            archer.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         } else if (currentAttackTarget instanceof House) {
             targetHouse.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
         }
@@ -461,13 +433,15 @@ public class Enemy {
     }
 
     // Applies damage to the enemy and reduces its health
-    // Marks enemy as dead if health reaches zero
+    // Marks enemy as dead if health reaches zero and awards coins
     // @param damage - amount of damage to apply
     public void takeDamage(int damage) {
         currentHealth -= damage;
         if (currentHealth <= 0) {
             currentHealth = 0;
             isDead = true;
+            // Award coins for killing the enemy
+            coinManager.awardCoinsForEnemyKill();
         }
     }
 
