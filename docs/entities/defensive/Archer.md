@@ -17,13 +17,13 @@ public class Archer extends GameObject implements Defensive, Collidable
 - `int currentHealth` - เลือดปัจจุบัน (เริ่มต้น 75)
 
 ### สถานะการต่อสู้
-- `Enemy lockedTarget` - ศัตรูที่กำลังเล็ง
+- `BaseEnemy lockedTarget` - ศัตรูที่กำลังเล็ง (Enemy หรือ Boss)
 - `int attackTimer` - ตัวจับเวลาการโจมตี
 - `boolean isAttacking` - กำลังโจมตีหรือไม่
 - `int attackAnimationTimer` - ตัวจับเวลาแอนิเมชันการโจมตี
 
 ### การอ้างอิงและ Projectiles
-- `ArrayList<Enemy> enemyList` - รายการศัตรูสำหรับการเล็ง
+- `ArrayList<BaseEnemy> enemyList` - รายการศัตรูสำหรับการเล็ง (รวม Enemy และ Boss)
 - `ArrayList<Arrow> arrows` - รายการลูกธนู
 
 ### รูปภาพ
@@ -35,7 +35,7 @@ public class Archer extends GameObject implements Defensive, Collidable
 
 ### Constructor
 ```java
-public Archer(int gridColumn, int gridRow, int tileSize, Image archerImage, ArrayList<Enemy> enemies)
+public Archer(int gridColumn, int gridRow, int tileSize, Image archerImage, ArrayList<BaseEnemy> enemies)
 ```
 **การทำงาน**:
 1. เรียก constructor ของ GameObject ด้วยขนาด 2x2 ไทล์
@@ -79,7 +79,7 @@ return Rectangle ที่ตำแหน่ง `(positionX + ARCHER_X_OFFSET, p
 ## ค่าคงที่ที่ใช้จาก Constants
 - `ARCHER_INITIAL_HEALTH = 75` - เลือดเริ่มต้น
 - `ARCHER_DEFENSE_RATING = 0` - ค่าป้องกัน
-- `ARCHER_COST = 15` - ราคา
+- `ARCHER_COST = 200` - ราคา
 - `ARCHER_ATTACK_DAMAGE = 10` - ความเสียหาย
 - `ARCHER_ATTACK_COOLDOWN_FRAMES = 90` - cooldown (1.5 วินาที)
 - `ARCHER_ATTACK_RANGE = 1000` - ระยะโจมตีไกลมาก
@@ -92,5 +92,5 @@ return Rectangle ที่ตำแหน่ง `(positionX + ARCHER_X_OFFSET, p
 - ระยะโจมตีไกลที่สุด (1000 พิกเซล)
 - ความเสียหายปานกลาง (10)
 - โจมตีช้า (1.5 วินาทีต่อครั้ง)
-- ราคาปานกลาง (15 เหรียญ)
+- ราคาแพง (200 เหรียญ)
 - เปลี่ยนรูปเมื่อโจมตี

@@ -17,14 +17,14 @@ public class Magic extends GameObject implements Defensive, Collidable
 - `int currentHealth` - เลือดปัจจุบัน (เริ่มต้น 50)
 
 ### สถานะการต่อสู้
-- `Enemy lockedTarget` - ศัตรูที่กำลังเล็ง
+- `BaseEnemy lockedTarget` - ศัตรูที่กำลังเล็ง (Enemy หรือ Boss)
 - `int attackTimer` - ตัวจับเวลาการโจมตี
 - `int attackCounter` - ตัวนับการโจมตี (0-4)
 - `boolean isUsingSpecialSpell` - กำลังใช้เวทมนตร์พิเศษหรือไม่
 - `int spellAnimationTimer` - ตัวจับเวลาแอนิเมชันเวทมนตร์
 
 ### การอ้างอิงและ Projectiles
-- `ArrayList<Enemy> enemyList` - รายการศัตรูสำหรับการเล็ง
+- `ArrayList<BaseEnemy> enemyList` - รายการศัตรูสำหรับการเล็ง (รวม Enemy และ Boss)
 - `ArrayList<MagicBall> magicBalls` - รายการลูกไฟเวทมนตร์
 
 ### รูปภาพ
@@ -37,7 +37,7 @@ public class Magic extends GameObject implements Defensive, Collidable
 
 ### Constructor
 ```java
-public Magic(int gridColumn, int gridRow, int tileSize, Image magicImage, ArrayList<Enemy> enemies)
+public Magic(int gridColumn, int gridRow, int tileSize, Image magicImage, ArrayList<BaseEnemy> enemies)
 ```
 **การทำงาน**:
 1. เรียก constructor ของ GameObject ด้วยขนาด 2x2 ไทล์
@@ -83,7 +83,7 @@ return Rectangle ที่ตำแหน่ง `(positionX + MAGIC_X_OFFSET, po
 ## ค่าคงที่ที่ใช้จาก Constants
 - `MAGIC_INITIAL_HEALTH = 50` - เลือดเริ่มต้น
 - `MAGIC_DEFENSE_RATING = 0` - ค่าป้องกัน
-- `MAGIC_COST = 10` - ราคา
+- `MAGIC_COST = 100` - ราคา
 - `MAGIC_ATTACK_DAMAGE = 5` - ความเสียหายปกติ
 - `MAGIC_SPELL_DAMAGE = 20` - ความเสียหายเวทมนตร์
 - `MAGIC_ATTACK_COOLDOWN_FRAMES = 45` - cooldown (0.75 วินาที)
@@ -97,5 +97,5 @@ return Rectangle ที่ตำแหน่ง `(positionX + MAGIC_X_OFFSET, po
 ## จุดเด่น
 - โจมตีได้จากระยะไกล (300 พิกเซล)
 - มีเวทมนตร์พิเศษทุก 5 ครั้ง (ความเสียหาย 20)
-- ราคาถูก (10 เหรียญ)
+- ราคาปานกลาง (100 เหรียญ)
 - เปลี่ยนรูปเป็น bomb เมื่อใช้เวทมนตร์

@@ -1,6 +1,6 @@
 package com.towerdefense.entities.projectiles;
 
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import java.awt.*;
 
 /**
@@ -11,7 +11,7 @@ public abstract class Projectile {
 
     protected double positionX;
     protected double positionY;
-    protected Enemy target;
+    protected BaseEnemy target;
     protected int damage;
     protected boolean isActive = true;
     protected Image projectileImage;
@@ -22,7 +22,7 @@ public abstract class Projectile {
     // @param target - enemy to track and hit
     // @param damage - damage to deal on hit
     // @param image - projectile image
-    public Projectile(double startX, double startY, Enemy target, int damage, Image image) {
+    public Projectile(double startX, double startY, BaseEnemy target, int damage, Image image) {
         this.positionX = startX;
         this.positionY = startY;
         this.target = target;
@@ -37,12 +37,10 @@ public abstract class Projectile {
             return;
         }
 
-        // Get target center position
         Rectangle targetBounds = target.getBounds();
-        double targetX = targetBounds.x + targetBounds.width / 2.0;
-        double targetY = targetBounds.y + targetBounds.height / 2.0;
+        double targetX = targetBounds.getCenterX();
+        double targetY = targetBounds.getCenterY();
 
-        // Calculate direction to target
         double dx = targetX - positionX;
         double dy = targetY - positionY;
         double distance = Math.sqrt(dx * dx + dy * dy);
@@ -54,10 +52,8 @@ public abstract class Projectile {
         }
 
         // Move projectile towards target
-        double directionX = dx / distance;
-        double directionY = dy / distance;
-        positionX += directionX * getSpeed();
-        positionY += directionY * getSpeed();
+        positionX += (dx / distance) * getSpeed();
+        positionY += (dy / distance) * getSpeed();
     }
 
     // Handles collision with target

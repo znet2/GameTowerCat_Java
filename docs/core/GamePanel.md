@@ -16,7 +16,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
 ### ระบบเกม
 - `Thread gameLoopThread` - Thread สำหรับ game loop
 - `Map gameMap` - แผนที่เกม
-- `ArrayList<Enemy> activeEnemies` - รายการศัตรูที่ยังมีชีวิต
+- `ArrayList<BaseEnemy> activeEnemies` - รายการศัตรูที่ยังมีชีวิต (รวม Enemy และ Boss)
 - `WaveManager waveManager` - จัดการ wave ของศัตรู
 - `CoinManager coinManager` - จัดการระบบเหรียญ
 - `JFrame parentFrame` - อ้างอิงไปยัง JFrame หลัก

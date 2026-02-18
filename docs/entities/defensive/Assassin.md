@@ -13,8 +13,8 @@ public class Assassin extends GameObject
 ## ตัวแปรสำคัญ
 
 ### การอ้างอิงและการจัดการ
-- `ArrayList<Enemy> enemyList` - รายการศัตรูสำหรับการตรวจสอบ
-- `ArrayList<Enemy> attackedEnemies` - รายการศัตรูที่โจมตีไปแล้ว (ป้องกันการโจมตีซ้ำ)
+- `ArrayList<BaseEnemy> enemyList` - รายการศัตรูสำหรับการตรวจสอบ (รวม Enemy และ Boss)
+- `ArrayList<BaseEnemy> attackedEnemies` - รายการศัตรูที่โจมตีไปแล้ว (ป้องกันการโจมตีซ้ำ)
 - `int attackCooldown` - ตัวจับเวลา cooldown
 - `boolean isAttacking` - สถานะการโจมตี
 - `int attackAnimationTimer` - ตัวจับเวลาแอนิเมชัน
@@ -27,7 +27,7 @@ public class Assassin extends GameObject
 
 ### Constructor
 ```java
-public Assassin(int gridColumn, int gridRow, int tileSize, Image assassinImage, ArrayList<Enemy> enemies)
+public Assassin(int gridColumn, int gridRow, int tileSize, Image assassinImage, ArrayList<BaseEnemy> enemies)
 ```
 **การทำงาน**:
 1. เรียก constructor ของ GameObject ด้วยขนาด 2x2 ไทล์
@@ -57,7 +57,7 @@ public Assassin(int gridColumn, int gridRow, int tileSize, Image assassinImage, 
 วาดรูปภาพที่ตำแหน่ง `(positionX + ASSASSIN_X_OFFSET, positionY + ASSASSIN_Y_OFFSET)`
 
 ## ค่าคงที่ที่ใช้จาก Constants
-- `ASSASSIN_COST = 20` - ราคา
+- `ASSASSIN_COST = 150` - ราคา
 - `ASSASSIN_ATTACK_DAMAGE = 30` - ความเสียหายสูง
 - `ASSASSIN_ATTACK_RANGE = 80` - ระยะโจมตีใกล้ (melee)
 - `ASSASSIN_ATTACK_COOLDOWN = 30` - cooldown (0.5 วินาที)
@@ -70,7 +70,7 @@ public Assassin(int gridColumn, int gridRow, int tileSize, Image assassinImage, 
 - ไม่สามารถถูกโจมตีได้ (ไม่มีเลือด)
 - ระยะโจมตีใกล้ (80 พิกเซล)
 - โจมตีเร็ว (0.5 วินาทีต่อครั้ง)
-- ราคาปานกลาง (20 เหรียญ)
+- ราคาปานกลาง (150 เหรียญ)
 - เปลี่ยนรูปเมื่อโจมตี
 - ระบบป้องกันการโจมตีซ้ำ (ต้องออกจากระยะก่อนจึงจะโจมตีอีกครั้ง)
 

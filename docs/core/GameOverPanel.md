@@ -5,10 +5,10 @@ GameOverPanel เป็นหน้าจอที่แสดงเมื่อ
 
 ## คลาสและการสืบทอด
 ```java
-public class GameOverPanel extends JPanel implements MouseListener
+public class GameOverPanel extends JPanel
 ```
 - สืบทอดจาก `JPanel` สำหรับการแสดงผล
-- ใช้ `MouseListener` สำหรับจัดการการคลิกปุ่ม Restart
+- ใช้ `MouseAdapter` สำหรับจัดการการคลิกปุ่ม Restart (แทน MouseListener เพื่อหลีกเลี่ยง empty methods)
 
 ## ตัวแปรสำคัญ
 
@@ -36,7 +36,7 @@ public GameOverPanel(JFrame frame, boolean isWin)
 1. เก็บอ้างอิงของ JFrame และสถานะชนะ/แพ้
 2. เรียก `loadImages()` เพื่อโหลดรูปภาพที่เหมาะสม
 3. เรียก `setupPanel()` เพื่อตั้งค่า panel
-4. เพิ่ม MouseListener เพื่อจัดการการคลิก
+4. เพิ่ม MouseAdapter พร้อม override mouseClicked() เพื่อจัดการการคลิก
 
 ### loadImages()
 ```java
@@ -81,15 +81,15 @@ protected void paintComponent(Graphics graphics)
    - อัปเดต `restartButtonBounds` สำหรับการตรวจจับคลิก
    - วาดรูป `restart.png`
 
-### mouseClicked(MouseEvent e)
+### handleMouseClick(MouseEvent e)
 ```java
-@Override
-public void mouseClicked(MouseEvent e)
+private void handleMouseClick(MouseEvent e)
 ```
 **วัตถุประสงค์**: จัดการเหตุการณ์การคลิกเมาส์
 **การทำงาน**:
 1. ตรวจสอบว่าตำแหน่งที่คลิกอยู่ในพื้นที่ปุ่ม Restart หรือไม่
 2. หากใช่ เรียก `restartGame()` เพื่อเริ่มเกมใหม่
+**หมายเหตุ**: ถูกเรียกจาก MouseAdapter.mouseClicked()
 
 ### restartGame()
 ```java
@@ -103,15 +103,6 @@ private void restartGame()
 4. เรียก `pack()` เพื่อปรับขนาดหน้าต่าง
 5. จัดตำแหน่งหน้าต่างให้อยู่กึ่งกลางหน้าจอ
 6. เรียก `revalidate()` และ `repaint()` เพื่ออัปเดตการแสดงผล
-
-### MouseListener Methods (ไม่ใช้งาน)
-```java
-public void mousePressed(MouseEvent e) {}
-public void mouseReleased(MouseEvent e) {}
-public void mouseEntered(MouseEvent e) {}
-public void mouseExited(MouseEvent e) {}
-```
-**วัตถุประสงค์**: Methods เหล่านี้จำเป็นสำหรับ MouseListener interface แต่ไม่ได้ใช้งานจริง
 
 ## การทำงานของระบบ
 

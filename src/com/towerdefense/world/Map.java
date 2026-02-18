@@ -6,7 +6,7 @@ import com.towerdefense.entities.defensive.Tank;
 import com.towerdefense.entities.defensive.Magic;
 import com.towerdefense.entities.defensive.Archer;
 import com.towerdefense.entities.defensive.Assassin;
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.utils.Constants;
 import javax.swing.*;
 import java.awt.*;
@@ -289,7 +289,7 @@ public class Map extends JPanel {
     // @param gridColumn - column position in the grid
     // @param gridRow - row position in the grid
     // @param enemies - reference to enemy list for targeting
-    public void placeMagic(int gridColumn, int gridRow, ArrayList<Enemy> enemies) {
+    public void placeMagic(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies) {
         magicTowers.add(new Magic(gridColumn, gridRow, Constants.Map.TILE_SIZE, magicImage, enemies));
         repaint();
     }
@@ -299,7 +299,7 @@ public class Map extends JPanel {
     // @param gridColumn - column position in the grid
     // @param gridRow - row position in the grid
     // @param enemies - reference to enemy list for targeting
-    public void placeArcher(int gridColumn, int gridRow, ArrayList<Enemy> enemies) {
+    public void placeArcher(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies) {
         archerTowers.add(new Archer(gridColumn, gridRow, Constants.Map.TILE_SIZE, archerImage, enemies));
         repaint();
     }
@@ -309,7 +309,7 @@ public class Map extends JPanel {
     // @param gridColumn - column position in the grid
     // @param gridRow - row position in the grid
     // @param enemies - reference to enemy list for targeting
-    public void placeAssassin(int gridColumn, int gridRow, ArrayList<Enemy> enemies) {
+    public void placeAssassin(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies) {
         assassins.add(new Assassin(gridColumn, gridRow, Constants.Map.TILE_SIZE, assassinImage, enemies));
         repaint();
     }
@@ -383,19 +383,27 @@ public class Map extends JPanel {
         archerTowers.removeIf(Archer::isDead);
     }
 
+    // Helper method to check if any defensive unit exists at the specified grid position
+    // @param gridColumn - column position to check
+    // @param gridRow - row position to check
+    // @return true if any defensive unit exists at the position, false otherwise
+    private boolean hasDefensiveUnitAt(int gridColumn, int gridRow) {
+        return hasTankAt(gridColumn, gridRow) || 
+               hasMagicAt(gridColumn, gridRow) || 
+               hasArcherAt(gridColumn, gridRow) || 
+               hasAssassinAt(gridColumn, gridRow);
+    }
+
     // Checks if a tank already exists at the specified grid position
     // Prevents placing multiple tanks in the same location
     // @param gridColumn - column position to check
     // @param gridRow - row position to check
     // @return true if a tank exists at the position, false otherwise
     public boolean hasTankAt(int gridColumn, int gridRow) {
-        for (Tank tank : defensiveTanks) {
-            if (tank.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
-                    tank.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
-                return true;
-            }
-        }
-        return false;
+        return defensiveTanks.stream().anyMatch(tank -> 
+            tank.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+            tank.getGridRow(Constants.Map.TILE_SIZE) == gridRow
+        );
     }
 
     // Checks if a magic tower already exists at the specified grid position
@@ -404,13 +412,10 @@ public class Map extends JPanel {
     // @param gridRow - row position to check
     // @return true if a magic tower exists at the position, false otherwise
     public boolean hasMagicAt(int gridColumn, int gridRow) {
-        for (Magic magic : magicTowers) {
-            if (magic.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
-                    magic.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
-                return true;
-            }
-        }
-        return false;
+        return magicTowers.stream().anyMatch(magic -> 
+            magic.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+            magic.getGridRow(Constants.Map.TILE_SIZE) == gridRow
+        );
     }
 
     // Checks if an archer tower already exists at the specified grid position
@@ -419,13 +424,10 @@ public class Map extends JPanel {
     // @param gridRow - row position to check
     // @return true if an archer tower exists at the position, false otherwise
     public boolean hasArcherAt(int gridColumn, int gridRow) {
-        for (Archer archer : archerTowers) {
-            if (archer.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
-                    archer.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
-                return true;
-            }
-        }
-        return false;
+        return archerTowers.stream().anyMatch(archer -> 
+            archer.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+            archer.getGridRow(Constants.Map.TILE_SIZE) == gridRow
+        );
     }
 
     // Checks if an assassin already exists at the specified grid position
@@ -434,12 +436,9 @@ public class Map extends JPanel {
     // @param gridRow - row position to check
     // @return true if an assassin exists at the position, false otherwise
     public boolean hasAssassinAt(int gridColumn, int gridRow) {
-        for (Assassin assassin : assassins) {
-            if (assassin.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
-                    assassin.getGridRow(Constants.Map.TILE_SIZE) == gridRow) {
-                return true;
-            }
-        }
-        return false;
+        return assassins.stream().anyMatch(assassin -> 
+            assassin.getGridColumn(Constants.Map.TILE_SIZE) == gridColumn &&
+            assassin.getGridRow(Constants.Map.TILE_SIZE) == gridRow
+        );
     }
 }

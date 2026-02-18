@@ -2,12 +2,15 @@ package com.towerdefense.managers;
 
 import com.towerdefense.world.Map;
 import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.EnemyBoss;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.utils.Constants;
 import java.util.ArrayList;
 
 /**
  * Manages enemy wave spawning and progression in the tower defense game.
  * Controls when enemies spawn, how many spawn per wave, and wave advancement.
+ * In the final wave, spawns a Boss as the last enemy.
  */
 public class WaveManager {
 
@@ -18,9 +21,14 @@ public class WaveManager {
     private int spawnTimer = 0;
     private boolean isCurrentlySpawning = false;
 
+    // Wave announcement display
+    private String waveAnnouncementText = "";
+    private int waveAnnouncementTimer = 0;
+    private static final int WAVE_ANNOUNCEMENT_DURATION = 180; // 3 seconds at 60 FPS
+
     // Game references
     private final Map gameMap;
-    private final ArrayList<Enemy> activeEnemies;
+    private final ArrayList<BaseEnemy> activeEnemies;
     private final CoinManager coinManager;
 
     // Constructor that initializes the wave manager with game references
@@ -28,7 +36,7 @@ public class WaveManager {
     // @param gameMap - reference to the game map for enemy creation
     // @param enemyList - list of active enemies to add new spawns to
     // @param coinManager - reference to coin system for enemy kill rewards
-    public WaveManager(Map gameMap, ArrayList<Enemy> enemyList, CoinManager coinManager) {
+    public WaveManager(Map gameMap, ArrayList<BaseEnemy> enemyList, CoinManager coinManager) {
         this.gameMap = gameMap;
         this.activeEnemies = enemyList;
         this.coinManager = coinManager;
@@ -37,7 +45,6 @@ public class WaveManager {
     // Starts the next wave of enemies
     // Calculates enemy count, resets state, and announces the wave
     public void startNextWave() {
-        Enemy.resetEnemyCount(); // Reset enemy positioning for new wave
         calculateEnemiesForWave();
         resetWaveState();
         announceWaveStart();
@@ -45,9 +52,23 @@ public class WaveManager {
 
     // Calculates how many enemies should spawn in the current wave
     // Uses base count plus scaling based on wave number for difficulty progression
+    // In the final wave, adds 1 extra enemy slot for the Boss
     private void calculateEnemiesForWave() {
-        enemiesToSpawnInWave = Constants.Waves.BASE_ENEMIES_PER_WAVE + 
-                               currentWaveNumber * Constants.Waves.ENEMIES_INCREASE_PER_WAVE;
+        int baseEnemies = Constants.Waves.BASE_ENEMIES_PER_WAVE + 
+                          currentWaveNumber * Constants.Waves.ENEMIES_INCREASE_PER_WAVE;
+        
+        // Add 1 extra slot for Boss in final wave
+        if (isFinalWave()) {
+            enemiesToSpawnInWave = baseEnemies + 1;
+        } else {
+            enemiesToSpawnInWave = baseEnemies;
+        }
+    }
+
+    // Checks if current wave is the final wave
+    // @return true if this is the last wave, false otherwise
+    private boolean isFinalWave() {
+        return currentWaveNumber == Constants.Waves.MAX_WAVES;
     }
 
     // Resets all wave state variables for a new wave
@@ -58,15 +79,21 @@ public class WaveManager {
         isCurrentlySpawning = true;
     }
 
-    // Announces the start of a new wave to the console
+    // Announces the start of a new wave to the console and screen
     // Provides feedback about wave progression
     private void announceWaveStart() {
-        System.out.println("Wave " + currentWaveNumber + " started");
+        waveAnnouncementText = "Wave " + currentWaveNumber;
+        waveAnnouncementTimer = WAVE_ANNOUNCEMENT_DURATION;
     }
 
     // Updates the wave manager each frame
     // Handles spawn timing and enemy creation during active waves
     public void update() {
+        // Update wave announcement timer
+        if (waveAnnouncementTimer > 0) {
+            waveAnnouncementTimer--;
+        }
+
         if (!isCurrentlySpawning) {
             return;
         }
@@ -97,11 +124,37 @@ public class WaveManager {
     }
 
     // Creates and spawns a new enemy
+    // In the final wave, spawns a Boss as the last enemy
     // Adds enemy to the active list and resets spawn timer
     private void spawnEnemy() {
-        activeEnemies.add(new Enemy(gameMap, coinManager));
+        BaseEnemy newEnemy;
+        
+        if (shouldSpawnBoss()) {
+            // Spawn Boss as the last enemy in final wave
+            newEnemy = new EnemyBoss(gameMap, coinManager);
+        } else {
+            // Spawn normal enemy
+            newEnemy = new Enemy(gameMap, coinManager);
+        }
+        
+        // Set reference to all enemies for collision avoidance
+        newEnemy.setAllEnemies(activeEnemies);
+        activeEnemies.add(newEnemy);
+        
+        // Update all existing enemies with the new list
+        for (BaseEnemy enemy : activeEnemies) {
+            enemy.setAllEnemies(activeEnemies);
+        }
+        
         enemiesSpawnedInWave++;
         spawnTimer = 0;
+    }
+
+    // Determines if a Boss should be spawned
+    // Boss spawns as the last enemy in the final wave
+    // @return true if Boss should spawn, false otherwise
+    private boolean shouldSpawnBoss() {
+        return isFinalWave() && enemiesSpawnedInWave == enemiesToSpawnInWave - 1;
     }
 
     // Checks if all enemies for the current wave have been spawned
@@ -128,5 +181,17 @@ public class WaveManager {
     // @return the current wave number
     public int getCurrentWave() {
         return currentWaveNumber;
+    }
+
+    // Gets the wave announcement text to display
+    // @return the wave announcement text, or empty string if no announcement
+    public String getWaveAnnouncementText() {
+        return waveAnnouncementTimer > 0 ? waveAnnouncementText : "";
+    }
+
+    // Checks if wave announcement should be displayed
+    // @return true if announcement should be shown
+    public boolean shouldShowWaveAnnouncement() {
+        return waveAnnouncementTimer > 0;
     }
 }

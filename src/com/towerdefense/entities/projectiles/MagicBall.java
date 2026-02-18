@@ -1,6 +1,6 @@
 package com.towerdefense.entities.projectiles;
 
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.utils.Constants;
 import java.awt.*;
 
@@ -10,7 +10,7 @@ import java.awt.*;
  */
 public class MagicBall extends Projectile {
 
-    public MagicBall(double startX, double startY, Enemy target, int damage, Image ballImage) {
+    public MagicBall(double startX, double startY, BaseEnemy target, int damage, Image ballImage) {
         super(startX, startY, target, damage, ballImage);
     }
 

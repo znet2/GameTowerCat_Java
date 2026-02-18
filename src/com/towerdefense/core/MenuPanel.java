@@ -11,7 +11,7 @@ import java.io.File;
  * Main menu panel that displays before the game starts.
  * Shows wallpaper background and start button.
  */
-public class MenuPanel extends JPanel implements MouseListener {
+public class MenuPanel extends JPanel {
 
     private Image wallpaperImage;
     private Image startButtonImage;
@@ -23,7 +23,12 @@ public class MenuPanel extends JPanel implements MouseListener {
         this.parentFrame = frame;
         loadImages();
         setupPanel();
-        addMouseListener(this);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClick(e);
+            }
+        });
     }
 
     private void loadImages() {
@@ -71,8 +76,7 @@ public class MenuPanel extends JPanel implements MouseListener {
                 null);
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
+    private void handleMouseClick(MouseEvent e) {
         // Check if start button was clicked
         if (startButtonBounds != null && startButtonBounds.contains(e.getPoint())) {
             startGame();
@@ -88,21 +92,5 @@ public class MenuPanel extends JPanel implements MouseListener {
         parentFrame.setLocationRelativeTo(null);
         parentFrame.revalidate();
         gamePanel.requestFocusInWindow();
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
     }
 }

@@ -59,8 +59,6 @@ public class Tank extends GameObject implements Defensive, Collidable {
         if (currentHealth < Constants.Entities.MINIMUM_HEALTH) {
             currentHealth = Constants.Entities.MINIMUM_HEALTH;
         }
-
-        System.out.println("Tank HP: " + currentHealth);
     }
 
     @Override

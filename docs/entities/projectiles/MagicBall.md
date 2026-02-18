@@ -12,7 +12,7 @@ public class MagicBall extends Projectile
 
 ## Constructor
 ```java
-public MagicBall(double startX, double startY, Enemy target, int damage, Image ballImage)
+public MagicBall(double startX, double startY, BaseEnemy target, int damage, Image ballImage)
 ```
 เรียก constructor ของ Projectile ด้วยพารามิเตอร์ที่ได้รับ
 

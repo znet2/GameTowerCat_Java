@@ -1,6 +1,6 @@
 package com.towerdefense.entities.projectiles;
 
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.utils.Constants;
 import java.awt.*;
 
@@ -10,7 +10,7 @@ import java.awt.*;
  */
 public class Arrow extends Projectile {
 
-    public Arrow(double startX, double startY, Enemy target, int damage, Image arrowImage) {
+    public Arrow(double startX, double startY, BaseEnemy target, int damage, Image arrowImage) {
         super(startX, startY, target, damage, arrowImage);
     }
 

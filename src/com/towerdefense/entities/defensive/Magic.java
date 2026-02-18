@@ -3,7 +3,7 @@ package com.towerdefense.entities.defensive;
 import com.towerdefense.entities.base.GameObject;
 import com.towerdefense.entities.base.Defensive;
 import com.towerdefense.entities.base.Collidable;
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.entities.projectiles.MagicBall;
 import com.towerdefense.utils.Constants;
 import com.towerdefense.utils.MathUtils;
@@ -23,14 +23,14 @@ public class Magic extends GameObject implements Defensive, Collidable {
     private int currentHealth = Constants.Entities.MAGIC_INITIAL_HEALTH;
 
     // Combat state
-    private Enemy lockedTarget = null;
+    private BaseEnemy lockedTarget = null;
     private int attackTimer = 0;
     private int attackCounter = 0; // Tracks number of attacks (0-4)
     private boolean isUsingSpecialSpell = false;
     private int spellAnimationTimer = 0;
 
     // Reference to enemy list for target acquisition
-    private ArrayList<Enemy> enemyList;
+    private ArrayList<BaseEnemy> enemyList;
     private ArrayList<MagicBall> magicBalls = new ArrayList<>();
 
     // Images
@@ -46,7 +46,7 @@ public class Magic extends GameObject implements Defensive, Collidable {
     // @param tileSize - size of each tile in pixels
     // @param magicImage - visual representation of the magic tower
     // @param enemies - reference to the list of active enemies for targeting
-    public Magic(int gridColumn, int gridRow, int tileSize, Image magicImage, ArrayList<Enemy> enemies) {
+    public Magic(int gridColumn, int gridRow, int tileSize, Image magicImage, ArrayList<BaseEnemy> enemies) {
         super(gridColumn, gridRow, tileSize, 2, 2, magicImage);
         this.enemyList = enemies;
         this.normalImage = magicImage;
@@ -126,7 +126,7 @@ public class Magic extends GameObject implements Defensive, Collidable {
         lockedTarget = null;
         double closestDistance = Double.MAX_VALUE;
 
-        for (Enemy enemy : enemyList) {
+        for (BaseEnemy enemy : enemyList) {
             if (enemy.isDead()) {
                 continue;
             }
@@ -144,7 +144,7 @@ public class Magic extends GameObject implements Defensive, Collidable {
     // Uses the center points of both entities for accurate distance calculation
     // @param enemy - the enemy to calculate distance to
     // @return distance in pixels
-    private double calculateDistanceToTarget(Enemy enemy) {
+    private double calculateDistanceToTarget(BaseEnemy enemy) {
         // Get center point of magic tower
         int magicCenterX = positionX + objectWidth / 2;
         int magicCenterY = positionY + objectHeight / 2;
@@ -160,7 +160,7 @@ public class Magic extends GameObject implements Defensive, Collidable {
     // Gets the bounds of an enemy
     // @param enemy - the enemy to get bounds for
     // @return Rectangle representing enemy bounds
-    private Rectangle getEnemyBounds(Enemy enemy) {
+    private Rectangle getEnemyBounds(BaseEnemy enemy) {
         return enemy.getBounds();
     }
 
@@ -196,8 +196,6 @@ public class Magic extends GameObject implements Defensive, Collidable {
     // Deals standard magic damage
     private void performNormalAttack() {
         shootMagicBall(false);
-        System.out.println("Magic normal attack! Damage: " + Constants.Entities.MAGIC_ATTACK_DAMAGE +
-                " (Attack " + (attackCounter + 1) + "/5)");
     }
 
     // Casts a powerful magic spell on the locked target
@@ -209,7 +207,6 @@ public class Magic extends GameObject implements Defensive, Collidable {
         objectImage = bombImage;
 
         shootMagicBall(true);
-        System.out.println("Magic SPELL CAST! Damage: " + Constants.Entities.MAGIC_SPELL_DAMAGE + " 💥");
     }
 
     // Shoots a magic ball projectile
@@ -238,9 +235,6 @@ public class Magic extends GameObject implements Defensive, Collidable {
         if (currentHealth < Constants.Entities.MINIMUM_HEALTH) {
             currentHealth = Constants.Entities.MINIMUM_HEALTH;
         }
-
-        System.out.println("Magic HP: " + currentHealth + " (absorbed " +
-                (damageAmount - actualDamage) + " damage)");
     }
 
     @Override

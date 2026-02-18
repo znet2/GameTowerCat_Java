@@ -160,29 +160,29 @@ public void placeTank(int gridColumn, int gridRow)
 2. เพิ่มเข้าไปใน defensiveTanks list
 3. เรียก `repaint()` เพื่ออัปเดตการแสดงผล
 
-### placeMagic(int gridColumn, int gridRow, ArrayList<Enemy> enemies)
+### placeMagic(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies)
 ```java
-public void placeMagic(int gridColumn, int gridRow, ArrayList<Enemy> enemies)
+public void placeMagic(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies)
 ```
 **วัตถุประสงค์**: วาง Magic tower ใหม่บนแผนที่
 **พารามิเตอร์**: 
 - ตำแหน่งกริด
-- รายการศัตรูสำหรับการเล็ง
+- รายการศัตรูสำหรับการเล็ง (รวมทั้ง Enemy และ EnemyBoss)
 **การทำงาน**:
 1. สร้าง Magic object ใหม่พร้อมอ้างอิงศัตรู
 2. เพิ่มเข้าไปใน magicTowers list
 3. เรียก `repaint()`
 
-### placeArcher(int gridColumn, int gridRow, ArrayList<Enemy> enemies)
+### placeArcher(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies)
 ```java
-public void placeArcher(int gridColumn, int gridRow, ArrayList<Enemy> enemies)
+public void placeArcher(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies)
 ```
 **วัตถุประสงค์**: วาง Archer tower ใหม่บนแผนที่
 **การทำงาน**: เหมือน placeMagic แต่สร้าง Archer object
 
-### placeAssassin(int gridColumn, int gridRow, ArrayList<Enemy> enemies)
+### placeAssassin(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies)
 ```java
-public void placeAssassin(int gridColumn, int gridRow, ArrayList<Enemy> enemies)
+public void placeAssassin(int gridColumn, int gridRow, ArrayList<BaseEnemy> enemies)
 ```
 **วัตถุประสงค์**: วาง Assassin ใหม่บนแผนที่
 **การทำงาน**: เหมือน placeMagic แต่สร้าง Assassin object
@@ -234,31 +234,33 @@ public void removeDeadArcherTowers()
 public boolean hasTankAt(int gridColumn, int gridRow)
 ```
 **วัตถุประสงค์**: ตรวจสอบว่ามี Tank ที่ตำแหน่งนี้หรือไม่
-**การทำงาน**:
-1. วนลูปผ่าน Tank ทั้งหมด
-2. เปรียบเทียบตำแหน่งกริด
-3. return true หากพบ Tank ที่ตำแหน่งนี้
+**การทำงาน**: ใช้ stream().anyMatch() เพื่อหาว่ามี Tank ที่ตำแหน่งกริดที่ระบุหรือไม่
+**return**: true หากพบ Tank, false หากไม่พบ
+**หมายเหตุ**: ใช้ functional programming style เพื่อความกระชับ
 
 ### hasMagicAt(int gridColumn, int gridRow)
 ```java
 public boolean hasMagicAt(int gridColumn, int gridRow)
 ```
 **วัตถุประสงค์**: ตรวจสอบว่ามี Magic tower ที่ตำแหน่งนี้หรือไม่
-**การทำงาน**: เหมือน hasTankAt แต่ตรวจสอบ Magic tower
+**การทำงาน**: ใช้ stream().anyMatch() เพื่อหาว่ามี Magic tower ที่ตำแหน่งกริดที่ระบุหรือไม่
+**return**: true หากพบ Magic tower, false หากไม่พบ
 
 ### hasArcherAt(int gridColumn, int gridRow)
 ```java
 public boolean hasArcherAt(int gridColumn, int gridRow)
 ```
 **วัตถุประสงค์**: ตรวจสอบว่ามี Archer tower ที่ตำแหน่งนี้หรือไม่
-**การทำงาน**: เหมือน hasTankAt แต่ตรวจสอบ Archer tower
+**การทำงาน**: ใช้ stream().anyMatch() เพื่อหาว่ามี Archer tower ที่ตำแหน่งกริดที่ระบุหรือไม่
+**return**: true หากพบ Archer tower, false หากไม่พบ
 
 ### hasAssassinAt(int gridColumn, int gridRow)
 ```java
 public boolean hasAssassinAt(int gridColumn, int gridRow)
 ```
 **วัตถุประสงค์**: ตรวจสอบว่ามี Assassin ที่ตำแหน่งนี้หรือไม่
-**การทำงาน**: เหมือน hasTankAt แต่ตรวจสอบ Assassin
+**การทำงาน**: ใช้ stream().anyMatch() เพื่อหาว่ามี Assassin ที่ตำแหน่งกริดที่ระบุหรือไม่
+**return**: true หากพบ Assassin, false หากไม่พบ
 
 ### draw(Graphics graphics)
 ```java

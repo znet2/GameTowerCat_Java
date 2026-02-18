@@ -12,7 +12,7 @@ public class Arrow extends Projectile
 
 ## Constructor
 ```java
-public Arrow(double startX, double startY, Enemy target, int damage, Image arrowImage)
+public Arrow(double startX, double startY, BaseEnemy target, int damage, Image arrowImage)
 ```
 เรียก constructor ของ Projectile ด้วยพารามิเตอร์ที่ได้รับ
 

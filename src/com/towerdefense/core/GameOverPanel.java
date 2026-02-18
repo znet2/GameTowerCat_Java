@@ -11,7 +11,7 @@ import java.io.File;
  * Game over panel that displays win or lose screen.
  * Shows result image and restart button.
  */
-public class GameOverPanel extends JPanel implements MouseListener {
+public class GameOverPanel extends JPanel {
 
     private Image backgroundImage;
     private Image resultImage;
@@ -25,7 +25,12 @@ public class GameOverPanel extends JPanel implements MouseListener {
         this.isWin = isWin;
         loadImages();
         setupPanel();
-        addMouseListener(this);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClick(e);
+            }
+        });
     }
 
     private void loadImages() {
@@ -72,8 +77,7 @@ public class GameOverPanel extends JPanel implements MouseListener {
         graphics.drawImage(restartButtonImage, buttonX, buttonY, buttonWidth, buttonHeight, null);
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
+    private void handleMouseClick(MouseEvent e) {
         if (restartButtonBounds != null && restartButtonBounds.contains(e.getPoint())) {
             restartGame();
         }
@@ -87,21 +91,5 @@ public class GameOverPanel extends JPanel implements MouseListener {
         parentFrame.setLocationRelativeTo(null);
         parentFrame.revalidate();
         parentFrame.repaint();
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
     }
 }

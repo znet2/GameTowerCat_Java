@@ -117,9 +117,18 @@ public static final class Entities
 - `ENEMY_INITIAL_HEALTH = 3000` - เลือดเริ่มต้นศัตรู
 - `ENEMY_ATTACK_DAMAGE = 500` - ความเสียหายศัตรู
 - `ENEMY_ATTACK_COOLDOWN_FRAMES = 60` - cooldown การโจมตี (1 วินาที)
-- `ENEMY_X_OFFSET = -25` - offset การแสดงผลแนวนอน
-- `ENEMY_Y_OFFSET = -25` - offset การแสดงผลแนวตั้ง
-- `ENEMY_POSITION_OFFSET_MULTIPLIER = 12` - ระยะห่างระหว่างศัตรูเมื่อโจมตีเป้าหมายเดียวกัน (ป้องกันการซ้อนทับ)
+- `ENEMY_X_OFFSET = -32` - offset การแสดงผลแนวนอน (ครึ่งหนึ่งของขนาด เพื่อให้อยู่กึ่งกลาง)
+- `ENEMY_Y_OFFSET = -32` - offset การแสดงผลแนวตั้ง (ครึ่งหนึ่งของขนาด เพื่อให้อยู่กึ่งกลาง)
+- `ENEMY_SPACING_MULTIPLIER = 1.1` - ระยะห่างระหว่างศัตรูขณะเดิน (1.1 = ห่างกัน 10% ของขนาด, ปรับได้ตามต้องการ)
+
+#### Boss Configuration
+- `BOSS_SIZE = 96` - ขนาด Boss (ใหญ่กว่าศัตรูปกติ 1.5 เท่า)
+- `BOSS_SPEED = 0.3` - ความเร็ว Boss (ช้ากว่าศัตรูปกติ 40%)
+- `BOSS_INITIAL_HEALTH = 10000` - เลือดเริ่มต้น Boss (มากกว่าศัตรูปกติ 3.33 เท่า)
+- `BOSS_ATTACK_DAMAGE = 1000` - ความเสียหาย Boss (มากกว่าศัตรูปกติ 2 เท่า)
+- `BOSS_ATTACK_COOLDOWN_FRAMES = 45` - cooldown การโจมตี (0.75 วินาที, เร็วกว่าศัตรูปกติ)
+- `BOSS_X_OFFSET = -48` - offset การแสดงผลแนวนอน (ครึ่งหนึ่งของขนาด เพื่อให้อยู่กึ่งกลาง)
+- `BOSS_Y_OFFSET = -48` - offset การแสดงผลแนวตั้ง (ครึ่งหนึ่งของขนาด เพื่อให้อยู่กึ่งกลาง)
 
 ### Projectile Configuration
 ```java
@@ -138,12 +147,6 @@ public static final class Projectiles
 - `MAGIC_BALL_SIZE = 20` - ขนาดลูกไฟ (พิกเซล, เล็กกว่า Arrow)
 - `MAGIC_BALL_FALLBACK_COLOR = Color(255, 0, 255)` - สีม่วงแดงสำหรับ fallback
 - `MAGIC_BALL_FALLBACK_SIZE = 10` - ขนาดวงกลม fallback
-- `ENEMY_INITIAL_HEALTH = 50` - เลือดเริ่มต้นศัตรู
-- `ENEMY_ATTACK_DAMAGE = 5` - ความเสียหายศัตรู
-- `ENEMY_ATTACK_COOLDOWN_FRAMES = 60` - cooldown การโจมตี (1 วินาที)
-- `ENEMY_X_OFFSET = -25` - offset การแสดงผลแนวนอน
-- `ENEMY_Y_OFFSET = -25` - offset การแสดงผลแนวตั้ง
-- `ENEMY_POSITION_OFFSET_MULTIPLIER = 12` - ระยะห่างระหว่างศัตรูเมื่อโจมตีเป้าหมายเดียวกัน (ป้องกันการซ้อนทับ)
 
 ### UI Configuration
 ```java
@@ -204,11 +207,13 @@ public static final class Economy
 #### ค่าคงที่
 - `STARTING_COINS = 640` - เหรียญเริ่มต้น
 - `COINS_PER_ENEMY_KILL = 15` - เหรียญรางวัลการฆ่าศัตรูแต่ละตัว
+- `COINS_PER_BOSS_KILL = 100` - เหรียญรางวัลการฆ่า Boss (มากกว่าศัตรูปกติ 6.67 เท่า)
 - `COINS_PER_WAVE_COMPLETE = 200` - เหรียญโบนัสเมื่อจบแต่ละ wave
 
 #### การใช้งาน
 - **Game Start**: ใช้ STARTING_COINS สำหรับเหรียญเริ่มต้น
 - **Enemy Kill**: ได้รับ COINS_PER_ENEMY_KILL ทุกครั้งที่ฆ่าศัตรู
+- **Boss Kill**: ได้รับ COINS_PER_BOSS_KILL ทุกครั้งที่ฆ่า Boss
 - **Wave Complete**: ได้รับ COINS_PER_WAVE_COMPLETE เมื่อจบแต่ละ wave
 
 ### Wave Configuration
@@ -244,7 +249,8 @@ public static final class Paths
 - `IMAGES = "image/"` - โฟลเดอร์รูปภาพหลัก
 
 #### Entity Images
-- `ENEMY_IMAGE = IMAGES + "catEnemy.png"` - รูปศัตรู
+- `ENEMY_IMAGE = IMAGES + "catEnemy.png"` - รูปศัตรูปกติ
+- `BOSS_IMAGE = IMAGES + "enemyBoss.png"` - รูป Boss (ใหญ่กว่าศัตรูปกติ)
 - `TANK_IMAGE = IMAGES + "tank.png"` - รูป Tank ปกติ
 - `TANK_DEFEND_IMAGE = IMAGES + "tankDef.png"` - รูป Tank ป้องกัน
 - `HOUSE_IMAGE = IMAGES + "castle.png"` - รูปบ้าน

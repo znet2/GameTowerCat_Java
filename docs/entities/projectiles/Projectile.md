@@ -14,7 +14,7 @@ public abstract class Projectile
 
 ### ตัวแปร Protected
 - `double positionX, positionY` - ตำแหน่งปัจจุบันของกระสุน
-- `Enemy target` - ศัตรูที่กระสุนกำลังติดตาม
+- `BaseEnemy target` - ศัตรูที่กระสุนกำลังติดตาม (Enemy หรือ Boss)
 - `int damage` - ความเสียหายที่จะสร้าง
 - `boolean isActive` - สถานะว่ากระสุนยังใช้งานอยู่หรือไม่
 - `Image projectileImage` - รูปภาพของกระสุน
@@ -23,11 +23,11 @@ public abstract class Projectile
 
 ### Constructor
 ```java
-public Projectile(double startX, double startY, Enemy target, int damage, Image image)
+public Projectile(double startX, double startY, BaseEnemy target, int damage, Image image)
 ```
 **พารามิเตอร์**:
 - `startX, startY` - ตำแหน่งเริ่มต้น
-- `target` - ศัตรูที่จะติดตามและโจมตี
+- `target` - ศัตรูที่จะติดตามและโจมตี (Enemy หรือ EnemyBoss)
 - `damage` - ความเสียหายที่จะสร้าง
 - `image` - รูปภาพกระสุน
 
@@ -37,9 +37,11 @@ public void update()
 ```
 **การทำงาน**:
 1. ตรวจสอบว่ากระสุนและเป้าหมายยังใช้งานได้
-2. คำนวณทิศทางไปยังจุดกึ่งกลางของเป้าหมาย
-3. ตรวจสอบว่าถึงเป้าหมายหรือยัง (ระยะทาง < ความเร็ว)
-4. เคลื่อนที่ไปยังเป้าหมาย
+2. ใช้ Rectangle.getCenterX() และ getCenterY() เพื่อหาจุดกึ่งกลางของเป้าหมาย
+3. คำนวณระยะทางและทิศทางไปยังเป้าหมาย
+4. ตรวจสอบว่าถึงเป้าหมายหรือยัง (ระยะทาง < ความเร็ว)
+5. เคลื่อนที่ไปยังเป้าหมายด้วยความเร็วคงที่
+**หมายเหตุ**: ใช้ inline calculation เพื่อความกระชับ
 
 ### hitTarget()
 ```java
@@ -126,6 +128,7 @@ return ขนาดของรูปทรงสำรองเป็นพิ�
 
 ### Archer.java
 ```java
+// ยิงได้ทั้ง Enemy และ EnemyBoss
 private void shootArrow() {
     int startX = positionX + Constants.Entities.ARCHER_X_OFFSET + objectWidth / 2;
     int startY = positionY + Constants.Entities.ARCHER_Y_OFFSET + objectHeight / 2;
@@ -150,6 +153,7 @@ public void update() {
 
 ### Magic.java
 ```java
+// ยิงได้ทั้ง Enemy และ EnemyBoss
 private void shootMagicBall(boolean isSuper) {
     int startX = positionX + Constants.Entities.MAGIC_X_OFFSET + objectWidth / 2;
     int startY = positionY + Constants.Entities.MAGIC_Y_OFFSET + objectHeight / 2;
@@ -168,7 +172,7 @@ private void shootMagicBall(boolean isSuper) {
 
 ```java
 public class Fireball extends Projectile {
-    public Fireball(double startX, double startY, Enemy target, int damage, Image image) {
+    public Fireball(double startX, double startY, BaseEnemy target, int damage, Image image) {
         super(startX, startY, target, damage, image);
     }
     

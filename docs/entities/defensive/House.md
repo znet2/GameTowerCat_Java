@@ -86,8 +86,9 @@ public House getHouse() {
 ### Enemy.java
 ```java
 // ศัตรูโจมตีบ้าน
-if (currentAttackTarget instanceof House) {
-    targetHouse.damage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
+if (currentAttackTarget instanceof Defensive) {
+    Defensive target = (Defensive) currentAttackTarget;
+    target.takeDamage(Constants.Entities.ENEMY_ATTACK_DAMAGE);
 }
 ```
 

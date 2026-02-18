@@ -12,11 +12,4 @@ public interface Collidable {
     // Used for collision detection with other game objects
     // @return Rectangle representing the object's collision area
     Rectangle getCollisionBounds();
-    
-    // Checks if this object collides with another collidable object
-    // @param other - the other collidable object to check against
-    // @return true if collision occurs, false otherwise
-    default boolean collidesWith(Collidable other) {
-        return getCollisionBounds().intersects(other.getCollisionBounds());
-    }
 }

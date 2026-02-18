@@ -50,7 +50,7 @@ return Rectangle ที่ตำแหน่ง `(positionX + TANK_X_OFFSET, pos
 
 ## ค่าคงที่ที่ใช้จาก Constants
 - `TANK_INITIAL_HEALTH = 10000` - เลือดเริ่มต้น
-- `TANK_COST = 25` - ราคา
+- `TANK_COST = 120` - ราคา
 - `TANK_X_OFFSET = 0` - offset แนวนอน
 - `TANK_Y_OFFSET = -30` - offset แนวตั้ง
 - `MINIMUM_HEALTH = 0` - เลือดต่ำสุด
@@ -63,6 +63,6 @@ return Rectangle ที่ตำแหน่ง `(positionX + TANK_X_OFFSET, pos
 
 ## จุดเด่น
 - เลือดสูงมาก (10,000)
-- ราคาถูก (25 เหรียญ)
+- ราคาปานกลาง (120 เหรียญ)
 - เปลี่ยนรูปภาพเมื่อถูกโจมตี
 - ไม่มีค่าป้องกัน (รับความเสียหายเต็มจำนวน)

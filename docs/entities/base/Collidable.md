@@ -18,7 +18,7 @@ Rectangle getCollisionBounds()
 ```
 **วัตถุประสงค์**: ดึง collision bounds ของวัตถุ
 **การทำงาน**: return Rectangle ที่แสดงพื้นที่การชนของวัตถุ
-**การใช้งาน**: ใช้สำหรับการตรวจสอบการชนกับวัตถุอื่น
+**การใช้งาน**: ใช้สำหรับการตรวจสอบการชนกับวัตถุอื่นผ่าน `Rectangle.intersects()`
 
 **ตัวอย่างการ implement**:
 ```java
@@ -28,26 +28,7 @@ public Rectangle getCollisionBounds() {
 }
 ```
 
-## Default Methods
-
-### collidesWith(Collidable other)
-```java
-default boolean collidesWith(Collidable other) {
-    return getCollisionBounds().intersects(other.getCollisionBounds());
-}
-```
-**วัตถุประสงค์**: ตรวจสอบว่าวัตถุนี้ชนกับวัตถุอื่นหรือไม่
-**พารามิเตอร์**: `other` - วัตถุอื่นที่ต้องการตรวจสอบการชน
-**การทำงาน**:
-1. ดึง collision bounds ของวัตถุนี้
-2. ดึง collision bounds ของวัตถุอื่น
-3. ใช้ `Rectangle.intersects()` ตรวจสอบการทับซ้อน
-4. return true หากมีการชน
-
-**ข้อดีของ Default Method**:
-- ไม่บังคับให้ทุกคลาสต้อง implement
-- ใช้ logic เดียวกันสำหรับการตรวจสอบการชน
-- สามารถ override ได้หากต้องการพฤติกรรมพิเศษ
+**หมายเหตุ**: Interface นี้ไม่มี default methods - คลาสที่ implement ต้องจัดการการตรวจสอบการชนเอง
 
 ## การใช้งาน Interface
 
@@ -79,12 +60,14 @@ public class Enemy {
 }
 ```
 
-### การใช้ Default Method
+### การตรวจสอบการชนระหว่างวัตถุหลายตัว
 ```java
 public void checkCollisions(List<Collidable> objects) {
     for (int i = 0; i < objects.size(); i++) {
         for (int j = i + 1; j < objects.size(); j++) {
-            if (objects.get(i).collidesWith(objects.get(j))) {
+            Rectangle bounds1 = objects.get(i).getCollisionBounds();
+            Rectangle bounds2 = objects.get(j).getCollisionBounds();
+            if (bounds1.intersects(bounds2)) {
                 handleCollision(objects.get(i), objects.get(j));
             }
         }
@@ -128,12 +111,37 @@ public Rectangle getCollisionBounds() {
 
 ### Enemy vs Defensive Units
 ```java
-// ใน Enemy.java
-private boolean checkForTankCollision() {
+// ใน BaseEnemy.java
+protected boolean checkForDefensiveCollision() {
     for (Tank tank : gameMap.getTanks()) {
-        if (!tank.isDead() && getBounds().intersects(tank.getCollisionBounds())) {
-            positionForAttack(tank);
-            startAttacking(tank);
+        if (checkAndAttackUnit(tank)) return true;
+    }
+    
+    for (Magic magic : gameMap.getMagicTowers()) {
+        if (checkAndAttackUnit(magic)) return true;
+    }
+    
+    for (Archer archer : gameMap.getArcherTowers()) {
+        if (checkAndAttackUnit(archer)) return true;
+    }
+    
+    return false;
+}
+
+private boolean checkAndAttackUnit(Defensive unit) {
+    if (!unit.isDead()) {
+        Rectangle unitBounds = null;
+        
+        if (unit instanceof Tank) {
+            unitBounds = ((Tank) unit).getBounds();
+        } else if (unit instanceof Magic) {
+            unitBounds = ((Magic) unit).getBounds();
+        } else if (unit instanceof Archer) {
+            unitBounds = ((Archer) unit).getBounds();
+        }
+        
+        if (unitBounds != null && getBounds().intersects(unitBounds)) {
+            startAttacking(unit);
             return true;
         }
     }
@@ -243,20 +251,19 @@ for (Collidable obj1 : collidableObjects) {
 - คลาสที่ implement จัดการรายละเอียด
 - ระบบการชนไม่ต้องรู้ประเภทของวัตถุ
 
-## การปรับปรุงและขยายระบบ
+## การปรับปรุงและขยายระบบ (ตัวอย่างการขยายในอนาคต)
 
 ### เพิ่ม Collision Layers
 ```java
 public interface Collidable {
     Rectangle getCollisionBounds();
-    
-    default int getCollisionLayer() {
-        return 0; // Default layer
-    }
-    
-    default boolean canCollideWith(Collidable other) {
-        return getCollisionLayer() == other.getCollisionLayer();
-    }
+    int getCollisionLayer();
+}
+
+// ในคลาสที่ implement
+@Override
+public int getCollisionLayer() {
+    return 0; // Default layer
 }
 ```
 
@@ -278,14 +285,8 @@ public interface Collidable {
 ```java
 public interface Collidable {
     Rectangle getCollisionBounds();
-    
-    default void onCollisionEnter(Collidable other) {
-        // เรียกเมื่อเริ่มชน
-    }
-    
-    default void onCollisionExit(Collidable other) {
-        // เรียกเมื่อหยุดชน
-    }
+    void onCollisionEnter(Collidable other);
+    void onCollisionExit(Collidable other);
 }
 ```
 
@@ -307,15 +308,17 @@ public interface Collidable {
 
 ### Simplicity
 - Interface เรียบง่าย มีเพียง 1 method บังคับ
-- Default method ช่วยลดการเขียนโค้ดซ้ำ
+- ไม่มี default methods - ให้คลาสที่ implement จัดการเอง
 
 ### Performance
 - ใช้ Rectangle.intersects() ที่มีประสิทธิภาพ
 - ไม่ซับซ้อนเกินความจำเป็น
+- ไม่มี overhead จาก default methods
 
 ### Extensibility
 - เพิ่มประเภทการชนใหม่ได้ง่าย
 - รองรับการปรับปรุงในอนาคต
+- คลาสที่ implement มีอิสระในการจัดการการชน
 
 ### Type Safety
 - รับประกันว่าวัตถุมีความสามารถในการตรวจสอบการชน

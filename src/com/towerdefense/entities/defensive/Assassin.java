@@ -1,7 +1,7 @@
 package com.towerdefense.entities.defensive;
 
 import com.towerdefense.entities.base.GameObject;
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.utils.Constants;
 import com.towerdefense.utils.MathUtils;
 import java.awt.*;
@@ -14,15 +14,15 @@ import java.util.ArrayList;
  */
 public class Assassin extends GameObject {
 
-    private ArrayList<Enemy> enemyList;
-    private ArrayList<Enemy> attackedEnemies = new ArrayList<>();
+    private ArrayList<BaseEnemy> enemyList;
+    private ArrayList<BaseEnemy> attackedEnemies = new ArrayList<>();
     private int attackCooldown = 0;
     private boolean isAttacking = false;
     private int attackAnimationTimer = 0;
     private Image normalImage;
     private Image attackImage;
 
-    public Assassin(int gridColumn, int gridRow, int tileSize, Image assassinImage, ArrayList<Enemy> enemies) {
+    public Assassin(int gridColumn, int gridRow, int tileSize, Image assassinImage, ArrayList<BaseEnemy> enemies) {
         super(gridColumn, gridRow, tileSize, 2, 2, assassinImage);
         this.enemyList = enemies;
         this.normalImage = assassinImage;
@@ -51,7 +51,7 @@ public class Assassin extends GameObject {
         }
 
         // Check for enemies in range
-        for (Enemy enemy : enemyList) {
+        for (BaseEnemy enemy : enemyList) {
             if (enemy.isDead()) {
                 continue;
             }
@@ -72,10 +72,10 @@ public class Assassin extends GameObject {
         }
 
         // Clean up dead enemies from attacked list
-        attackedEnemies.removeIf(Enemy::isDead);
+        attackedEnemies.removeIf(BaseEnemy::isDead);
     }
 
-    private double calculateDistanceToEnemy(Enemy enemy) {
+    private double calculateDistanceToEnemy(BaseEnemy enemy) {
         int assassinCenterX = positionX + objectWidth / 2;
         int assassinCenterY = positionY + objectHeight / 2;
 
@@ -86,14 +86,13 @@ public class Assassin extends GameObject {
         return MathUtils.calculateDistance(assassinCenterX, assassinCenterY, enemyCenterX, enemyCenterY);
     }
 
-    private void attackEnemy(Enemy enemy) {
+    private void attackEnemy(BaseEnemy enemy) {
         // Change to attack image
         isAttacking = true;
         attackAnimationTimer = 0;
         objectImage = attackImage;
 
         enemy.takeDamage(Constants.Entities.ASSASSIN_ATTACK_DAMAGE);
-        System.out.println("Assassin attacked! Damage: " + Constants.Entities.ASSASSIN_ATTACK_DAMAGE);
     }
 
     @Override

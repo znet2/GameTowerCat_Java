@@ -3,7 +3,7 @@ package com.towerdefense.entities.defensive;
 import com.towerdefense.entities.base.GameObject;
 import com.towerdefense.entities.base.Defensive;
 import com.towerdefense.entities.base.Collidable;
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.entities.projectiles.Arrow;
 import com.towerdefense.utils.Constants;
 import com.towerdefense.utils.MathUtils;
@@ -19,17 +19,17 @@ import java.util.Iterator;
 public class Archer extends GameObject implements Defensive, Collidable {
 
     private int currentHealth = Constants.Entities.ARCHER_INITIAL_HEALTH;
-    private Enemy lockedTarget = null;
+    private BaseEnemy lockedTarget = null;
     private int attackTimer = 0;
     private boolean isAttacking = false;
     private int attackAnimationTimer = 0;
-    private ArrayList<Enemy> enemyList;
+    private ArrayList<BaseEnemy> enemyList;
     private ArrayList<Arrow> arrows = new ArrayList<>();
     private Image arrowImage;
     private Image normalImage;
     private Image attackImage;
 
-    public Archer(int gridColumn, int gridRow, int tileSize, Image archerImage, ArrayList<Enemy> enemies) {
+    public Archer(int gridColumn, int gridRow, int tileSize, Image archerImage, ArrayList<BaseEnemy> enemies) {
         super(gridColumn, gridRow, tileSize, 2, 2, archerImage);
         this.enemyList = enemies;
         this.normalImage = archerImage;
@@ -94,7 +94,7 @@ public class Archer extends GameObject implements Defensive, Collidable {
         lockedTarget = null;
         double closestDistance = Double.MAX_VALUE;
 
-        for (Enemy enemy : enemyList) {
+        for (BaseEnemy enemy : enemyList) {
             if (enemy.isDead()) {
                 continue;
             }
@@ -108,7 +108,7 @@ public class Archer extends GameObject implements Defensive, Collidable {
         }
     }
 
-    private double calculateDistanceToTarget(Enemy enemy) {
+    private double calculateDistanceToTarget(BaseEnemy enemy) {
         int archerCenterX = positionX + objectWidth / 2;
         int archerCenterY = positionY + objectHeight / 2;
 
@@ -144,9 +144,6 @@ public class Archer extends GameObject implements Defensive, Collidable {
 
         Arrow arrow = new Arrow(startX, startY, lockedTarget, Constants.Entities.ARCHER_ATTACK_DAMAGE, arrowImage);
         arrows.add(arrow);
-
-        System.out.println("Archer shot arrow! Damage: " + Constants.Entities.ARCHER_ATTACK_DAMAGE + 
-                " | Arrow image: " + (arrowImage != null ? "loaded" : "NULL"));
     }
 
     @Override
@@ -157,9 +154,6 @@ public class Archer extends GameObject implements Defensive, Collidable {
         if (currentHealth < Constants.Entities.MINIMUM_HEALTH) {
             currentHealth = Constants.Entities.MINIMUM_HEALTH;
         }
-
-        System.out.println("Archer HP: " + currentHealth + " (absorbed " +
-                (damageAmount - actualDamage) + " damage)");
     }
 
     @Override

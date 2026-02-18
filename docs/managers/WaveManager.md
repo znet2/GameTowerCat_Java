@@ -1,7 +1,7 @@
 # WaveManager.java - ระบบจัดการ Wave ศัตรู
 
 ## ภาพรวม
-WaveManager เป็นคลาสที่จัดการการสร้างและควบคุม wave ของศัตรู รวมถึงการกำหนดจำนวนศัตรู ระยะเวลาการสร้าง และการเปลี่ยน wave
+WaveManager เป็นคลาสที่จัดการการสร้างและควบคุม wave ของศัตรู รวมถึงการกำหนดจำนวนศัตรู ระยะเวลาการสร้าง และการเปลี่ยน wave ใน wave สุดท้าย (wave 5) จะมี Boss spawn เป็นศัตรูตัวสุดท้าย
 
 ## คลาสและการสืบทอด
 ```java
@@ -20,7 +20,7 @@ public class WaveManager
 
 ### การอ้างอิงเกม
 - `Map gameMap` - อ้างอิงไปยังแผนที่สำหรับการสร้างศัตรู
-- `ArrayList<Enemy> activeEnemies` - รายการศัตรูที่ยังมีชีวิต
+- `ArrayList<BaseEnemy> activeEnemies` - รายการศัตรูที่ยังมีชีวิต (รวม Enemy และ Boss)
 - `CoinManager coinManager` - อ้างอิงไปยังระบบเหรียญ
 
 ## Methods อย่างละเอียด
@@ -44,10 +44,9 @@ public void startNextWave()
 ```
 **วัตถุประสงค์**: เริ่ม wave ใหม่
 **การทำงาน**:
-1. เรียก `Enemy.resetEnemyCount()` - รีเซ็ตตัวนับศัตรูสำหรับ positioning
-2. เรียก `calculateEnemiesForWave()` - คำนวณจำนวนศัตรูใน wave นี้
-3. เรียก `resetWaveState()` - รีเซ็ตสถานะ wave
-4. เรียก `announceWaveStart()` - ประกาศเริ่ม wave
+1. เรียก `calculateEnemiesForWave()` - คำนวณจำนวนศัตรูใน wave นี้
+2. เรียก `resetWaveState()` - รีเซ็ตสถานะ wave
+3. เรียก `announceWaveStart()` - ประกาศเริ่ม wave
 
 ### calculateEnemiesForWave()
 ```java
@@ -60,7 +59,9 @@ private void calculateEnemiesForWave()
 - Wave 2: 3 + 2×3 = 9 ตัว
 - Wave 3: 3 + 3×3 = 12 ตัว
 - Wave 4: 3 + 4×3 = 15 ตัว
-- Wave 5: 3 + 5×3 = 18 ตัว
+- Wave 5: 3 + 5×3 = 18 ตัว + 1 Boss = 19 ตัว (Boss เป็นตัวสุดท้าย)
+
+**หมายเหตุ**: ใน wave สุดท้าย จะเพิ่ม 1 slot สำหรับ Boss
 
 ### resetWaveState()
 ```java
@@ -77,7 +78,10 @@ private void resetWaveState()
 private void announceWaveStart()
 ```
 **วัตถุประสงค์**: ประกาศการเริ่ม wave ใหม่
-**การทำงาน**: พิมพ์ข้อความ "Wave X started" ใน console
+**การทำงาน**: 
+- ตั้งค่า waveAnnouncementText = "Wave X"
+- ตั้งค่า waveAnnouncementTimer = 180 frames (3 วินาที)
+**หมายเหตุ**: ไม่มี console output เพื่อความสะอาดของโค้ด
 
 ### update()
 ```java
@@ -85,13 +89,14 @@ public void update()
 ```
 **วัตถุประสงค์**: อัปเดต WaveManager ทุก frame
 **การทำงาน**:
-1. ตรวจสอบว่ากำลังสร้างศัตรูหรือไม่
-2. หากไม่ได้สร้าง return ทันที
-3. เรียก `updateSpawnTimer()` - อัปเดตตัวจับเวลา
-4. ตรวจสอบ `shouldSpawnEnemy()` - ควรสร้างศัตรูหรือไม่
-5. หากควรสร้าง เรียก `spawnEnemy()`
-6. ตรวจสอบ `hasFinishedSpawning()` - สร้างครบหรือยัง
-7. หากครบแล้ว เรียก `completeWave()`
+1. อัปเดต waveAnnouncementTimer (ลดลงทีละ 1 ถ้ามากกว่า 0)
+2. ตรวจสอบว่ากำลังสร้างศัตรูหรือไม่
+3. หากไม่ได้สร้าง return ทันที
+4. เรียก `updateSpawnTimer()` - อัปเดตตัวจับเวลา
+5. ตรวจสอบ `shouldSpawnEnemy()` - ควรสร้างศัตรูหรือไม่
+6. หากควรสร้าง เรียก `spawnEnemy()`
+7. ตรวจสอบ `hasFinishedSpawning()` - สร้างครบหรือยัง
+8. หากครบแล้ว เรียก `completeWave()`
 
 ### updateSpawnTimer()
 ```java
@@ -114,12 +119,35 @@ private boolean shouldSpawnEnemy()
 ```java
 private void spawnEnemy()
 ```
-**วัตถุประสงค์**: สร้างศัตรูใหม่
+**วัตถุประสงค์**: สร้างศัตรูใหม่และตั้งค่าระบบหลีกเลี่ยงการชน
 **การทำงาน**:
-1. สร้าง Enemy object ใหม่
-2. เพิ่มเข้าไปใน activeEnemies list
-3. เพิ่ม `enemiesSpawnedInWave`
-4. รีเซ็ต `spawnTimer = 0`
+1. ตรวจสอบว่าควร spawn Boss หรือไม่ (wave สุดท้าย และเป็นศัตรูตัวสุดท้าย)
+2. ถ้าควร spawn Boss: สร้าง EnemyBoss
+3. ถ้าไม่ใช่: สร้าง Enemy ปกติ
+4. เรียก `newEnemy.setAllEnemies(activeEnemies)` - ให้ศัตรูใหม่อ้างอิงรายการศัตรูทั้งหมด
+5. เพิ่มศัตรูใหม่เข้าไปใน activeEnemies list
+6. อัปเดตศัตรูทั้งหมดที่มีอยู่ให้อ้างอิงรายการที่อัปเดตแล้ว (loop ผ่านทุกตัว)
+7. เพิ่ม `enemiesSpawnedInWave`
+8. รีเซ็ต `spawnTimer = 0`
+
+**หมายเหตุ**: การตั้งค่า allEnemies ให้ศัตรูทุกตัวทำให้พวกมันสามารถหลีกเลี่ยงการชนกันขณะเดินได้
+
+### shouldSpawnBoss()
+```java
+private boolean shouldSpawnBoss()
+```
+**วัตถุประสงค์**: ตรวจสอบว่าควร spawn Boss หรือไม่
+**การทำงาน**:
+- ตรวจสอบว่าเป็น wave สุดท้าย (wave 5)
+- ตรวจสอบว่าเป็นศัตรูตัวสุดท้ายใน wave (`enemiesSpawnedInWave == enemiesToSpawnInWave - 1`)
+- คืนค่า true ถ้าทั้งสองเงื่อนไขเป็นจริง
+
+### isFinalWave()
+```java
+private boolean isFinalWave()
+```
+**วัตถุประสงค์**: ตรวจสอบว่าเป็น wave สุดท้ายหรือไม่
+**การทำงาน**: คืนค่า true ถ้า `currentWaveNumber == Constants.Waves.MAX_WAVES` (5)
 
 ### hasFinishedSpawning()
 ```java
@@ -157,6 +185,22 @@ public int getCurrentWave()
 **การทำงาน**: return `currentWaveNumber`
 **การใช้งาน**: ใช้โดย GamePanel เพื่อตรวจสอบการชนะ
 
+### getWaveAnnouncementText()
+```java
+public String getWaveAnnouncementText()
+```
+**วัตถุประสงค์**: ดึงข้อความประกาศ wave
+**การทำงาน**: return waveAnnouncementText ถ้า timer > 0, ไม่เช่นนั้น return ""
+**การใช้งาน**: ใช้โดย GamePanel เพื่อแสดงข้อความ wave บนหน้าจอ
+
+### shouldShowWaveAnnouncement()
+```java
+public boolean shouldShowWaveAnnouncement()
+```
+**วัตถุประสงค์**: ตรวจสอบว่าควรแสดงข้อความประกาศ wave หรือไม่
+**การทำงาน**: return true ถ้า waveAnnouncementTimer > 0
+**การใช้งาน**: ใช้โดย GamePanel เพื่อตรวจสอบก่อนวาดข้อความ
+
 ## ระบบการทำงาน
 
 ### การเริ่ม Wave
@@ -169,7 +213,9 @@ public int getCurrentWave()
 1. **Timer Management**: นับ frame ตั้งแต่ศัตรูตัวสุดท้าย
 2. **Spawn Condition**: ตรวจสอบ timer และจำนวนที่เหลือ
 3. **Enemy Creation**: สร้าง Enemy object ใหม่
-4. **List Management**: เพิ่มเข้าไปใน activeEnemies list
+4. **Collision Avoidance Setup**: ตั้งค่าอ้างอิงรายการศัตรูทั้งหมดให้ศัตรูใหม่
+5. **List Management**: เพิ่มเข้าไปใน activeEnemies list
+6. **Update All Enemies**: อัปเดตศัตรูทั้งหมดให้อ้างอิงรายการที่อัปเดตแล้ว
 
 ### การจบ Wave
 1. **Spawn Completion**: สร้างศัตรูครบตามจำนวนที่กำหนด → `currentWaveNumber++` ทันที
@@ -200,10 +246,11 @@ public int getCurrentWave()
 - **Wave Check**: GamePanel ตรวจสอบ isWaveFinished()
 - **Next Wave**: GamePanel เรียก startNextWave()
 
-### Enemy.java
-- **Creation**: WaveManager สร้าง Enemy objects
-- **Reset**: เรียก Enemy.resetEnemyCount() ทุก wave
-- **Management**: Enemy ถูกเพิ่มเข้าไปใน activeEnemies list
+### BaseEnemy.java
+- **Creation**: WaveManager สร้าง Enemy และ EnemyBoss objects
+- **Management**: ศัตรูถูกเพิ่มเข้าไปใน activeEnemies list
+- **Boss Spawn**: Wave 5 spawn Boss เป็นศัตรูตัวสุดท้าย
+- **Collision Avoidance**: WaveManager ตั้งค่า allEnemies reference ให้ศัตรูทุกตัวเพื่อหลีกเลี่ยงการชนกัน
 
 ### Map.java
 - **Reference**: ส่ง Map reference ให้ Enemy constructor
@@ -237,6 +284,11 @@ public int getCurrentWave()
 ### ความสมดุลของเกม
 - เพิ่มความยากตามลำดับ wave
 - ให้เวลาผู้เล่นเตรียมตัวระหว่าง wave
+
+### ระบบหลีกเลี่ยงการชน
+- ตั้งค่าอ้างอิงรายการศัตรูให้ศัตรูทุกตัว
+- ศัตรูสามารถตรวจสอบตำแหน่งศัตรูตัวอื่นและหลีกเลี่ยงการชนกันขณะเดิน
+- อัปเดตรายการอ้างอิงทุกครั้งที่มีศัตรูใหม่ spawn
 
 ## การปรับแต่งและขยายระบบ
 1. **เพิ่มประเภทศัตรู**: แก้ไข spawnEnemy() เพื่อสร้างศัตรูหลายประเภท

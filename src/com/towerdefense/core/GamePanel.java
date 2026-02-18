@@ -1,7 +1,7 @@
 package com.towerdefense.core;
 
 import com.towerdefense.world.Map;
-import com.towerdefense.entities.enemies.Enemy;
+import com.towerdefense.entities.enemies.BaseEnemy;
 import com.towerdefense.managers.WaveManager;
 import com.towerdefense.managers.CoinManager;
 import com.towerdefense.utils.Constants;
@@ -20,7 +20,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Game components
     private Thread gameLoopThread;
     private Map gameMap;
-    private ArrayList<Enemy> activeEnemies = new ArrayList<>();
+    private ArrayList<BaseEnemy> activeEnemies = new ArrayList<>();
     private WaveManager waveManager;
     private CoinManager coinManager;
     private JFrame parentFrame;
@@ -173,7 +173,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Processes enemy movement, combat, and AI behavior, removes dead enemies
     private void updateEnemies() {
         for (int i = activeEnemies.size() - 1; i >= 0; i--) {
-            Enemy enemy = activeEnemies.get(i);
+            BaseEnemy enemy = activeEnemies.get(i);
             enemy.update();
 
             // Remove dead enemies from the list
@@ -270,6 +270,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         renderEnemies(graphics);
         renderUserInterface(graphics);
         renderCoinDisplay(graphics);
+        renderWaveAnnouncement(graphics);
     }
 
     // Renders the game map including tiles, objects, and tanks
@@ -281,7 +282,7 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
     // Renders all active enemies on the screen
     // @param graphics - Graphics context for drawing
     private void renderEnemies(Graphics graphics) {
-        for (Enemy enemy : activeEnemies) {
+        for (BaseEnemy enemy : activeEnemies) {
             enemy.draw(graphics);
         }
     }
@@ -476,6 +477,24 @@ public class GamePanel extends JPanel implements Runnable, MouseListener, MouseM
         graphics.setFont(new Font("Arial", Font.BOLD, 14));
         String healthText = "House: " + currentHealth + "/" + maxHealth;
         graphics.drawString(healthText, barX + 10, barY + 15);
+    }
+
+    // Renders wave announcement text in top-left corner
+    // Displays "Wave X" for 3 seconds when a new wave starts
+    private void renderWaveAnnouncement(Graphics graphics) {
+        if (waveManager.shouldShowWaveAnnouncement()) {
+            String waveText = waveManager.getWaveAnnouncementText();
+            
+            // Set font and color
+            graphics.setFont(new Font("Arial", Font.BOLD, 32));
+            graphics.setColor(Color.WHITE);
+            
+            // Draw text with shadow for better visibility
+            graphics.setColor(Color.BLACK);
+            graphics.drawString(waveText, 21, 41);
+            graphics.setColor(Color.YELLOW);
+            graphics.drawString(waveText, 20, 40);
+        }
     }
 
     // Handles mouse press events for starting tank drag

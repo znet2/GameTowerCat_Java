@@ -31,7 +31,6 @@ public class House extends GameObject implements Defensive {
         if (currentHealth < Constants.Entities.MINIMUM_HEALTH) {
             currentHealth = Constants.Entities.MINIMUM_HEALTH;
         }
-        System.out.println("House HP: " + currentHealth);
     }
     
     @Override
