@@ -383,16 +383,6 @@ public class Map extends JPanel {
         archerTowers.removeIf(Archer::isDead);
     }
 
-    // Helper method to check if any defensive unit exists at the specified grid position
-    // @param gridColumn - column position to check
-    // @param gridRow - row position to check
-    // @return true if any defensive unit exists at the position, false otherwise
-    private boolean hasDefensiveUnitAt(int gridColumn, int gridRow) {
-        return hasTankAt(gridColumn, gridRow) || 
-               hasMagicAt(gridColumn, gridRow) || 
-               hasArcherAt(gridColumn, gridRow) || 
-               hasAssassinAt(gridColumn, gridRow);
-    }
 
     // Checks if a tank already exists at the specified grid position
     // Prevents placing multiple tanks in the same location

@@ -1,7 +1,7 @@
 # WaveManager.java - ระบบจัดการ Wave ศัตรู
 
 ## ภาพรวม
-WaveManager เป็นคลาสที่จัดการการสร้างและควบคุม wave ของศัตรู รวมถึงการกำหนดจำนวนศัตรู ระยะเวลาการสร้าง และการเปลี่ยน wave ใน wave สุดท้าย (wave 5) จะมี Boss spawn เป็นศัตรูตัวสุดท้าย
+WaveManager เป็นคลาสที่จัดการการสร้างและควบคุม wave ของศัตรู รวมถึงการกำหนดจำนวนศัตรู ระยะเวลาการสร้าง และการเปลี่ยน wave บอสจะเริ่มปรากฏตั้งแต่ wave 3 และเพิ่มจำนวนทุก 2 wave (wave 3: 1 บอส, wave 5: 2 บอส, wave 7: 3 บอส)
 
 ## คลาสและการสืบทอด
 ```java
@@ -54,16 +54,37 @@ private void calculateEnemiesForWave()
 ```
 **วัตถุประสงค์**: คำนวณจำนวนศัตรูใน wave ปัจจุบัน
 **การทำงาน**:
-- ใช้สูตร: `BASE_ENEMIES_PER_WAVE + currentWaveNumber * ENEMIES_INCREASE_PER_WAVE`
-- Wave 1: 3 + 1×3 = 6 ตัว
-- Wave 2: 3 + 2×3 = 9 ตัว
-- Wave 3: 3 + 3×3 = 12 ตัว
-- Wave 4: 3 + 4×3 = 15 ตัว
-- Wave 5: 3 + 5×3 = 18 ตัว + 1 Boss = 19 ตัว (Boss เป็นตัวสุดท้าย)
+- ใช้สูตร: `BASE_ENEMIES_PER_WAVE + currentWaveNumber * ENEMIES_INCREASE_PER_WAVE + bossCount`
+- Wave 1: 3 + 1×3 = 6 ตัว (ไม่มีบอส)
+- Wave 2: 3 + 2×3 = 9 ตัว (ไม่มีบอส)
+- Wave 3: 3 + 3×3 + 1 = 13 ตัว (บอส 1 ตัว)
+- Wave 4: 3 + 4×3 = 15 ตัว (ไม่มีบอส)
+- Wave 5: 3 + 5×3 + 2 = 20 ตัว (บอส 2 ตัว)
+- Wave 6: 3 + 6×3 = 21 ตัว (ไม่มีบอส)
+- Wave 7: 3 + 7×3 + 3 = 27 ตัว (บอส 3 ตัว)
 
-**หมายเหตุ**: ใน wave สุดท้าย จะเพิ่ม 1 slot สำหรับ Boss
+**หมายเหตุ**: บอสจะเกิดตั้งแต่ wave 3 และเพิ่มทุก 2 wave
 
-### resetWaveState()
+### calculateBossCount()
+```java
+private int calculateBossCount()
+```
+**วัตถุประสงค์**: คำนวณจำนวนบอสใน wave ปัจจุบัน
+**การทำงาน**:
+- Wave < 3: return 0 (ไม่มีบอส)
+- Wave >= 3: return `(waveNumber - 3) / 2 + 1`
+  - Wave 3: (3-3)/2 + 1 = 1 บอส
+  - Wave 4: (4-3)/2 + 1 = 1 บอส (ปัดเศษลง)
+  - Wave 5: (5-3)/2 + 1 = 2 บอส
+  - Wave 6: (6-3)/2 + 1 = 2 บอส (ปัดเศษลง)
+  - Wave 7: (7-3)/2 + 1 = 3 บอส
+
+### shouldHaveBoss()
+```java
+private boolean shouldHaveBoss()
+```
+**วัตถุประสงค์**: ตรวจสอบว่า wave นี้ควรมีบอสหรือไม่
+**การทำงาน**: return true ถ้า `currentWaveNumber >= 3`
 ```java
 private void resetWaveState()
 ```
@@ -121,7 +142,7 @@ private void spawnEnemy()
 ```
 **วัตถุประสงค์**: สร้างศัตรูใหม่และตั้งค่าระบบหลีกเลี่ยงการชน
 **การทำงาน**:
-1. ตรวจสอบว่าควร spawn Boss หรือไม่ (wave สุดท้าย และเป็นศัตรูตัวสุดท้าย)
+1. ตรวจสอบว่าควร spawn Boss หรือไม่ (wave >= 3 และเป็นศัตรูตัวสุดท้าย)
 2. ถ้าควร spawn Boss: สร้าง EnemyBoss
 3. ถ้าไม่ใช่: สร้าง Enemy ปกติ
 4. เรียก `newEnemy.setAllEnemies(activeEnemies)` - ให้ศัตรูใหม่อ้างอิงรายการศัตรูทั้งหมด
@@ -138,16 +159,22 @@ private boolean shouldSpawnBoss()
 ```
 **วัตถุประสงค์**: ตรวจสอบว่าควร spawn Boss หรือไม่
 **การทำงาน**:
-- ตรวจสอบว่าเป็น wave สุดท้าย (wave 5)
-- ตรวจสอบว่าเป็นศัตรูตัวสุดท้ายใน wave (`enemiesSpawnedInWave == enemiesToSpawnInWave - 1`)
-- คืนค่า true ถ้าทั้งสองเงื่อนไขเป็นจริง
+1. ตรวจสอบว่า wave นี้ควรมีบอสหรือไม่ (`shouldHaveBoss()`)
+2. คำนวณจำนวนบอสที่ควรมี (`calculateBossCount()`)
+3. คำนวณจำนวนศัตรูปกติ = `enemiesToSpawnInWave - bossCount`
+4. return true ถ้าสร้างศัตรูปกติครบแล้ว (`enemiesSpawnedInWave >= normalEnemyCount`)
 
-### isFinalWave()
-```java
-private boolean isFinalWave()
-```
-**วัตถุประสงค์**: ตรวจสอบว่าเป็น wave สุดท้ายหรือไม่
-**การทำงาน**: คืนค่า true ถ้า `currentWaveNumber == Constants.Waves.MAX_WAVES` (5)
+**ตัวอย่าง Wave 3**:
+- enemiesToSpawnInWave = 13
+- bossCount = 1
+- normalEnemyCount = 12
+- บอสจะ spawn เมื่อ enemiesSpawnedInWave >= 12 (ตัวที่ 13)
+
+**ตัวอย่าง Wave 5**:
+- enemiesToSpawnInWave = 20
+- bossCount = 2
+- normalEnemyCount = 18
+- บอสจะ spawn เมื่อ enemiesSpawnedInWave >= 18 (ตัวที่ 19 และ 20)
 
 ### hasFinishedSpawning()
 ```java
@@ -249,7 +276,10 @@ public boolean shouldShowWaveAnnouncement()
 ### BaseEnemy.java
 - **Creation**: WaveManager สร้าง Enemy และ EnemyBoss objects
 - **Management**: ศัตรูถูกเพิ่มเข้าไปใน activeEnemies list
-- **Boss Spawn**: Wave 5 spawn Boss เป็นศัตรูตัวสุดท้าย
+- **Boss Spawn**: Wave 3+ spawn Boss ตามสูตร (wave-3)/2 + 1
+  - Wave 3: 1 บอส
+  - Wave 5: 2 บอส
+  - Wave 7: 3 บอส
 - **Collision Avoidance**: WaveManager ตั้งค่า allEnemies reference ให้ศัตรูทุกตัวเพื่อหลีกเลี่ยงการชนกัน
 
 ### Map.java
@@ -294,4 +324,28 @@ public boolean shouldShowWaveAnnouncement()
 1. **เพิ่มประเภทศัตรู**: แก้ไข spawnEnemy() เพื่อสร้างศัตรูหลายประเภท
 2. **ปรับความยาก**: แก้ไขค่าใน Constants.Waves
 3. **เพิ่ม Wave พิเศษ**: เพิ่มเงื่อนไขพิเศษใน calculateEnemiesForWave()
-4. **ระบบ Boss**: เพิ่มการสร้าง Boss ใน wave สุดท้าย
+4. **ระบบ Boss**: บอสเกิดตั้งแต่ wave 3 และเพิ่มทุก 2 wave
+   - Wave 3: 1 บอส (ตัวสุดท้าย)
+   - Wave 4: ไม่มีบอส
+   - Wave 5: 2 บอส (2 ตัวสุดท้าย)
+   - Wave 6: ไม่มีบอส
+   - Wave 7: 3 บอส (3 ตัวสุดท้าย)
+
+## ตารางจำนวนศัตรูและบอสแต่ละ Wave
+
+| Wave | ศัตรูปกติ | บอส | รวม | หมายเหตุ |
+|------|----------|-----|-----|----------|
+| 1 | 6 | 0 | 6 | - |
+| 2 | 9 | 0 | 9 | - |
+| 3 | 12 | 1 | 13 | บอสตัวแรก |
+| 4 | 15 | 0 | 15 | - |
+| 5 | 18 | 2 | 20 | บอส 2 ตัว |
+| 6 | 21 | 0 | 21 | - |
+| 7 | 24 | 3 | 27 | บอส 3 ตัว |
+| 8 | 27 | 0 | 27 | - |
+| 9 | 30 | 4 | 34 | บอส 4 ตัว |
+
+**สูตร**:
+- ศัตรูปกติ: `3 + (wave × 3)`
+- บอส: `(wave - 3) / 2 + 1` (ถ้า wave >= 3, ปัดเศษลง)
+- รวม: ศัตรูปกติ + บอส

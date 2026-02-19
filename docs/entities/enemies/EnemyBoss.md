@@ -1,213 +1,249 @@
-# EnemyBoss Class Documentation
+# EnemyBoss.java - ศัตรูบอส
 
 ## ภาพรวม
-คลาส `EnemyBoss` เป็นศัตรู Boss ที่มีพลังชีวิต ความเสียหาย และรางวัลเหรียญสูงกว่าศัตรูปกติ Boss มีขนาดใหญ่กว่า เคลื่อนที่ช้ากว่า แต่แข็งแกร่งกว่าศัตรูปกติมาก
+EnemyBoss เป็นศัตรูบอสที่มีเลือด ความเสียหาย และรางวัลสูงกว่าศัตรูปกติ สืบทอดจาก BaseEnemy เพื่อใช้ฟังก์ชันพื้นฐาน บอสมีขนาดใหญ่กว่า ช้ากว่า และแข็งแกร่งกว่าศัตรูปกติ มีสกิลพิเศษที่ปล่อยลูกไฟรอบตัวทุก 10 วินาที
 
-## Package
-`com.towerdefense.entities.enemies`
-
-## Imports
-```java
-import com.towerdefense.world.Map;
-import com.towerdefense.managers.CoinManager;
-import com.towerdefense.utils.Constants;
-import java.awt.*;
-import javax.swing.ImageIcon;
-```
-
-## การสืบทอด
+## คลาสและการสืบทอด
 ```java
 public class EnemyBoss extends BaseEnemy
 ```
-- Extends `BaseEnemy` เพื่อใช้ logic ที่ใช้ร่วมกันกับศัตรูปกติ
+- สืบทอดจาก `BaseEnemy` สำหรับ logic พื้นฐาน
+- Override abstract methods เพื่อกำหนดค่าเฉพาะของบอส
+- เพิ่มระบบสกิลพิเศษ
 
-## คุณสมบัติหลัก (Fields)
+## ตัวแปรสำคัญ
 
-### Visual Properties
-- `bossImage` (Image, private, final): รูปภาพของ Boss
+### รูปภาพ
+- `Image idleImage` - รูปภาพเมื่อหยุดนิ่ง (enemyBoss.png)
+- `Image flyImage` - รูปภาพเมื่อบิน (enemyBossFly.png)
+- `Image attackImage` - รูปภาพเมื่อโจมตี (enemyBossAttack.png)
+- `Image skillImage` - รูปภาพเมื่อใช้สกิล (enemyBossSkill.png)
+- `Image skillBallImage` - รูปภาพลูกไฟสกิล (BossSkillBall.png)
+
+### สถานะสกิล
+- `int skillCooldownTimer` - ตัวจับเวลา cooldown สกิล (เริ่มต้น 600 frames = 10 วินาที)
+- `boolean isUsingSkill` - กำลังใช้สกิลหรือไม่
+- `int skillAnimationTimer` - ตัวจับเวลาแอนิเมชันสกิล
+- `ArrayList<BossSkillBall> skillBalls` - รายการลูกไฟสกิล
 
 ## Constructor
+```java
+public EnemyBoss(Map gameMap, CoinManager coinManager)
+```
+**การทำงาน**:
+1. เรียก constructor ของ BaseEnemy ด้วย BOSS_INITIAL_HEALTH
+2. โหลดรูปภาพทั้ง 5 แบบ (idle, fly, attack, skill, skillBall)
+3. ตั้งค่า skillCooldownTimer เริ่มต้น
 
-### `public EnemyBoss(Map gameMap, CoinManager coinManager)`
-สร้าง Boss enemy และตั้งค่าเส้นทาง
+## Methods สำคัญ
 
-**Parameters:**
-- `gameMap` (Map): อ้างอิงถึงแผนที่เกม
-- `coinManager` (CoinManager): อ้างอิงถึงระบบเหรียญ
+### update()
+**การทำงาน** (Override จาก BaseEnemy):
+1. **อัปเดตลูกไฟสกิล**: เรียก updateSkillBalls()
+2. **อัปเดตแอนิเมชันสกิล**: ตรวจสอบและจัดการ skillAnimationTimer
+3. **อัปเดต cooldown สกิล**: ลด skillCooldownTimer และเรียก useSkill() เมื่อถึงเวลา
+4. **เรียก parent update**: เรียก super.update() สำหรับการเคลื่อนที่และการต่อสู้ปกติ
 
-**การทำงาน:**
-1. เรียก super constructor ด้วย BOSS_INITIAL_HEALTH
-2. โหลดรูปภาพ Boss จาก Constants.Paths.BOSS_IMAGE
-3. สร้างเส้นทางและตั้งค่าตำแหน่งเริ่มต้น (ผ่าน BaseEnemy)
+### updateSkillBalls()
+**การทำงาน**:
+1. วนลูปผ่านลูกไฟทั้งหมด
+2. เรียก update() สำหรับแต่ละลูก
+3. ลบลูกที่ไม่ active ออกจาก list
 
-## Implemented Abstract Methods
+### useSkill()
+**การทำงาน**:
+1. ตั้ง isUsingSkill = true และรีเซ็ต skillAnimationTimer
+2. รวบรวมหน่วยป้องกันทั้งหมด (Tank, Magic, Archer, House)
+3. คำนวณมุมสำหรับแต่ละลูก: `angleStep = (2 * PI) / ballCount`
+4. สร้างลูกไฟ 8 ลูกในทิศทางต่างๆ รอบตัวบอส
+5. เพิ่มลูกไฟเข้า skillBalls list
 
-### `protected int getMaxHealth()`
-**Returns:** `Constants.Entities.BOSS_INITIAL_HEALTH` (10000)
+**สูตรการคำนวณ**:
+```
+ballCount = 8
+angleStep = 360° / 8 = 45°
+ลูกที่ 0: 0°
+ลูกที่ 1: 45°
+ลูกที่ 2: 90°
+...
+ลูกที่ 7: 315°
+```
 
-### `protected int getAttackDamage()`
-**Returns:** `Constants.Entities.BOSS_ATTACK_DAMAGE` (1000)
+### draw(Graphics graphics)
+**การทำงาน** (Override):
+1. **วาดลูกไฟสกิล**: วาดก่อนเพื่อให้อยู่ด้านหลังบอส
+2. **วาดบอส**: ใช้ getCurrentBossImage() เพื่อเลือกรูปภาพที่ถูกต้อง
+3. **วาดแถบเลือด**: เรียก drawHealthBar()
 
-### `protected int getAttackCooldown()`
-**Returns:** `Constants.Entities.BOSS_ATTACK_COOLDOWN_FRAMES` (45 frames = 0.75 วินาที)
+### getCurrentBossImage()
+**การทำงาน**:
+- หากกำลังใช้สกิล: return skillImage
+- หากไม่ใช่: return getCurrentImage() (จาก BaseEnemy)
 
-### `protected double getSpeed()`
-**Returns:** `Constants.Entities.BOSS_SPEED` (0.3 - ช้ากว่าศัตรูปกติ)
+## Implementation ของ Abstract Methods
 
-### `protected int getSize()`
-**Returns:** `Constants.Entities.BOSS_SIZE` (96 pixels - ใหญ่กว่าศัตรูปกติ 50%)
+### getMaxHealth()
+return `Constants.Entities.BOSS_INITIAL_HEALTH` (10000)
 
-### `protected int getXOffset()`
-**Returns:** `Constants.Entities.BOSS_X_OFFSET` (-48)
+### getAttackDamage()
+return `Constants.Entities.BOSS_ATTACK_DAMAGE` (1000)
 
-### `protected int getYOffset()`
-**Returns:** `Constants.Entities.BOSS_Y_OFFSET` (-48)
+### getAttackCooldown()
+return `Constants.Entities.BOSS_ATTACK_COOLDOWN_FRAMES` (45 frames = 0.75 วินาที)
 
-### `protected Image getImage()`
-**Returns:** `bossImage` - รูปภาพ Boss
+### getSpeed()
+return `Constants.Entities.BOSS_SPEED` (0.3 พิกเซล/frame)
 
-### `protected int getCoinReward()`
-**Returns:** `Constants.Economy.COINS_PER_BOSS_KILL` (100 เหรียญ - มากกว่าศัตรูปกติ 6.67 เท่า)
+### getSize()
+return `Constants.Entities.BOSS_SIZE` (96 พิกเซล)
 
-## คุณสมบัติของ Boss
+### getXOffset()
+return `Constants.Entities.BOSS_X_OFFSET` (-48 พิกเซล)
 
-### ข้อมูลเปรียบเทียบกับศัตรูปกติ
+### getYOffset()
+return `Constants.Entities.BOSS_Y_OFFSET` (-48 พิกเซล)
 
-| คุณสมบัติ | ศัตรูปกติ | Boss | อัตราส่วน |
-|----------|----------|------|-----------|
-| พลังชีวิต | 3,000 | 10,000 | 3.33x |
-| ความเสียหาย | 500 | 1,000 | 2x |
-| ความเร็ว | 0.5 | 0.3 | 0.6x (ช้ากว่า) |
-| ขนาด | 64px | 96px | 1.5x |
-| Cooldown | 60 frames | 45 frames | 0.75x (เร็วกว่า) |
-| รางวัลเหรียญ | 15 | 100 | 6.67x |
+### getIdleImage()
+return `idleImage` (enemyBoss.png)
 
-### จุดเด่นของ Boss
-1. **พลังชีวิตสูง**: มีเลือดมากกว่าศัตรูปกติ 3.33 เท่า
-2. **ความเสียหายสูง**: สร้างความเสียหายมากกว่า 2 เท่า
-3. **โจมตีเร็วขึ้น**: Cooldown สั้นกว่า (0.75 วินาที vs 1 วินาที)
-4. **ขนาดใหญ่**: ใหญ่กว่า 50% ทำให้เห็นชัดเจน
-5. **เคลื่อนที่ช้า**: ช้ากว่า 40% ให้เวลาผู้เล่นเตรียมตัว
-6. **รางวัลสูง**: ให้เหรียญมากกว่า 6.67 เท่า
+### getWalkImage()
+return `flyImage` (enemyBossFly.png)
 
-## การทำงาน
+### getAttackImage()
+return `attackImage` (enemyBossAttack.png)
 
-### Pathfinding
-- ใช้ BFS algorithm เหมือนศัตรูปกติ (จาก BaseEnemy)
-- หาเส้นทางจากซ้ายสุดไปยังบ้าน
+### getCoinReward()
+return `Constants.Economy.COINS_PER_BOSS_KILL` (100 เหรียญ)
 
-### Movement
-- เคลื่อนที่ช้ากว่าศัตรูปกติ (0.3 vs 0.5)
-- ทำให้ผู้เล่นมีเวลาเตรียมตัวมากขึ้น
+## ค่าคงที่ที่ใช้จาก Constants
 
-### Combat
-- โจมตีหน่วยป้องกันและบ้านเหมือนศัตรูปกติ
-- สร้างความเสียหายมากกว่า 2 เท่า
-- Cooldown สั้นกว่า (โจมตีเร็วขึ้น)
+### สถิติบอส
+- `BOSS_SIZE = 96` - ขนาด (ใหญ่กว่า Enemy)
+- `BOSS_SPEED = 0.3` - ความเร็ว (ช้ากว่า Enemy)
+- `BOSS_INITIAL_HEALTH = 10000` - เลือดเริ่มต้น (มากกว่า Enemy มาก)
+- `BOSS_ATTACK_DAMAGE = 1000` - ความเสียหาย (สูงกว่า Enemy 2 เท่า)
+- `BOSS_ATTACK_COOLDOWN_FRAMES = 45` - cooldown การโจมตี (เร็วกว่า Enemy)
+- `BOSS_X_OFFSET = -48` - offset X
+- `BOSS_Y_OFFSET = -48` - offset Y
 
-### Rewards
-- ให้เหรียญ 100 เหรียญเมื่อถูกฆ่า
-- มากกว่าศัตรูปกติ 6.67 เท่า
+### รูปภาพ
+- `BOSS_IMAGE = "image/enemyBoss.png"` - รูปหยุดนิ่ง
+- `BOSS_FLY_IMAGE = "image/enemyBossFly.png"` - รูปบิน
+- `BOSS_ATTACK_IMAGE = "image/enemyBossAttack.png"` - รูปโจมตี
+- `BOSS_SKILL_IMAGE = "image/enemyBossSkill.png"` - รูปใช้สกิล
+- `BOSS_SKILL_BALL_IMAGE = "image/BossSkillBall.png"` - รูปลูกไฟสกิล
 
-## Constants ที่ใช้
+### สกิลพิเศษ
+- `BOSS_SKILL_COOLDOWN_FRAMES = 600` - cooldown สกิล (10 วินาที)
+- `BOSS_SKILL_ANIMATION_DURATION = 60` - ระยะเวลาแอนิเมชัน (1 วินาที)
+- `BOSS_SKILL_BALL_COUNT = 8` - จำนวนลูกไฟที่ปล่อย
+- `BOSS_SKILL_BALL_DAMAGE = 300` - ความเสียหายต่อลูก
 
-จาก `Constants.Entities`:
-- `BOSS_INITIAL_HEALTH = 10000` - พลังชีวิตเริ่มต้น
-- `BOSS_ATTACK_DAMAGE = 1000` - ความเสียหายต่อการโจมตี
-- `BOSS_ATTACK_COOLDOWN_FRAMES = 45` - cooldown การโจมตี
-- `BOSS_SPEED = 0.3` - ความเร็วการเคลื่อนที่
-- `BOSS_SIZE = 96` - ขนาด Boss
-- `BOSS_X_OFFSET = -48` - offset แกน X (ครึ่งหนึ่งของขนาด)
-- `BOSS_Y_OFFSET = -48` - offset แกน Y (ครึ่งหนึ่งของขนาด)
-- `BOSS_INITIAL_HEALTH = 10000` - เลือดเริ่มต้น
-- `BOSS_ATTACK_DAMAGE = 1000` - ความเสียหายต่อการโจมตี
-- `BOSS_ATTACK_COOLDOWN_FRAMES = 45` - cooldown การโจมตี
+### รางวัล
+- `COINS_PER_BOSS_KILL = 100` - เหรียญที่ได้เมื่อฆ่า (มากกว่า Enemy มาก)
 
-จาก `Constants.Paths`:
-- `BOSS_IMAGE` - เส้นทางรูปภาพ Boss
+## ระบบแอนิเมชัน
 
-จาก `Constants.Economy`:
-- `COINS_PER_BOSS_KILL = 100` - รางวัลเหรียญ
+### เมื่อบิน (เคลื่อนที่)
+สลับระหว่าง enemyBoss.png และ enemyBossFly.png ทุก 30 frames (0.5 วินาที)
 
-## ความสัมพันธ์กับคลาสอื่น
+```
+Frame 0-29: enemyBoss.png
+Frame 30-59: enemyBossFly.png
+Frame 60-89: enemyBoss.png
+...
+```
 
-### BaseEnemy.java
-- Extends BaseEnemy เพื่อใช้ logic ที่ใช้ร่วมกัน
-- Override abstract methods เพื่อกำหนดค่าเฉพาะของ Boss
+### เมื่อโจมตี
+สลับระหว่าง enemyBoss.png และ enemyBossAttack.png ทุก 20 frames (0.33 วินาที)
 
-### Map.java
-- ใช้สำหรับ pathfinding และ collision detection
+```
+Frame 0-19: enemyBoss.png
+Frame 20-39: enemyBossAttack.png
+Frame 40-59: enemyBoss.png
+...
+```
 
-### CoinManager.java
-- ให้รางวัลเหรียญเมื่อ Boss ถูกฆ่า
-
-### WaveManager.java
-- สามารถสร้าง Boss แทนศัตรูปกติได้
-
-### GamePanel.java
-- อัปเดตและวาด Boss เหมือนศัตรูปกติ
+## Methods ที่ได้จาก BaseEnemy
+- `update()` - อัปเดตสถานะและแอนิเมชัน
+- `updateAnimation()` - อัปเดตเฟรมแอนิเมชัน
+- `getCurrentImage()` - ดึงรูปภาพปัจจุบันตามสถานะ
+- `draw(Graphics)` - วาดบอสและแถบเลือด
+- `takeDamage(int)` - รับความเสียหาย
+- `isDead()` - ตรวจสอบว่าตายหรือยัง
+- `getBounds()` - ดึง collision bounds
 
 ## การใช้งาน
 
+### WaveManager.java
 ```java
-// สร้าง Boss
-EnemyBoss boss = new EnemyBoss(gameMap, coinManager);
-
-// อัปเดต Boss ในแต่ละเฟรม
-boss.update();
-
-// วาด Boss
-boss.draw(graphics);
-
-// ให้ความเสียหาย Boss
-boss.takeDamage(250);
-
-// ตรวจสอบว่า Boss ตายหรือไม่
-if (boss.isDead()) {
-    // ลบ Boss ออกจากเกม
-    // ผู้เล่นได้รับ 100 เหรียญ
+// สร้างบอส
+private void spawnBoss() {
+    EnemyBoss boss = new EnemyBoss(gameMap, coinManager);
+    boss.setAllEnemies(enemies);
+    enemies.add(boss);
 }
 ```
 
-## ตัวอย่างการใช้ใน WaveManager
-
+### GamePanel.java
 ```java
-// สร้าง Boss ใน wave สุดท้าย
-if (currentWaveNumber == Constants.Waves.MAX_WAVES) {
-    // Spawn boss instead of normal enemy
-    activeEnemies.add(new EnemyBoss(gameMap, coinManager));
-} else {
-    // Spawn normal enemy
-    activeEnemies.add(new Enemy(gameMap, coinManager));
+// อัปเดตและวาดศัตรูทั้งหมด (รวมบอส)
+for (BaseEnemy enemy : enemies) {
+    enemy.update(); // อัปเดตสถานะและแอนิเมชัน
+    enemy.draw(graphics); // วาดด้วยรูปภาพที่ถูกต้อง
 }
 ```
 
-## กลยุทธ์การเล่น
+## จุดเด่น
+- ขนาดใหญ่ (96 พิกเซล)
+- ความเร็วช้า (0.3 พิกเซล/frame)
+- เลือดสูงมาก (10000)
+- ความเสียหายสูง (1000)
+- รางวัลสูง (100 เหรียญ)
+- โจมตีเร็วกว่า Enemy (0.75 วินาที vs 1 วินาที)
+- มีแอนิเมชันครบทั้ง 4 สถานะ (idle, fly, attack, skill)
+- **สกิลพิเศษ**: ปล่อยลูกไฟ 8 ลูกรอบตัวทุก 10 วินาที
 
-### สำหรับผู้เล่น
-1. **เตรียมตัวล่วงหน้า**: Boss เคลื่อนที่ช้า ใช้เวลานี้วางหน่วยป้องกัน
-2. **ใช้หน่วยหลายตัว**: Boss มีเลือดมาก ต้องใช้หน่วยหลายตัวโจมตีพร้อมกัน
-3. **ป้องกันบ้าน**: Boss สร้างความเสียหายสูง อย่าให้ถึงบ้าน
-4. **รางวัลคุ้มค่า**: ฆ่า Boss ได้ 100 เหรียญ คุ้มค่ากับความยาก
+## สกิลพิเศษ: Boss Skill
 
-### สำหรับ Game Designer
-1. **Balance**: Boss ควรยากพอที่ท้าทาย แต่ไม่ยากเกินไป
-2. **Timing**: ควร spawn Boss ใน wave สุดท้ายหรือ wave พิเศษ
-3. **Rewards**: รางวัลควรคุ้มค่ากับความยาก
-4. **Visual**: ขนาดใหญ่ทำให้ผู้เล่นรู้ว่านี่คือ Boss
+### การทำงาน
+1. ทุก 10 วินาที บอสจะหยุดและแสดงแอนิเมชันสกิล (enemyBossSkill.png)
+2. ปล่อยลูกไฟ 8 ลูกในทิศทางต่างๆ รอบตัว (ทุก 45 องศา)
+3. ลูกไฟเคลื่อนที่เป็นเส้นตรง ทำความเสียหาย 300 ต่อลูก
+4. ลูกไฟสามารถทำความเสียหายกับหน่วยป้องกันทุกประเภท
 
-## หมายเหตุ
+### ทิศทางลูกไฟ
+```
+        ↑ (0°)
+    ↖       ↗ (45°)
+  ←           → (90°)
+    ↙       ↘ (135°)
+        ↓ (180°)
+```
 
-1. Boss ใช้รูปภาพเดียวกับศัตรูปกติในตอนนี้ (สามารถเปลี่ยนได้ภายหลัง)
-2. Boss เคลื่อนที่ช้ากว่าเพื่อให้ผู้เล่นมีเวลาเตรียมตัว
-3. Boss ให้รางวัลเหรียญมากกว่าเพื่อชดเชยความยาก
-4. สามารถปรับค่าต่างๆ ผ่าน Constants.java ได้ง่าย
-5. Boss ใช้ logic เดียวกับศัตรูปกติ (จาก BaseEnemy) ทำให้ maintain ง่าย
+### ความเสียหายรวม
+- ลูกไฟ 1 ลูก: 300 ความเสียหาย
+- ลูกไฟทั้งหมด (8 ลูก): 2400 ความเสียหายสูงสุด
+- หากโดนหลายลูก: อันตรายมาก!
 
-## การขยายระบบในอนาคต
+## เปรียบเทียบกับ Enemy
+| คุณสมบัติ | Enemy | EnemyBoss |
+|----------|-------|-----------|
+| ขนาด | 64 | 96 |
+| ความเร็ว | 0.5 | 0.3 |
+| เลือด | 3000 | 10000 |
+| ความเสียหาย | 500 | 1000 |
+| Cooldown | 60 frames | 45 frames |
+| รางวัล | 15 | 100 |
+| รูปเดิน | catEnemyWalk.png | enemyBossFly.png |
+| รูปโจมตี | catEnemyAttack.png | enemyBossAttack.png |
 
-1. **Boss หลายประเภท**: สร้าง Boss ที่มีความสามารถพิเศษต่างกัน
-2. **Boss Skills**: เพิ่มทักษะพิเศษให้ Boss (เช่น AOE attack, heal)
-3. **Boss Phases**: เพิ่มระยะต่างๆ ของ Boss (เช่น enrage เมื่อเลือดต่ำ)
-4. **Boss Minions**: Boss สามารถเรียกศัตรูเล็กมาช่วยได้
-5. **Boss Loot**: เพิ่มรางวัลพิเศษนอกจากเหรียญ
+## กลยุทธ์การเอาชนะ
+- ใช้หน่วยป้องกันหลายตัวเพราะบอสมีเลือดมาก
+- Tank ช่วยดูดความเสียหายได้ดี (ทั้งการโจมตีปกติและลูกไฟสกิล)
+- Archer และ Magic ช่วยทำความเสียหายจากระยะไกล
+- Assassin ทำความเสียหายสูงเมื่อบอสเข้ามาใกล้
+- บอสช้า ดังนั้นมีเวลาเตรียมการป้องกัน
+- **กระจายหน่วยป้องกัน**: อย่าให้อยู่ใกล้กันเกินไป เพื่อป้องกันลูกไฟสกิลโดนหลายหน่วย
+- **ระวังสกิล**: เมื่อบอสแสดงแอนิเมชันสกิล เตรียมรับมือลูกไฟ 8 ลูก
+- **ใช้ Tank กั้น**: วาง Tank ไว้รอบๆ เพื่อดูดลูกไฟสกิล

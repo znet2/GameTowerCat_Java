@@ -12,12 +12,16 @@ import javax.swing.ImageIcon;
  */
 public class Enemy extends BaseEnemy {
 
-    private final Image enemyImage;
+    private final Image idleImage;
+    private final Image walkImage;
+    private final Image attackImage;
 
     // Constructor that creates an enemy and sets up its path
     public Enemy(Map gameMap, CoinManager coinManager) {
         super(gameMap, coinManager, Constants.Entities.ENEMY_INITIAL_HEALTH);
-        this.enemyImage = new ImageIcon(Constants.Paths.ENEMY_IMAGE).getImage();
+        this.idleImage = new ImageIcon(Constants.Paths.ENEMY_IMAGE).getImage();
+        this.walkImage = new ImageIcon(Constants.Paths.ENEMY_WALK_IMAGE).getImage();
+        this.attackImage = new ImageIcon(Constants.Paths.ENEMY_ATTACK_IMAGE).getImage();
     }
 
     @Override
@@ -55,10 +59,19 @@ public class Enemy extends BaseEnemy {
         return Constants.Entities.ENEMY_Y_OFFSET;
     }
 
+    @Override
+    protected Image getIdleImage() {
+        return idleImage;
+    }
 
     @Override
-    protected Image getImage() {
-        return enemyImage;
+    protected Image getWalkImage() {
+        return walkImage;
+    }
+
+    @Override
+    protected Image getAttackImage() {
+        return attackImage;
     }
 
     @Override

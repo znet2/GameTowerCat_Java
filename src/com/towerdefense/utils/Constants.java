@@ -45,6 +45,10 @@ public final class Constants {
         public static final int MINIMUM_HEALTH = 0;
         public static final int ATTACK_ANIMATION_DURATION = 15; // frames
         public static final int SPELL_ANIMATION_DURATION = 30; // frames
+        
+        // Enemy Animation Configuration
+        public static final int ENEMY_WALK_ANIMATION_FRAMES = 30; // Switch every 0.5 seconds
+        public static final int ENEMY_ATTACK_ANIMATION_FRAMES = 20; // Switch during attack
 
         // Tank Configuration
         public static final int TANK_INITIAL_HEALTH = 16000;
@@ -53,10 +57,10 @@ public final class Constants {
         public static final int TANK_Y_OFFSET = -30; // Visual offset Y
 
         // Magic Configuration
-        public static final int MAGIC_INITIAL_HEALTH = 5000;
+        public static final int MAGIC_INITIAL_HEALTH = 3500;
         public static final int MAGIC_DEFENSE_RATING = 0;
-        public static final int MAGIC_COST = 100;
-        public static final int MAGIC_ATTACK_DAMAGE = 250;
+        public static final int MAGIC_COST = 90;
+        public static final int MAGIC_ATTACK_DAMAGE = 280;
         public static final int MAGIC_SPELL_DAMAGE = 400;
         public static final int MAGIC_ATTACK_COOLDOWN_FRAMES = 60;
         public static final int MAGIC_ATTACK_RANGE = 250;
@@ -65,10 +69,10 @@ public final class Constants {
         public static final int MAGIC_Y_OFFSET = -30; // Visual offset Y
 
         // Archer Configuration
-        public static final int ARCHER_INITIAL_HEALTH = 5000;
+        public static final int ARCHER_INITIAL_HEALTH = 3500;
         public static final int ARCHER_DEFENSE_RATING = 0;
-        public static final int ARCHER_COST = 200;
-        public static final int ARCHER_ATTACK_DAMAGE = 100;
+        public static final int ARCHER_COST = 180;
+        public static final int ARCHER_ATTACK_DAMAGE = 135;
         public static final int ARCHER_ATTACK_COOLDOWN_FRAMES = 30; // 1.5 seconds at 60 FPS
         public static final int ARCHER_ATTACK_RANGE = 400;
         public static final int ARCHER_X_OFFSET = -15; // Visual offset X
@@ -76,35 +80,39 @@ public final class Constants {
 
         // Assassin Configuration
         public static final int ASSASSIN_COST = 150;
-        public static final int ASSASSIN_ATTACK_DAMAGE = 500;
+        public static final int ASSASSIN_ATTACK_DAMAGE = 600;
         public static final int ASSASSIN_ATTACK_RANGE = 80; // Small range for melee attack
         public static final int ASSASSIN_ATTACK_COOLDOWN = 45; // 0.5 seconds
         public static final int ASSASSIN_X_OFFSET = -15; // Visual offset X
         public static final int ASSASSIN_Y_OFFSET = -30; // Visual offset Y
 
         // House Configuration
-        public static final int HOUSE_INITIAL_HEALTH = 10000;
+        public static final int HOUSE_INITIAL_HEALTH = 12000;
         public static final int HOUSE_WIDTH_TILES = 7;
         public static final int HOUSE_HEIGHT_TILES = 7;
 
         // Enemy Configuration
-        public static final int ENEMY_SIZE = 64;
+        public static final int ENEMY_SIZE = 48;
         public static final double ENEMY_SPEED = 0.5;
         public static final int ENEMY_INITIAL_HEALTH = 3000;
         public static final int ENEMY_ATTACK_DAMAGE = 500;
         public static final int ENEMY_ATTACK_COOLDOWN_FRAMES = 60;
         public static final int ENEMY_X_OFFSET = -32; // Center the image (half of size)
         public static final int ENEMY_Y_OFFSET = -36; // Center the image (half of size)
-        public static final double ENEMY_SPACING_MULTIPLIER = 0.5; // Spacing between enemies (1.1 = 10% gap)
+        public static final double ENEMY_SPACING_MULTIPLIER = 1; // Spacing between enemies (1.1 = 10% gap)
 
         // Boss Configuration
-        public static final int BOSS_SIZE = 96; // Larger than normal enemy
+        public static final int BOSS_SIZE = 128; // Larger than normal enemy
         public static final double BOSS_SPEED = 0.3; // Slower than normal enemy
-        public static final int BOSS_INITIAL_HEALTH = 10000; // Much higher health
-        public static final int BOSS_ATTACK_DAMAGE = 1000; // Double damage
+        public static final int BOSS_INITIAL_HEALTH = 17000; // Much higher health
+        public static final int BOSS_ATTACK_DAMAGE = 2000; // Double damage
         public static final int BOSS_ATTACK_COOLDOWN_FRAMES = 45; // Faster attack (0.75 seconds)
         public static final int BOSS_X_OFFSET = -48; // Center the image (half of size)
-        public static final int BOSS_Y_OFFSET = -48; // Center the image (half of size)
+        public static final int BOSS_Y_OFFSET = -100; // Center the image (half of size)
+        public static final int BOSS_SKILL_COOLDOWN_FRAMES = 600; // 10 seconds at 60 FPS
+        public static final int BOSS_SKILL_ANIMATION_DURATION = 60; // 1 second animation
+        public static final int BOSS_SKILL_BALL_COUNT = 16; // Number of balls to spawn
+        public static final int BOSS_SKILL_BALL_DAMAGE = 750; // Damage per ball
     }
 
     // Projectile Configuration
@@ -120,6 +128,12 @@ public final class Constants {
         public static final int MAGIC_BALL_SIZE = 20;
         public static final Color MAGIC_BALL_FALLBACK_COLOR = new Color(255, 0, 255); // Magenta
         public static final int MAGIC_BALL_FALLBACK_SIZE = 10;
+        
+        // Boss Skill Ball Configuration
+        public static final double BOSS_SKILL_BALL_SPEED = 3.0;
+        public static final int BOSS_SKILL_BALL_SIZE = 32;
+        public static final Color BOSS_SKILL_BALL_FALLBACK_COLOR = new Color(255, 0, 0); // Red
+        public static final int BOSS_SKILL_BALL_FALLBACK_SIZE = 16;
     }
 
     // UI Configuration
@@ -169,9 +183,9 @@ public final class Constants {
 
     // Economy Configuration
     public static final class Economy {
-        public static final int STARTING_COINS = 640;
+        public static final int STARTING_COINS = 550;
         public static final int COINS_PER_ENEMY_KILL = 15;
-        public static final int COINS_PER_BOSS_KILL = 100; // Boss gives more coins
+        public static final int COINS_PER_BOSS_KILL = 30; // Boss gives more coins
         public static final int COINS_PER_WAVE_COMPLETE = 200; // Bonus coins when completing a wave
     }
 
@@ -180,14 +194,20 @@ public final class Constants {
         public static final int BASE_ENEMIES_PER_WAVE = 3;
         public static final int ENEMIES_INCREASE_PER_WAVE = 3;
         public static final int SPAWN_DELAY_FRAMES = 30;
-        public static final int MAX_WAVES = 2; // Total waves to win
+        public static final int MAX_WAVES = 5; // Total waves to win
     }
 
     // File Paths
     public static final class Paths {
         public static final String IMAGES = "image/";
         public static final String ENEMY_IMAGE = IMAGES + "catEnemy.png";
-        public static final String BOSS_IMAGE = IMAGES + "enemyBoss.png"; // Boss image
+        public static final String ENEMY_WALK_IMAGE = IMAGES + "catEnemyWalk.png";
+        public static final String ENEMY_ATTACK_IMAGE = IMAGES + "catEnemyAttack.png";
+        public static final String BOSS_IMAGE = IMAGES + "enemyBoss.png";
+        public static final String BOSS_FLY_IMAGE = IMAGES + "enemyBossFly.png";
+        public static final String BOSS_ATTACK_IMAGE = IMAGES + "enemyBossAttack.png";
+        public static final String BOSS_SKILL_IMAGE = IMAGES + "enemyBossSkill.png";
+        public static final String BOSS_SKILL_BALL_IMAGE = IMAGES + "BossSkillBall.png";
         public static final String TANK_IMAGE = IMAGES + "tank.png";
         public static final String TANK_DEFEND_IMAGE = IMAGES + "tankDef.png";
         public static final String HOUSE_IMAGE = IMAGES + "castle.png";

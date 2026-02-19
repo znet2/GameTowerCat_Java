@@ -68,6 +68,10 @@ public static final class Entities
 - `ATTACK_ANIMATION_DURATION = 15` - ระยะเวลา animation การโจมตี (frames)
 - `SPELL_ANIMATION_DURATION = 30` - ระยะเวลา animation เวทมนตร์ (frames)
 
+#### Enemy Animation Configuration
+- `ENEMY_WALK_ANIMATION_FRAMES = 30` - ระยะเวลาแต่ละเฟรมเมื่อเดิน (0.5 วินาที)
+- `ENEMY_ATTACK_ANIMATION_FRAMES = 20` - ระยะเวลาแต่ละเฟรมเมื่อโจมตี (0.33 วินาที)
+
 #### Tank Configuration
 - `TANK_INITIAL_HEALTH = 16000` - เลือดเริ่มต้น Tank
 - `TANK_COST = 120` - ราคา Tank
@@ -129,6 +133,10 @@ public static final class Entities
 - `BOSS_ATTACK_COOLDOWN_FRAMES = 45` - cooldown การโจมตี (0.75 วินาที, เร็วกว่าศัตรูปกติ)
 - `BOSS_X_OFFSET = -48` - offset การแสดงผลแนวนอน (ครึ่งหนึ่งของขนาด เพื่อให้อยู่กึ่งกลาง)
 - `BOSS_Y_OFFSET = -48` - offset การแสดงผลแนวตั้ง (ครึ่งหนึ่งของขนาด เพื่อให้อยู่กึ่งกลาง)
+- `BOSS_SKILL_COOLDOWN_FRAMES = 600` - cooldown สกิลพิเศษ (10 วินาที)
+- `BOSS_SKILL_ANIMATION_DURATION = 60` - ระยะเวลาแอนิเมชันสกิล (1 วินาที)
+- `BOSS_SKILL_BALL_COUNT = 8` - จำนวนลูกไฟที่ปล่อยในแต่ละครั้ง
+- `BOSS_SKILL_BALL_DAMAGE = 300` - ความเสียหายของลูกไฟสกิล
 
 ### Projectile Configuration
 ```java
@@ -147,6 +155,12 @@ public static final class Projectiles
 - `MAGIC_BALL_SIZE = 20` - ขนาดลูกไฟ (พิกเซล, เล็กกว่า Arrow)
 - `MAGIC_BALL_FALLBACK_COLOR = Color(255, 0, 255)` - สีม่วงแดงสำหรับ fallback
 - `MAGIC_BALL_FALLBACK_SIZE = 10` - ขนาดวงกลม fallback
+
+#### Boss Skill Ball Configuration
+- `BOSS_SKILL_BALL_SPEED = 3.0` - ความเร็วลูกไฟสกิลบอส (พิกเซล/frame, ช้ากว่ากระสุนอื่น)
+- `BOSS_SKILL_BALL_SIZE = 32` - ขนาดลูกไฟสกิล (พิกเซล, ใหญ่ที่สุด)
+- `BOSS_SKILL_BALL_FALLBACK_COLOR = Color.RED` - สีแดงสำหรับ fallback
+- `BOSS_SKILL_BALL_FALLBACK_SIZE = 16` - ขนาดวงกลม fallback
 
 ### UI Configuration
 ```java
@@ -249,8 +263,14 @@ public static final class Paths
 - `IMAGES = "image/"` - โฟลเดอร์รูปภาพหลัก
 
 #### Entity Images
-- `ENEMY_IMAGE = IMAGES + "catEnemy.png"` - รูปศัตรูปกติ
-- `BOSS_IMAGE = IMAGES + "enemyBoss.png"` - รูป Boss (ใหญ่กว่าศัตรูปกติ)
+- `ENEMY_IMAGE = IMAGES + "catEnemy.png"` - รูปศัตรูปกติ (หยุดนิ่ง)
+- `ENEMY_WALK_IMAGE = IMAGES + "catEnemyWalk.png"` - รูปศัตรูเดิน
+- `ENEMY_ATTACK_IMAGE = IMAGES + "catEnemyAttack.png"` - รูปศัตรูโจมตี
+- `BOSS_IMAGE = IMAGES + "enemyBoss.png"` - รูป Boss (หยุดนิ่ง)
+- `BOSS_FLY_IMAGE = IMAGES + "enemyBossFly.png"` - รูป Boss บิน
+- `BOSS_ATTACK_IMAGE = IMAGES + "enemyBossAttack.png"` - รูป Boss โจมตี
+- `BOSS_SKILL_IMAGE = IMAGES + "enemyBossSkill.png"` - รูป Boss ใช้สกิล
+- `BOSS_SKILL_BALL_IMAGE = IMAGES + "BossSkillBall.png"` - รูปลูกไฟสกิลบอส
 - `TANK_IMAGE = IMAGES + "tank.png"` - รูป Tank ปกติ
 - `TANK_DEFEND_IMAGE = IMAGES + "tankDef.png"` - รูป Tank ป้องกัน
 - `HOUSE_IMAGE = IMAGES + "castle.png"` - รูปบ้าน

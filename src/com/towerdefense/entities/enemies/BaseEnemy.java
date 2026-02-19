@@ -37,6 +37,10 @@ public abstract class BaseEnemy {
     // Enemy state
     protected boolean isDead = false;
     protected int currentHealth;
+    
+    // Animation state
+    protected int animationTimer = 0;
+    protected boolean useAlternateFrame = false;
 
     // Constructor for base enemy
     protected BaseEnemy(Map gameMap, CoinManager coinManager, int initialHealth) {
@@ -57,7 +61,9 @@ public abstract class BaseEnemy {
     protected abstract int getSize();
     protected abstract int getXOffset();
     protected abstract int getYOffset();
-    protected abstract Image getImage();
+    protected abstract Image getIdleImage();
+    protected abstract Image getWalkImage();
+    protected abstract Image getAttackImage();
     protected abstract int getCoinReward();
 
     // Builds the movement path from the leftmost road tile to the house
@@ -203,6 +209,9 @@ public abstract class BaseEnemy {
             return;
         }
 
+        // Update animation
+        updateAnimation();
+
         // If already attacking, process the attack
         if (isAttacking) {
             processAttack();
@@ -218,6 +227,28 @@ public abstract class BaseEnemy {
         moveAlongPath();
         checkForHouseCollision();
         checkIfReachedEnd();
+    }
+    // Updates animation frames
+    protected void updateAnimation() {
+        animationTimer++;
+
+        int frameDuration = isAttacking ?
+            Constants.Entities.ENEMY_ATTACK_ANIMATION_FRAMES :
+            Constants.Entities.ENEMY_WALK_ANIMATION_FRAMES;
+
+        if (animationTimer >= frameDuration) {
+            useAlternateFrame = !useAlternateFrame;
+            animationTimer = 0;
+        }
+    }
+
+    // Gets the current image based on state and animation frame
+    protected Image getCurrentImage() {
+        if (isAttacking) {
+            return useAlternateFrame ? getAttackImage() : getIdleImage();
+        } else {
+            return useAlternateFrame ? getWalkImage() : getIdleImage();
+        }
     }
 
     // Checks if enemy has reached the end of the path
@@ -443,7 +474,7 @@ public abstract class BaseEnemy {
     // Renders the enemy to the screen
     public void draw(Graphics graphics) {
         if (!isDead) {
-            graphics.drawImage(getImage(), 
+            graphics.drawImage(getCurrentImage(), 
                     (int) positionX + getXOffset(), 
                     (int) positionY + getYOffset(),
                     getSize(), getSize(), null);

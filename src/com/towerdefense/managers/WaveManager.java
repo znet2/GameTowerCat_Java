@@ -52,23 +52,35 @@ public class WaveManager {
 
     // Calculates how many enemies should spawn in the current wave
     // Uses base count plus scaling based on wave number for difficulty progression
-    // In the final wave, adds 1 extra enemy slot for the Boss
+    // Adds extra slots for Boss enemies based on wave number
     private void calculateEnemiesForWave() {
         int baseEnemies = Constants.Waves.BASE_ENEMIES_PER_WAVE + 
                           currentWaveNumber * Constants.Waves.ENEMIES_INCREASE_PER_WAVE;
         
-        // Add 1 extra slot for Boss in final wave
-        if (isFinalWave()) {
-            enemiesToSpawnInWave = baseEnemies + 1;
-        } else {
-            enemiesToSpawnInWave = baseEnemies;
-        }
+        // Add slots for Boss enemies
+        int bossCount = calculateBossCount();
+        enemiesToSpawnInWave = baseEnemies + bossCount;
     }
 
-    // Checks if current wave is the final wave
-    // @return true if this is the last wave, false otherwise
-    private boolean isFinalWave() {
-        return currentWaveNumber == Constants.Waves.MAX_WAVES;
+    // Calculates how many bosses should spawn in the current wave
+    // Wave 3: 1 boss
+    // Wave 5: 2 bosses
+    // Wave 7: 3 bosses, etc.
+    // @return number of bosses to spawn
+    private int calculateBossCount() {
+        if (currentWaveNumber < 3) {
+            return 0; // No boss before wave 3
+        }
+        
+        // Wave 3 = 1 boss, Wave 5 = 2 bosses, Wave 7 = 3 bosses
+        // Formula: (waveNumber - 3) / 2 + 1
+        return (currentWaveNumber - 3) / 2 + 1;
+    }
+
+    // Checks if current wave should have bosses
+    // @return true if bosses should spawn in this wave
+    private boolean shouldHaveBoss() {
+        return currentWaveNumber >= 3;
     }
 
     // Resets all wave state variables for a new wave
@@ -124,13 +136,14 @@ public class WaveManager {
     }
 
     // Creates and spawns a new enemy
-    // In the final wave, spawns a Boss as the last enemy
+    // Spawns bosses at the end of waves starting from wave 3
+    // Number of bosses increases every 2 waves after wave 3
     // Adds enemy to the active list and resets spawn timer
     private void spawnEnemy() {
         BaseEnemy newEnemy;
         
         if (shouldSpawnBoss()) {
-            // Spawn Boss as the last enemy in final wave
+            // Spawn Boss
             newEnemy = new EnemyBoss(gameMap, coinManager);
         } else {
             // Spawn normal enemy
@@ -151,10 +164,22 @@ public class WaveManager {
     }
 
     // Determines if a Boss should be spawned
-    // Boss spawns as the last enemy in the final wave
+    // Bosses spawn at the end of waves starting from wave 3
+    // Number of bosses = (waveNumber - 3) / 2 + 1
+    // Wave 3: last 1 enemy is boss
+    // Wave 5: last 2 enemies are bosses
+    // Wave 7: last 3 enemies are bosses, etc.
     // @return true if Boss should spawn, false otherwise
     private boolean shouldSpawnBoss() {
-        return isFinalWave() && enemiesSpawnedInWave == enemiesToSpawnInWave - 1;
+        if (!shouldHaveBoss()) {
+            return false;
+        }
+        
+        int bossCount = calculateBossCount();
+        int normalEnemyCount = enemiesToSpawnInWave - bossCount;
+        
+        // Spawn boss if we've spawned all normal enemies
+        return enemiesSpawnedInWave >= normalEnemyCount;
     }
 
     // Checks if all enemies for the current wave have been spawned
