@@ -1,0 +1,90 @@
+package com.game.core;
+
+import com.game.utils.Constants;
+import com.game.utils.ImageLoader;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+/**
+ * Game over panel that displays win or lose screen.
+ * Shows result image and restart button.
+ */
+public class GameOverPanel extends JPanel {
+
+    private Image backgroundImage;
+    private Image resultImage;
+    private Image restartButtonImage;
+    private Rectangle restartButtonBounds = new Rectangle();
+    private JFrame parentFrame;
+    private boolean isWin;
+
+    public GameOverPanel(JFrame frame, boolean isWin) {
+        this.parentFrame = frame;
+        this.isWin = isWin;
+        loadImages();
+        setupPanel();
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClick(e);
+            }
+        });
+    }
+
+    private void loadImages() {
+        if (isWin) {
+            backgroundImage = ImageLoader.loadImage(Constants.Paths.WIN_BACKGROUND_IMAGE);
+            resultImage = ImageLoader.loadImage(Constants.Paths.WIN_IMAGE);
+        } else {
+            backgroundImage = ImageLoader.loadImage(Constants.Paths.LOSE_BACKGROUND_IMAGE);
+            resultImage = ImageLoader.loadImage(Constants.Paths.LOSE_IMAGE);
+        }
+        restartButtonImage = ImageLoader.loadImage(Constants.Paths.RESTART_BUTTON_IMAGE);
+    }
+
+    private void setupPanel() {
+        setPreferredSize(new Dimension(Constants.Game.WINDOW_WIDTH, Constants.Game.WINDOW_HEIGHT));
+    }
+
+    @Override
+    protected void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
+
+        // Draw background
+        graphics.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+
+        // Draw result image at center
+        int resultWidth = isWin ? Constants.UI.WIN_IMAGE_WIDTH : Constants.UI.LOSE_IMAGE_WIDTH;
+        int resultHeight = isWin ? Constants.UI.WIN_IMAGE_HEIGHT : Constants.UI.LOSE_IMAGE_HEIGHT;
+        int resultYOffset = isWin ? Constants.UI.WIN_IMAGE_Y_OFFSET : Constants.UI.LOSE_IMAGE_Y_OFFSET;
+        int resultX = (getWidth() - resultWidth) / 2;
+        int resultY = (getHeight() - resultHeight) / 2 + resultYOffset;
+        graphics.drawImage(resultImage, resultX, resultY, resultWidth, resultHeight, null);
+
+        // Draw restart button
+        int buttonWidth = Constants.UI.RESTART_BUTTON_WIDTH;
+        int buttonHeight = Constants.UI.RESTART_BUTTON_HEIGHT;
+        int buttonX = (getWidth() - buttonWidth) / 2;
+        int buttonY = resultY + resultHeight + Constants.UI.RESTART_BUTTON_Y_OFFSET;
+        restartButtonBounds.setBounds(buttonX, buttonY, buttonWidth, buttonHeight);
+
+        graphics.drawImage(restartButtonImage, buttonX, buttonY, buttonWidth, buttonHeight, null);
+    }
+
+    private void handleMouseClick(MouseEvent e) {
+        if (restartButtonBounds != null && restartButtonBounds.contains(e.getPoint())) {
+            restartGame();
+        }
+    }
+
+    private void restartGame() {
+        parentFrame.getContentPane().removeAll();
+        MenuPanel menuPanel = new MenuPanel(parentFrame);
+        parentFrame.add(menuPanel);
+        parentFrame.pack();
+        parentFrame.setLocationRelativeTo(null);
+        parentFrame.revalidate();
+        parentFrame.repaint();
+    }
+}

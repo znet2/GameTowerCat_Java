@@ -274,7 +274,7 @@ public static final class Paths
 - `TANK_IMAGE = IMAGES + "tank.png"` - รูป Tank ปกติ
 - `TANK_DEFEND_IMAGE = IMAGES + "tankDef.png"` - รูป Tank ป้องกัน
 - `HOUSE_IMAGE = IMAGES + "castle.png"` - รูปบ้าน
-- `MAGIC_IMAGE = IMAGES + "magic.png"` - รูป Magic tower
+- `MAGIC_IMAGE = IMAGES + "Magic.png"` - รูป Magic tower (M ตัวพิมพ์ใหญ่)
 - `MAGIC_BOMB_IMAGE = IMAGES + "magicBomb.png"` - รูป Magic เวทมนตร์
 - `NORMAL_MAGIC_BALL_IMAGE = IMAGES + "normalMagicBall.png"` - ลูกไฟปกติ
 - `SUPER_MAGIC_BALL_IMAGE = IMAGES + "superMagicBall.png"` - ลูกไฟพิเศษ
@@ -287,14 +287,16 @@ public static final class Paths
 #### Projectile Images (ย้ายไปอยู่ใน Entity Images แล้ว)
 
 #### UI Images
-- `WALLPAPER_IMAGE = IMAGES + "wallpaper.png"` - พื้นหลังเมนู
+- `WALLPAPER_IMAGE = IMAGES + "wallpaper.PNG"` - พื้นหลังเมนู (ตัวพิมพ์ใหญ่)
 - `START_BUTTON_IMAGE = IMAGES + "startbotton.png"` - ปุ่ม Start
 - `LOGO_GAME_IMAGE = IMAGES + "logoGame.png"` - โลโก้เกม
 - `WIN_IMAGE = IMAGES + "win.png"` - รูปชนะ
 - `LOSE_IMAGE = IMAGES + "lose.png"` - รูปแพ้
-- `WIN_BACKGROUND_IMAGE = IMAGES + "winBackground.png"` - พื้นหลังชนะ
-- `LOSE_BACKGROUND_IMAGE = IMAGES + "loseBackground.png"` - พื้นหลังแพ้
+- `WIN_BACKGROUND_IMAGE = IMAGES + "winBackground.PNG"` - พื้นหลังชนะ (ตัวพิมพ์ใหญ่)
+- `LOSE_BACKGROUND_IMAGE = IMAGES + "loseBackground.PNG"` - พื้นหลังแพ้ (ตัวพิมพ์ใหญ่)
 - `RESTART_BUTTON_IMAGE = IMAGES + "restart.png"` - ปุ่ม Restart
+
+**หมายเหตุ**: บางไฟล์ใช้นามสกุล `.PNG` (ตัวพิมพ์ใหญ่) เนื่องจากชื่อไฟล์จริงเป็นแบบนั้น (case-sensitive)
 
 #### Tile Images
 - `GRASS_TILE = IMAGES + "grass.png"` - ไทล์หญ้า

@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "com.game.main.Main",
+            "projectName": ""
+        },
+        {
+            "type": "java",
             "name": "Tower Defense Game",
             "request": "launch",
             "mainClass": "com.towerdefense.main.Main",
